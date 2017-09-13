@@ -1,0 +1,215 @@
+.top-container-controls {
+	display: flex;
+	box-shadow: none !important;
+}
+
+.bottom-container-controls {
+	display: flex;
+	box-shadow: none !important;
+}
+
+.dhx_toolbar_material {
+	box-shadow: none !important;
+}
+
+.widget-gridadvanced-helper, .widget-treegridadvanced-helper {
+    background: url(images/helper.png) no-repeat #d5c8f8 center center;
+    height:200px;
+    width:444px;
+}
+.widget-gridadvanced {
+    border: #EEE 1px solid;
+    overflow: hidden;
+    display: flex;
+    flex-flow: column;
+}
+.widget-gridadvanced.column-name{
+    width: 120px;
+}
+.widget-gridadvanced > .dhx_toolbar_material {
+    z-index: 1;
+}
+
+.widget-gridadvanced div.gridbox_material.gridbox table.hdr td div.hdrcell {
+    max-height: inherit;
+    overflow-y: inherit;
+    text-overflow: inherit;
+}
+
+.widget-gridadvanced > .gridbox {
+    flex: 2;
+    display: flex;
+    flex-flow: column;
+    /*height: 100% !important;*/
+}
+.widget-gridadvanced > .gridbox > .objbox{
+    flex: 2;
+}
+
+.widget-gridadvanced .no-data {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    background: #f5f5f5;
+}
+.widget-gridadvanced .no-data span {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    transform: translate(0, -50%);
+    width: 100%;
+    text-align: center;
+}
+
+.widget-gridadvanced .overlay {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 12;
+}
+
+.widget-gridadvanced .gridadvanced_filter input {
+    width: 120px;
+    padding: 0;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
+
+.widget-gridadvanced .gridadvanced_length select {
+    width: 44px;
+    height: 18px;
+    line-height: normal;
+    padding: 0;
+    border-radius: 0;
+}
+#grid-config-list-ul .nav-header{
+    height:24px;
+}
+.nav-header. grid-advanced-nav-header{
+    float:left;
+}
+.nav-header .grid-advanced-show-nav-header{
+    float:right;
+}
+.nav-header .grid-advanced-suppress-nav-header{
+    margin-left: 40px;
+    display:inline-block;
+}
+.visible-checkbox{
+    right:0px;
+    top: -1px;
+    position: absolute;
+}
+.suppress-checkbox{
+    right: 56px;
+    top: -1px;
+    position: absolute;
+}
+
+.widget-gridadvanced div.widget-divider {
+    background:#000; display:block;
+}
+.widget-gridadvanced table.gridadvanced tfoot td {
+    padding: 10px 18px 6px 18px;
+    border-top: 1px solid #111;
+}
+.widget-gridadvanced table.gridadvanced thead .sorting,
+.widget-gridadvanced table.gridadvanced thead .sorting_asc,
+.widget-gridadvanced table.gridadvanced thead .sorting_desc {
+    cursor: pointer;
+    *cursor: hand;
+}
+.widget-gridadvanced table.gridadvanced thead .sorting,
+.widget-gridadvanced table.gridadvanced thead .sorting_asc,
+.widget-gridadvanced table.gridadvanced thead .sorting_desc,
+.widget-gridadvanced table.gridadvanced thead .sorting_asc_disabled,
+.widget-gridadvanced table.gridadvanced thead .sorting_desc_disabled {
+    background-repeat: no-repeat;
+    background-position: center right;
+}
+.widget-gridadvanced table.gridadvanced thead .sorting {
+    background-image: url("/Thingworx/Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/images/sort_both.png");
+}
+.widget-gridadvanced table.gridadvanced thead .sorting_asc {
+    background-image: url("/Thingworx/Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/images/sort_asc.png");
+}
+.widget-gridadvanced table.gridadvanced thead .sorting_desc {
+    background-image: url("/Thingworx/Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/images/sort_desc.png");
+}
+.widget-gridadvanced table.gridadvanced thead .sorting_asc_disabled {
+    background-image: url("/Thingworx/Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/images/sort_asc_disabled.png");
+}
+.widget-gridadvanced table.gridadvanced thead .sorting_desc_disabled {
+    background-image: url("/Thingworx/Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/images/sort_desc_disabled.png");
+}
+.widget-gridadvanced .gridadvanced_wrapper .gridadvanced_paginate .paginate_button.current, .gridadvanced_wrapper .gridadvanced_paginate .paginate_button.current:hover {
+    color: #333;
+}
+.widget-gridadvanced .gridadvanced_wrapper .gridadvanced_info {
+    clear: both;
+    float: left;
+    padding-left: 10px;
+    padding-top: 15px;
+}
+.widget-gridadvanced thead th {
+    text-align: left;
+}
+#grid-config-list{
+     width: 260px;
+ }
+#grid-config{
+    width: 890px;
+}
+.grid-config-list-header .btn-group{
+    float: right;
+}
+.widget-gridadvanced .gridadvanced_length {
+    padding-left: 10px;
+    padding-top: 5px;
+}
+
+.widget-gridadvanced .gridadvanced_info {
+    padding-left: 10px;
+}
+
+.widget-gridadvanced .gridadvanced_paginate {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.widget-gridadvanced .gridadvanced_filter {
+    padding: 5px;
+}
+
+.widget-gridadvanced .grid-control-container .dhx_toolbar_material {
+    background: inherit;
+    color: inherit;
+    font-style: inherit;
+    text-decoration: inherit;
+    font-size: inherit;
+}
+
+div.gridbox_material.gridbox table.hdr tr  {
+  background-color: transparent !important;
+}
+
+.widget-gridadvanced .xhdr td {
+    height: auto !important;
+    line-height: normal !important;
+    background-clip: padding-box !important;
+}
+
+#grid-config select#column-width-format {
+    height: 30px;
+    margin-left: 8px;
+}
+#grid-config-list-ul a, #grid-config-list-ul .nav-header { margin-left: -9px; margin-right: -9px; }

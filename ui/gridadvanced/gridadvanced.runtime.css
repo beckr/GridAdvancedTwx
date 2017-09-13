@@ -1,0 +1,164 @@
+.top-container-controls {
+	display: flex;
+	box-shadow: none !important;
+}
+
+.bottom-container-controls {
+	display: flex;
+	box-shadow: none !important;
+}
+
+.dhx_toolbar_material {
+	box-shadow: none !important;
+}
+
+.widget-gridadvanced {
+  border: #EEE 1px solid;
+  overflow: hidden;
+  display: flex;
+  flex-flow: column;
+}
+
+.widget-gridadvanced .xhdr {
+	height: auto !important;
+	overflow: hidden;
+}
+
+.widget-gridadvanced .xhdr table {
+	height: 101% !important;
+}
+
+.widget-gridadvanced .xhdr td {
+	height: auto !important;
+	line-height: normal !important;
+	background-clip: padding-box !important;
+}
+
+.widget-gridadvanced .xhdr tr {
+	height: auto !important;
+}
+
+.widget-gridadvanced div.gridbox_material.gridbox table.hdr td div.hdrcell {
+    max-height: inherit;
+    overflow-y: inherit;
+    text-overflow: inherit;
+}
+
+.widget-gridadvanced > .dhx_toolbar_material {
+  z-index: 1;
+}
+
+.widget-gridadvanced > .gridbox {
+  flex: 2;
+  display: flex;
+  flex-flow: column;
+  height: 100% !important;
+}
+.widget-gridadvanced > .gridbox > .objbox{
+  flex: 2;
+  width: 100% !important;
+}
+.widget-gridadvanced .objbox table {
+	overflow: hidden;
+}
+.widget-gridadvanced div.widget-divider {
+  background:#000; display:block;
+}
+.widget-gridadvanced table.gridadvanced tfoot td {
+  padding: 10px 18px 6px 18px;
+  border-top: 1px solid #111;
+}
+.widget-gridadvanced table.gridadvanced thead .sorting,
+.widget-gridadvanced table.gridadvanced thead .sorting_asc,
+.widget-gridadvanced table.gridadvanced thead .sorting_desc {
+  cursor: pointer;
+  *cursor: hand;
+}
+.widget-gridadvanced table.gridadvanced thead .sorting,
+.widget-gridadvanced table.gridadvanced thead .sorting_asc,
+.widget-gridadvanced table.gridadvanced thead .sorting_desc,
+.widget-gridadvanced table.gridadvanced thead .sorting_asc_disabled,
+.widget-gridadvanced table.gridadvanced thead .sorting_desc_disabled {
+  background-repeat: no-repeat;
+  background-position: center right;
+}
+.widget-gridadvanced table.gridadvanced thead .sorting {
+  background-image: url("/Thingworx/Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/images/sort_both.png");
+}
+.widget-gridadvanced table.gridadvanced thead .sorting_asc {
+  background-image: url("/Thingworx/Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/images/sort_asc.png");
+}
+.widget-gridadvanced table.gridadvanced thead .sorting_desc {
+  background-image: url("/Thingworx/Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/images/sort_desc.png");
+}
+.widget-gridadvanced table.gridadvanced thead .sorting_asc_disabled {
+  background-image: url("/Thingworx/Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/images/sort_asc_disabled.png");
+}
+.widget-gridadvanced table.gridadvanced thead .sorting_desc_disabled {
+  background-image: url("/Thingworx/Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/images/sort_desc_disabled.png");
+}
+.widget-gridadvanced .gridadvanced_wrapper .gridadvanced_paginate .paginate_button.current, .gridadvanced_wrapper .gridadvanced_paginate .paginate_button.current:hover {
+  color: #333;
+}
+.widget-gridadvanced .gridadvanced_wrapper .gridadvanced_info {
+  clear: both;
+  float: left;
+  padding-left: 10px;
+  padding-top: 15px;
+}
+.widget-gridadvanced thead th {
+  text-align: left;
+}
+
+.widget-gridadvanced table.gridadvanced thead th,
+.widget-gridadvanced table.gridadvanced tfoot th {
+  font-weight: normal;
+}
+.widget-gridadvanced .gridadvanced_length {
+  padding-left: 10px;
+  padding-top: 5px;
+}
+
+.widget-gridadvanced .gridadvanced_info {
+  padding-left: 10px;
+}
+
+.gridadvanced_paginate {
+  height: 30px;
+  width: 100%;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.widget-gridadvanced .gridadvanced_filter {
+  padding: 5px;
+}
+
+div.dhtmlxMenu_material_SubLevelArea_Polygon td.sub_item_icon div.sub_icon{
+  background-image:url("imgs/dhxmenu_material/dhxmenu_chrd.png") !important;
+}
+
+.widget-gridadvanced .grid-control-container .dhx_toolbar_material {
+    background: inherit;
+    color: inherit;
+    font-style: inherit;
+    text-decoration: inherit;
+    font-size: inherit;
+}
+
+div.gridbox_material.gridbox table.hdr tr  {
+  background-color: transparent !important;
+}
+
+.dhtmlxMenu_material_SubLevelArea_Polygon  {
+  z-index: 9000 !important;
+}
+
+div.dhtmlxMenu_material_SubLevelArea_Polygon div + div {
+    top: -5px;
+}
+
+.dhtmlxMenu_material_SubLevelArea_Polygon {
+    margin-top: -15px;
+    margin-left: -30px;
+}

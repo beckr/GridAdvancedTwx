@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?><Entities>
+  <ExtensionPackages>
+    <ExtensionPackage name="grid-advanced_ExtensionPackage" description="Advanced Grid Widget" vendor="ThingWorx" packageVersion="2.1.31" minimumThingWorxVersion="7.0.0"/>
+  </ExtensionPackages>
+  <Widgets>
+    <Widget name="gridadvanced">
+      <UIResources>
+        <FileResource type="JS" file="include/grid-advanced-requirejs.js" description="" isDevelopment="true" isRuntime="true"/>
+        <FileResource type="CSS" file="include/dhtmlx.css" description="" isDevelopment="true" isRuntime="true"/>
+        <FileResource type="CSS" file="fonts/font_roboto/roboto.css" description="" isDevelopment="true" isRuntime="true"/>
+        <FileResource type="JS" file="gridadvanced.ide.js" description="" isDevelopment="true" isRuntime="false"/>
+        <FileResource type="CSS" file="gridadvanced.ide.css" description="" isDevelopment="true" isRuntime="false"/>
+        <FileResource type="JS" file="gridadvanced.runtime.js" description="" isDevelopment="false" isRuntime="true"/>
+        <FileResource type="CSS" file="gridadvanced.runtime.css" description="" isDevelopment="false" isRuntime="true"/>
+        <FileResource type="JS" file="gridadvanced.customdialog.ide.js" description="" isDevelopment="true" isRuntime="false"/>
+        <FileResource type="JS" file="treegridadvanced.runtime.js" description="" isDevelopment="false" isRuntime="true"/>
+        <FileResource type="JS" file="treegridadvanced.ide.js" description="" isDevelopment="true" isRuntime="false"/>
+      </UIResources>
+    </Widget>
+  </Widgets>
+</Entities>
