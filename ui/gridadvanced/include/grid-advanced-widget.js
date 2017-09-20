@@ -171,6 +171,9 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                     this._selectedRows = this._selectionHandler.selectedRows;
                     this._setDefaultRowSelections();
                     this._resetSearch();
+
+                    var self = this;
+
 					if(this._cfg.enableTextFiltering) {
 						var filterType = this._cfg.textFilteringType;
                         this._gridAdvanced.attachHeader(this._dhtmlxTableData.headers.split(',').map(function () { return '#' + filterType; }).join(','));
@@ -225,9 +228,22 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
 								 var input = this.value; // gets the text of the filter input and we transform it into regex
 								 var inputEscaped = input.replace(/[\-\[\]\/\{\}\(\)\+\?\.\\\^\$\|]/g, "\\$&"); // escape the regex text in the input other that start wildcard
 								 var inputRegex = new RegExp("^" + this.value.replace(/\*/gi, "(.*)") + "(.*)", 'i');
-								 var currentRow = i;
+                                 var currentRow = i;
+                                 var isScheduled = false;
+
+                                 if (!isScheduled) {
+                                    isScheduled = true;
+                                    window.setTimeout(function () {
+                                        self._widget.setProperty('NumberOfVisibleRows', self._gridAdvanced.getRowsNum());
+                                        isScheduled = false;
+                                    }, 0);
+                                }
+
 								  return function(value, id){
-										// checks if the value of a cell has the text from the filter 
+                                        // checks if the value of a cell has the text from the filter 
+                                        
+                                       
+
 										if (value.toString().match(inputRegex)){ 
 											return true;
 										} else {
@@ -2732,12 +2748,13 @@ gaRequire.define('tw-grid-advanced/../../components/renderers/string-renderer',[
     var StringRenderer = exports.StringRenderer = (_temp = _class = function (_DefaultRenderer) {
         _inherits(StringRenderer, _DefaultRenderer);
 
-        function StringRenderer(valueFormat, params) {
+        function StringRenderer(valueFormat, params, widget) {
             _classCallCheck(this, StringRenderer);
 
             var _this = _possibleConstructorReturn(this, _DefaultRenderer.call(this, valueFormat, params));
 
             _this._maxLength = _this._limitLength();
+            _this.widget = widget;
             return _this;
         }
 
@@ -2760,6 +2777,7 @@ gaRequire.define('tw-grid-advanced/../../components/renderers/string-renderer',[
         };
 
         StringRenderer.prototype.toView = function toView(value, imageLink) {
+            if (value === undefined) value = this.widget.getProperty('EmptyCellText');
             value = _DefaultRenderer.prototype.toView.call(this, value);
             var truncateLength = this._maxLength;
             if (value && value.length > truncateLength) {
@@ -3036,16 +3054,19 @@ gaRequire.define('tw-grid-advanced/../../components/renderers/number-renderer',[
     var NumberRenderer = exports.NumberRenderer = function (_DefaultRenderer) {
         _inherits(NumberRenderer, _DefaultRenderer);
 
-        function NumberRenderer(valueFormat, params) {
+        function NumberRenderer(valueFormat, params, widget) {
             _classCallCheck(this, NumberRenderer);
 
             if (valueFormat.length === 0) {
                 valueFormat = '0';
             }
-            return _possibleConstructorReturn(this, _DefaultRenderer.call(this, valueFormat, params));
+            var result = _possibleConstructorReturn(this, _DefaultRenderer.call(this, valueFormat, params));
+            result.widget = widget;
+            return result;
         }
 
         NumberRenderer.prototype.toView = function toView(value, imageLink) {
+            if (value === undefined) return this.widget.getProperty('EmptyCellText');
             value = parseFloat(value);
             value = this._format(value, this._valueFormat);
             if (imageLink) {
@@ -5982,39 +6003,39 @@ gaRequire.define('tw-grid-advanced/column-formatter-factory',['exports', './colu
             _classCallCheck(this, ColumnFormatterFactory);
         }
 
-        ColumnFormatterFactory.getFormatter = function getFormatter(type, valueFormat, params) {
+        ColumnFormatterFactory.getFormatter = function getFormatter(type, valueFormat, params, widget) {
 
             var converter = void 0;
             switch (type.toLowerCase()) {
                 case 'string':
-                    converter = new _stringRenderer.StringRenderer(valueFormat, params);
+                    converter = new _stringRenderer.StringRenderer(valueFormat, params, widget);
                     break;
                 case 'integer':
-                    converter = new _integerRenderer.IntegerRenderer(valueFormat, params);
+                    converter = new _integerRenderer.IntegerRenderer(valueFormat, params, widget);
                     break;
                 case 'long':
-                    converter = new _longRenderer.LongRenderer(valueFormat, params);
+                    converter = new _longRenderer.LongRenderer(valueFormat, params, widget);
                     break;
                 case 'boolean':
-                    converter = new _booleanRenderer.BooleanRenderer(valueFormat, params);
+                    converter = new _booleanRenderer.BooleanRenderer(valueFormat, params, widget);
                     break;
                 case 'number':
-                    converter = new _numberRenderer.NumberRenderer(valueFormat, params);
+                    converter = new _numberRenderer.NumberRenderer(valueFormat, params, widget);
                     break;
                 case 'datetime':
-                    converter = new _datetimeRenderer.DatetimeRenderer(valueFormat, params);
+                    converter = new _datetimeRenderer.DatetimeRenderer(valueFormat, params, widget);
                     break;
                 case 'html':
-                    converter = new _htmlRenderer.HtmlRenderer(valueFormat, params);
+                    converter = new _htmlRenderer.HtmlRenderer(valueFormat, params, widget);
                     break;
                 case 'imagelink':
-                    converter = new _imagelinkRenderer.ImagelinkRenderer(valueFormat, params);
+                    converter = new _imagelinkRenderer.ImagelinkRenderer(valueFormat, params, widget);
                     break;
                 case 'hyperlink':
-                    converter = new _hyperlinkRenderer.HyperlinkRenderer(valueFormat, params);
+                    converter = new _hyperlinkRenderer.HyperlinkRenderer(valueFormat, params, widget);
                     break;
                 default:
-                    converter = new _defaultRenderer.DefaultRenderer(valueFormat, params);
+                    converter = new _defaultRenderer.DefaultRenderer(valueFormat, params, widget);
             }
             return new _columnFormatter.ColumnFormatter(converter);
         };
@@ -7026,11 +7047,13 @@ gaRequire.define('tw-grid-advanced/mashup-builder-configuration-parser',['export
 
             var _this = _possibleConstructorReturn(this, _ConfigurationParser.call(this));
 
+            _this._widget = configuration;
+
             _this._isTreeGrid = isTreeGrid;
             _this._styleResolver = styleResolver;
             _this._localizationResolver = localizationResolver;
             _this._gridAdvancedConfiguration.headerDefinition = _this._convertHeaderDefinition(configuration.getProperty('HeaderOverflow'), configuration.getProperty('MaxHeaderHeight'));
-            _this._gridAdvancedConfiguration.columnDefinitions = _this._convertColumnDefinitions(configuration.getProperty('ColumnFormat'), configuration.getProperty('DataOverflow'));
+            _this._gridAdvancedConfiguration.columnDefinitions = _this._convertColumnDefinitions(configuration.getProperty('ColumnFormat'), configuration.getProperty('DataOverflow'), configuration);
             _this._gridAdvancedConfiguration.paginationSettings = _this._convertPaginationSettings(configuration);
             _this._gridAdvancedConfiguration.rowFormatter = _this._convertRowFormatter(configuration.getProperty('RowFormat'));
             _this._gridAdvancedConfiguration.rowDefinition = _this._convertRowDefinition(configuration);
@@ -7147,7 +7170,7 @@ gaRequire.define('tw-grid-advanced/mashup-builder-configuration-parser',['export
             return style;
         };
 
-        MashupBuilderConfigurationParser.prototype._convertColumnDefinitions = function _convertColumnDefinitions(inputColumnDefs, overflow) {
+        MashupBuilderConfigurationParser.prototype._convertColumnDefinitions = function _convertColumnDefinitions(inputColumnDefs, overflow, widget) {
             var _this3 = this;
 
             var columnDefinitions = void 0;
@@ -7155,7 +7178,7 @@ gaRequire.define('tw-grid-advanced/mashup-builder-configuration-parser',['export
             if (inputColumnDefs && inputColumnDefs.formatInfo) {
                 columnDefinitions = [];
                 inputColumnDefs.formatInfo.forEach(function (inputColumnDef, columnIndex) {
-                    var columnFormatter = _columnFormatterFactory.ColumnFormatterFactory.getFormatter(inputColumnDef.FormatOptions.renderer, _this3._localizationResolver(inputColumnDef.FormatOptions.FormatString), { textFormat: inputColumnDef.FormatOptions.formatText });
+                    var columnFormatter = _columnFormatterFactory.ColumnFormatterFactory.getFormatter(inputColumnDef.FormatOptions.renderer, _this3._localizationResolver(inputColumnDef.FormatOptions.FormatString), { textFormat: inputColumnDef.FormatOptions.formatText }, widget);
 
                     if (inputColumnDef.FormatOptions.formatInfo && (inputColumnDef.FormatOptions.formatInfo.StateDefinition || inputColumnDef.FormatOptions.formatInfo.StateDefinitionType === 'fixed')) {
                         var formatInfo = inputColumnDef.FormatOptions.formatInfo;

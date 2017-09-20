@@ -335,6 +335,24 @@ TW.IDE.Widgets.gridadvanced = function () {
                     'baseType': 'NUMBER',
                     'isVisible': false,
                     'defaultValue': 0
+                },
+                NumberOfRows: {
+                    baseType: 'INTEGER',
+                    isEditable: false,
+                    isBindingSource: true
+                },
+                NumberOfVisibleRows: {
+                    baseType: 'INTEGER',
+                    isEditable: false,
+                    isBindingSource: true
+                },
+                WrapsTextInColumns: {
+                    baseType: 'BOOLEAN',
+                    defaultValue: false
+                },
+                EmptyCellText: {
+                    baseType: 'STRING',
+                    defaultValue: ''
                 }
             }
         }

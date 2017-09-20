@@ -162,3 +162,7 @@ div.dhtmlxMenu_material_SubLevelArea_Polygon div + div {
     margin-top: -15px;
     margin-left: -30px;
 }
+
+.TWWrapColumns .twdhtmlxcell {
+  white-space: normal !important;
+}

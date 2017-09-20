@@ -51,12 +51,14 @@ TW.Runtime.Widgets.gridadvanced = function () {
         {
         	responsiveStyle = ' style="width: 100%; height: 100%" ';
         }
-        var html = '<div class="widget-content widget-gridadvanced">' +
+        var html = '<div class="widget-content widget-gridadvanced' + (this.getProperty('WrapsTextInColumns') ? ' TWWrapColumns' : '') + '">' +
             '<div id="' + gridId + '-top-container" class="grid-control-container"></div>' +
             '<div id="' + gridId + '-bottom-container" class="grid-control-container"></div>' +
             '<div id="' + gridId + '" ' + responsiveStyle + '></div></div>';
         return html;
     };
+
+    var updated = false;
 
     this.updateProperty = function (updatePropertyInfo) {
         switch (updatePropertyInfo.TargetProperty) {
@@ -64,6 +66,11 @@ TW.Runtime.Widgets.gridadvanced = function () {
                 updatedProperties[updatePropertyInfo.TargetProperty] = updatePropertyInfo.SinglePropertyValue;
                 break;
             case 'Data' :
+                this.setProperty('NumberOfRows', updatePropertyInfo.ActualDataRows.length);
+                if (!updated) {
+                    updated = true;
+                    this.setProperty('NumberOfVisibleRows', updatePropertyInfo.ActualDataRows.length);
+                }
                 updatedProperties[updatePropertyInfo.TargetProperty] = updatePropertyInfo.ActualDataRows;
                 break;
             case 'SelectedRows':
@@ -155,6 +162,8 @@ TW.Runtime.Widgets.gridadvanced = function () {
         propertyUpdateOrder = [];
     };
 
+    var self = this;
+
     this.afterRender = function () {
         gaRequire.define("jquery", function () {
             //drop the `true` if you want jQuery (but not $) to remain global
@@ -171,6 +180,7 @@ TW.Runtime.Widgets.gridadvanced = function () {
                     thisWidget.TwGridAdvanced = arguments[1].TwGridAdvanced;
                     thisWidget.ConfigurationParserFactory = arguments[2].ConfigurationParserFactory;
                     gridAdvanced = new thisWidget.TwGridAdvanced(gridId, thisWidget.rowSelectionCallback);
+                    gridAdvanced._widget = self;
                     gridAdvanced.queryDataServiceInvoker = thisWidget.createServiceInvoker(
                         thisWidget.getProperty('DataServiceBindingDef'),
                         undefined

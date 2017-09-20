@@ -423,6 +423,24 @@ TW.IDE.Widgets.treegridadvanced = function () {
                     ],
                     'defaultValue': 50000,
                     'baseType': 'NUMBER'
+                },
+                NumberOfRows: {
+                    baseType: 'INTEGER',
+                    isEditable: false,
+                    isBindingSource: true
+                },
+                NumberOfVisibleRows: {
+                    baseType: 'INTEGER',
+                    isEditable: false,
+                    isBindingSource: true
+                },
+                WrapsTextInColumns: {
+                    baseType: 'BOOLEAN',
+                    defaultValue: false
+                },
+                EmptyCellText: {
+                    baseType: 'STRING',
+                    defaultValue: ''
                 }
             }
         }
