@@ -223,36 +223,39 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
 									this._f_rowsBuffer = null
 								}
 							}
-							gridInstance.getFilterElement(i)._filter = function () {
-								if(this.old_value == this.value) {
-									return function() {return true};
-								}
-								 var input = this.value; // gets the text of the filter input and we transform it into regex
-								 var inputEscaped = input.replace(/[\-\[\]\/\{\}\(\)\+\?\.\\\^\$\|]/g, "\\$&"); // escape the regex text in the input other that start wildcard
-								 var inputRegex = new RegExp("^" + this.value.replace(/\*/gi, "(.*)") + "(.*)", 'i');
-                                 var currentRow = i;
-                                 var isScheduled = false;
+                            if(gridInstance.getFilterElement(i).tagName == "INPUT") {
+                                gridInstance.getFilterElement(i)._filter = function () {
+                                    if(this.old_value == this.value) {
+                                        return function() {return true};
+                                    }
+                                    var input = this.value; // gets the text of the filter input and we transform it into regex
+                                    var inputEscaped = input.replace(/[\-\[\]\/\{\}\(\)\+\?\.\\\^\$\|]/g, "\\$&"); // escape the regex text in the input other that start wildcard
+                                    var inputRegex = new RegExp("^" + this.value.replace(/\*/gi, "(.*)") + "(.*)", 'i');
+                                    var currentRow = i;
+                                    var isScheduled = false;
 
-                                 if (!isScheduled) {
-                                    isScheduled = true;
-                                    window.setTimeout(function () {
-                                        self._widget.setProperty('NumberOfVisibleRows', self._gridAdvanced.getRowsNum());
-                                        isScheduled = false;
-                                    }, 0);
-                                }
+                                    if (!isScheduled) {
+                                        isScheduled = true;
+                                        window.setTimeout(function () {
+                                            self._widget.setProperty('NumberOfVisibleRows', self._gridAdvanced.getRowsNum());
+                                            isScheduled = false;
+                                        }, 0);
+                                    }
 
-								  return function(value, id){
-                                        // checks if the value of a cell has the text from the filter 
+                                    return function(value, id){
+                                            // checks if the value of a cell has the text from the filter 
+                                            
                                         
-                                       
 
-										if (value.toString().match(inputRegex)){ 
-											return true;
-										} else {
-											return false; 
-										}
-								}
-							}
+                                            if (value.toString().match(inputRegex)){ 
+                                                return true;
+                                            } else {
+                                                return false; 
+                                            }
+                                    }
+							    }
+                            }
+							
 						});
                     }
                     this._performanceMonitor.endTime('_configureTable');
