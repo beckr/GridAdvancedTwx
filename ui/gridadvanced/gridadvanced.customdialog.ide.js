@@ -77,6 +77,7 @@ TW.IDE.Dialogs.GridAdvancedCustomEditor = function () {
                         // ValidationExpression: "",
                         // ValidationMessage: "",
                         Width: "auto",
+                        HeaderFilter: "none",
                         Align: "left",
                         headerTextAlignment: "left",
                         "FormatOptions": {
@@ -233,6 +234,20 @@ TW.IDE.Dialogs.GridAdvancedCustomEditor = function () {
                                             + '</td>'
                                             + '<td>'
                                                 + '<select id="h-alignment"><option value="left">'+ TW.IDE.I18NController.translate('tw.dhxgrid-customdialog-ide.left-aligned') +'</option><option value="right">'+ TW.IDE.I18NController.translate('tw.dhxgrid-customdialog-ide.right-aligned') +'</option><option value="center">'+ TW.IDE.I18NController.translate('tw.dhxgrid-customdialog-ide.center-aligned') +'</option></select>'
+                                            + '</td>'
+                                        + '</tr>'
+                                         + '<tr>'
+                                            + '<td class="grid-config-label">'
+                                                + '<label id="header-filter-label">Header Filter</label>'
+                                            + '</td>'
+                                            + '<td colspan="3">'
+                                                + '<select id="header-filter-option">' 
+                                                + ' <option value="none">None</option>'
+                                                + ' <option value="text_filter">Text Filter</option><option value="text_filter" title="A text filter. Retrieves values which contain mask defined through text field.">Text Filter</option>' 
+                                                + ' <option value="select_filter" title="A select filter. Retrieves values which contain mask defined through dropdown list of possible values.">Select Filter</option>'
+                                                + ' <option value="combo_filter" title="A filter based on the dhtmlxCombo component. Retrieves values which contain mask defined through combo box.">Combo Filter</option>'+
+                                                + ' <option value="numeric_filter" title=" a text filter that allows using comparison operators in it. Retrieves values which contain mask defined through text field. ">Numeric Filter</option>'
+                                                + '</select>'
                                             + '</td>'
                                         + '</tr>'
                     + '<tr>'
@@ -471,6 +486,7 @@ TW.IDE.Dialogs.GridAdvancedCustomEditor = function () {
                     FieldName: fieldName,
                     Title: title,
                     Width: (autoChecked ? "auto" : widthSpecified + widthFormatSpecified),
+                    HeaderFilter: this.jqElement.find('#header-filter-option').val(),
                     AllowEdit: (allowEdit),
                     // Editable grid not supported
                     // ValidationExpression : (validationExpression),
@@ -510,6 +526,7 @@ TW.IDE.Dialogs.GridAdvancedCustomEditor = function () {
 
             this.jqElement.find('#column-width').val(curDef.Width === "auto" ? "120" : parseInt(curDef.Width, 10));
             this.jqElement.find('#column-width-format').val(curDef.Width.indexOf('%') > -1 ? '%' : 'px');
+            this.jqElement.find('#header-filter-option').val(curDef.HeaderFilter ? curDef.HeaderFilter : 'none');
             this.jqElement.find('#column-display-name').twStdTextBox({
 	            value: curDef.Title,
 	            editable: true,

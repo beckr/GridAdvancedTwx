@@ -175,8 +175,10 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                     var self = this;
 
 					if(this._cfg.enableTextFiltering) {
-						var filterType = this._cfg.textFilteringType;
-                        this._gridAdvanced.attachHeader(this._dhtmlxTableData.headers.split(',').map(function () { return '#' + filterType; }).join(','));
+                        
+						var globalFilterType = this._cfg.textFilteringType;
+                        var filters = this._cfg._columnDefinitions.map(function (t) { return '#' + ((t.headerFilter && t.headerFilter != "none") ?t.headerFilter :  globalFilterType) ; });
+                        this._gridAdvanced.attachHeader(filters.join(','));
 						var gridInstance = this._gridAdvanced;
 						this._dhtmlxTableData._columns.forEach(function(column, i) {	
 							gridInstance.filterByAll = function() {
@@ -723,16 +725,16 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                             styleRules += idSelector + ' .objbox table tbody tr.ev_material td {' + backgroundStyle + fontStyle + '}';
                             break;
                         case _this3._cfg.ROW_HOVER_STYLE:
-                            backgroundStyle = styleDef.getBackgroundStyle(true);
-                            borderStyle = styleDef.getBorderStyle(true);
-                            fontStyle = styleDef.getFontStyle(true);
+                            backgroundStyle = styleDef.getBackgroundStyle(false);
+                            borderStyle = styleDef.getBorderStyle(false);
+                            fontStyle = styleDef.getFontStyle(false);
                             styleRules += idSelector + ' .objbox table tbody tr.ev_material td.grid_hover {' + backgroundStyle + borderStyle + fontStyle + '}';
                             styleRules += idSelector + ' .objbox table tbody tr.odd_material td.grid_hover {' + backgroundStyle + borderStyle + fontStyle + '}';
                             break;
                         case _this3._cfg.ROW_SELECTED_STYLE:
-                            backgroundStyle = styleDef.getBackgroundStyle(true);
-                            borderStyle = styleDef.getBorderStyle(true);
-                            fontStyle = styleDef.getFontStyle(true);
+                            backgroundStyle = styleDef.getBackgroundStyle(false);
+                            borderStyle = styleDef.getBorderStyle(false);
+                            fontStyle = styleDef.getFontStyle(false);
                             styleRules += idSelector + ' .objbox table tbody tr.odd_material.rowselected td[style] {' + borderStyle + fontStyle + '}';
                             styleRules += idSelector + ' .objbox table tbody tr.ev_material.rowselected td[style] {' + borderStyle + fontStyle + '}';
                             styleRules += idSelector + ' .objbox table tbody tr.odd_material.rowselected td {' + backgroundStyle + borderStyle + fontStyle + '}';
@@ -7204,6 +7206,7 @@ gaRequire.define('tw-grid-advanced/mashup-builder-configuration-parser',['export
                             columnDefinition.width += 'px';
                         }
                     }
+                    columnDefinition.headerFilter = inputColumnDef.HeaderFilter;
                     columnDefinition.textAlignment = inputColumnDef.Align.toLowerCase();
                     columnDefinition.headerTextAlignment = inputColumnDef.headerTextAlignment;
                     columnDefinitions.push(columnDefinition);
