@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><Entities>
   <ExtensionPackages>
-    <ExtensionPackage name="grid-advanced_ExtensionPackage" description="Advanced Grid Widget" vendor="ThingWorx" packageVersion="2.1.45" minimumThingWorxVersion="7.0.0"/>
+    <ExtensionPackage name="grid-advanced_ExtensionPackage" description="Advanced Grid Widget" vendor="ThingWorx" packageVersion="2.1.49" minimumThingWorxVersion="7.0.0"/>
   </ExtensionPackages>
   <Widgets>
     <Widget name="gridadvanced">

@@ -193,6 +193,9 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
 										continue
 									}
 									c.push(g);
+                                    if(this.filters[e][0].tagName != 'INPUT') {
+                                        h = this.filters[e][0].old_value = this.filters[e][0].value;
+                                    }
 									if (this.filters[e][0]._filter) {
 										h = this.filters[e][0]._filter()
 									}
@@ -225,9 +228,9 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
 							}
                             if(gridInstance.getFilterElement(i).tagName == "INPUT") {
                                 gridInstance.getFilterElement(i)._filter = function () {
-                                    if(this.old_value == this.value) {
-                                        return function() {return true};
-                                    }
+                                    //if(this.old_value == this.value) {
+                                   //     return function() {return true};
+                                    //}
                                     var input = this.value; // gets the text of the filter input and we transform it into regex
                                     var inputEscaped = input.replace(/[\-\[\]\/\{\}\(\)\+\?\.\\\^\$\|]/g, "\\$&"); // escape the regex text in the input other that start wildcard
                                     var inputRegex = new RegExp("^" + this.value.replace(/\*/gi, "(.*)") + "(.*)", 'i');
@@ -244,9 +247,6 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
 
                                     return function(value, id){
                                             // checks if the value of a cell has the text from the filter 
-                                            
-                                        
-
                                             if (value.toString().match(inputRegex)){ 
                                                 return true;
                                             } else {

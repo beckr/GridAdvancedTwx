@@ -243,7 +243,7 @@ TW.IDE.Dialogs.GridAdvancedCustomEditor = function () {
                                             + '<td colspan="3">'
                                                 + '<select id="header-filter-option">' 
                                                 + ' <option value="none">None</option>'
-                                                + ' <option value="text_filter">Text Filter</option><option value="text_filter" title="A text filter. Retrieves values which contain mask defined through text field.">Text Filter</option>' 
+                                                + ' <option value="text_filter" title="A text filter. Retrieves values which contain mask defined through text field.">Text Filter</option>' 
                                                 + ' <option value="select_filter" title="A select filter. Retrieves values which contain mask defined through dropdown list of possible values.">Select Filter</option>'
                                                 + ' <option value="combo_filter" title="A filter based on the dhtmlxCombo component. Retrieves values which contain mask defined through combo box.">Combo Filter</option>'+
                                                 + ' <option value="numeric_filter" title=" a text filter that allows using comparison operators in it. Retrieves values which contain mask defined through text field. ">Numeric Filter</option>'
