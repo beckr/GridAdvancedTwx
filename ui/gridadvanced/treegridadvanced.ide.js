@@ -160,6 +160,12 @@ TW.IDE.Widgets.treegridadvanced = function () {
                     'isVisible': true,
                     'defaultValue': false
                 },
+                'ShowTotalRowCount' : {
+                    'description': "Show total row count. Similar to the total row in excel",
+                    'baseType': 'BOOLEAN',
+                    'isVisible': true,
+                    'defaultValue': false
+                },
                 'EnableGridSearch': {
                     'baseType': 'BOOLEAN',
                     'defaultValue': false,

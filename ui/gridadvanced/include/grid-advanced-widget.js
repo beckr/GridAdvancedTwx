@@ -173,6 +173,10 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                     this._resetSearch();
 
                     var self = this;
+                    if(this._cfg.showTotalRow) {
+                        var emptyFooter = this._cfg._columnDefinitions.slice(0, -2).map(function() {return "#cspan";}).join(",");                        
+                        this._gridAdvanced.attachFooter('#stat_count,Count of rows,' + emptyFooter);                        
+                    }
 
 					if(this._cfg.enableTextFiltering) {
                         
@@ -253,7 +257,7 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                                                 return false; 
                                             }
                                     }
-							    }
+	    					    }
                             }
 							
 						});
@@ -356,6 +360,7 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                 }
             }
             this._applyDefaultRowSelections = true;
+            this._gridAdvanced.callEvent("onGridReconstructed",[]);            
             this._performanceMonitor.endTime('refresh');
         };
 
@@ -7078,7 +7083,8 @@ gaRequire.define('tw-grid-advanced/mashup-builder-configuration-parser',['export
             _this._gridAdvancedConfiguration.idFieldName = configuration.getProperty('IDFieldName');
             _this._gridAdvancedConfiguration.hasChildrenFieldName = configuration.getProperty('HasChildrenFieldName');
             _this._gridAdvancedConfiguration.enableColumnSorting = configuration.getProperty('EnableSorting');
-            _this._gridAdvancedConfiguration.clientSideSorting = configuration.getProperty('ClientSideSorting');                          
+            _this._gridAdvancedConfiguration.clientSideSorting = configuration.getProperty('ClientSideSorting');      
+            _this._gridAdvancedConfiguration.showTotalRow = configuration.getProperty('ShowTotalRowCount');                                      
             _this._gridAdvancedConfiguration.selectedRow = configuration.getProperty('SelectedRow');
             _this._gridAdvancedConfiguration.expandAllLoadedLevels = configuration.getProperty('ExpandLoadedRows');
             _this._gridAdvancedConfiguration.includeRowExpansionParents = configuration.getProperty('IncludeRowExpansionParents');

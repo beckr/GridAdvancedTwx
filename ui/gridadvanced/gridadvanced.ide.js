@@ -111,6 +111,12 @@ TW.IDE.Widgets.gridadvanced = function () {
                     'isVisible': true,
                     'baseType': 'STRING',
                     'description': TW.IDE.I18NController.translate('tw.grid-advanced-ide.properties.multi-column-sort-order.description', 'Set default multi-colum sort order using column field names, e.g. \"name:asc,office:des,id:des\"')
+                },    
+                'ShowTotalRowCount' : {
+                    'description': "Show total row count. Similar to the total row in excel",
+                    'baseType': 'BOOLEAN',
+                    'isVisible': true,
+                    'defaultValue': false
                 },
                 'EnableGridSearch': {
                     'baseType': 'BOOLEAN',

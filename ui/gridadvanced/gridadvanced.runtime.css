@@ -166,3 +166,7 @@ div.dhtmlxMenu_material_SubLevelArea_Polygon div + div {
 .TWWrapColumns .twdhtmlxcell {
   white-space: normal !important;
 }
+
+div.gridbox div.ftr {
+  bottom: 16px !important;
+}
