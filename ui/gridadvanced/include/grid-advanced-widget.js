@@ -183,53 +183,53 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
 						var globalFilterType = this._cfg.textFilteringType;
                         var filters = this._cfg._columnDefinitions.map(function (t) { return '#' + ((t.headerFilter && t.headerFilter != "none") ?t.headerFilter :  globalFilterType) ; });
                         this._gridAdvanced.attachHeader(filters.join(','));
-						var gridInstance = this._gridAdvanced;
-						this._dhtmlxTableData._columns.forEach(function(column, i) {	
-							gridInstance.filterByAll = function() {
-								var d = [];
-								var c = [];
-								var h;
-								this._build_m_order();
-								for (var e = 0; e < this.filters.length; e++) {
-									//var g = this._m_order ? this._m_order[this.filters[e][1]] : this.filters[e][1];
-									var g = this.filters[e][1];
-									if (g >= this._cCount || this.filters[e][0].old_value == this.filters[e][0].value) {
-										continue
-									}
-									c.push(g);
-                                    if(this.filters[e][0].tagName != 'INPUT') {
-                                        h = this.filters[e][0].old_value = this.filters[e][0].value;
+                        this._gridAdvanced.filterByAll = function() {
+                            var d = [];
+                            var c = [];
+                            var h;
+                            this._build_m_order();
+                            for (var e = 0; e < this.filters.length; e++) {
+                                //var g = this._m_order ? this._m_order[this.filters[e][1]] : this.filters[e][1];
+                                var g = this.filters[e][1];
+                                if (g >= this._cCount || this.filters[e][0].old_value == this.filters[e][0].value) {
+                                    continue
+                                }
+                                c.push(g);
+                                if(this.filters[e][0].tagName != 'INPUT') {
+                                    h = this.filters[e][0].old_value = this.filters[e][0].value;
+                                }
+                                if (this.filters[e][0]._filter) {
+                                    h = this.filters[e][0]._filter()
+                                }
+                                var f;
+                                if (typeof h != "function" && (f = (this.combos[g] || ((this._col_combos && this._col_combos[g]) ? this._col_combos[g] : ((this._sub_trees && this._sub_trees[g]) ? this._sub_trees[g][1] : false))))) {
+                                    if (f.values) {
+                                        g = f.values._dhx_find(h);
+                                        h = (g == -1) ? h : f.keys[g]
+                                    } else {
+                                        if (f.getOptionByLabel) {
+                                            h = (f.getOptionByLabel(h) ? f.getOptionByLabel(h).value : h)
+                                        } else {
+                                            h = f[h]
+                                        }
                                     }
-									if (this.filters[e][0]._filter) {
-										h = this.filters[e][0]._filter()
-									}
-									var f;
-									if (typeof h != "function" && (f = (this.combos[g] || ((this._col_combos && this._col_combos[g]) ? this._col_combos[g] : ((this._sub_trees && this._sub_trees[g]) ? this._sub_trees[g][1] : false))))) {
-										if (f.values) {
-											g = f.values._dhx_find(h);
-											h = (g == -1) ? h : f.keys[g]
-										} else {
-											if (f.getOptionByLabel) {
-												h = (f.getOptionByLabel(h) ? f.getOptionByLabel(h).value : h)
-											} else {
-												h = f[h]
-											}
-										}
-									}
-									d.push(h)
-								}
-								if (!this.callEvent("onFilterStart", [c, d])) {
-									return
-								}
-								this.filterBy(c, d);
-								if (this._cssEven) {
-									this._fixAlterCss()
-								}
-								this.callEvent("onFilterEnd", [this.filters]);
-								if (this._f_rowsBuffer && this.rowsBuffer.length == this._f_rowsBuffer.length) {
-									this._f_rowsBuffer = null
-								}
-							}
+                                }
+                                d.push(h)
+                            }
+                            if (!this.callEvent("onFilterStart", [c, d])) {
+                                return
+                            }
+                            this.filterBy(c, d);
+                            if (this._cssEven) {
+                                this._fixAlterCss()
+                            }
+                            this.callEvent("onFilterEnd", [this.filters]);
+                            if (this._f_rowsBuffer && this.rowsBuffer.length == this._f_rowsBuffer.length) {
+                                this._f_rowsBuffer = null
+                            }
+                        };
+                        var gridInstance = this._gridAdvanced;
+						this._dhtmlxTableData._columns.forEach(function(column, i) {	
                             if(gridInstance.getFilterElement(i).tagName == "INPUT") {
                                 gridInstance.getFilterElement(i)._filter = function () {
                                     //if(this.old_value == this.value) {
