@@ -1691,9 +1691,13 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
 
             this._gridAdvanced.attachEvent('onBeforeSorting', function (index, type, direction) {
                 if (_this19._cfg.enableColumnSorting) {
-                    _this19._columnSortHandler.handleColumnSortEvent(index, type, direction);
-                    _this19._queryData();
-                    _this19._applyDefaultRowSelections = false;
+                    if(!_this19._cfg.clientSideSorting) {
+                        _this19._columnSortHandler.handleColumnSortEvent(index, type, direction);
+                        _this19._queryData();
+                        _this19._applyDefaultRowSelections = false;
+                      } else {
+                          return true;
+                      }
                 }
                 return false;
             });
@@ -7074,6 +7078,7 @@ gaRequire.define('tw-grid-advanced/mashup-builder-configuration-parser',['export
             _this._gridAdvancedConfiguration.idFieldName = configuration.getProperty('IDFieldName');
             _this._gridAdvancedConfiguration.hasChildrenFieldName = configuration.getProperty('HasChildrenFieldName');
             _this._gridAdvancedConfiguration.enableColumnSorting = configuration.getProperty('EnableSorting');
+            _this._gridAdvancedConfiguration.clientSideSorting = configuration.getProperty('ClientSideSorting');                          
             _this._gridAdvancedConfiguration.selectedRow = configuration.getProperty('SelectedRow');
             _this._gridAdvancedConfiguration.expandAllLoadedLevels = configuration.getProperty('ExpandLoadedRows');
             _this._gridAdvancedConfiguration.includeRowExpansionParents = configuration.getProperty('IncludeRowExpansionParents');

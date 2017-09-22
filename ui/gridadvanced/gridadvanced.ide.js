@@ -101,6 +101,12 @@ TW.IDE.Widgets.gridadvanced = function () {
                     'isVisible': true,
                     'defaultValue': false
                 },
+                'ClientSideSorting' : {
+                    'description': "If set to true, the sorting happens on client rather than server",
+                    'baseType': 'BOOLEAN',
+                    'isVisible': true,
+                    'defaultValue': false
+                },
                 'MultiColumnSortOrder': {
                     'isVisible': true,
                     'baseType': 'STRING',

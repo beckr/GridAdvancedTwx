@@ -154,6 +154,12 @@ TW.IDE.Widgets.treegridadvanced = function () {
                     'baseType': 'STRING',
                     'description': TW.IDE.I18NController.translate('tw.grid-advanced-ide.properties.multi-column-sort-order.description', 'Set default multi-colum sort order using column field names, e.g. \"name:asc,office:des,id:des\"')
                 },
+                'ClientSideSorting' : {
+                    'description': "If set to true, the sorting happens on client rather than server",
+                    'baseType': 'BOOLEAN',
+                    'isVisible': true,
+                    'defaultValue': false
+                },
                 'EnableGridSearch': {
                     'baseType': 'BOOLEAN',
                     'defaultValue': false,
