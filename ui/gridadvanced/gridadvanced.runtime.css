@@ -168,5 +168,5 @@ div.dhtmlxMenu_material_SubLevelArea_Polygon div + div {
 }
 
 div.gridbox div.ftr {
-  bottom: 16px !important;
+  position: relative;
 }

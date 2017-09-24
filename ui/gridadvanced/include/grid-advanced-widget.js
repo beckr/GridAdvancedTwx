@@ -175,7 +175,7 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                     var self = this;
                     if(this._cfg.showTotalRow) {
                         var emptyFooter = this._cfg._columnDefinitions.slice(0, -2).map(function() {return "#cspan";}).join(",");                        
-                        this._gridAdvanced.attachFooter('#stat_count,Count of rows,' + emptyFooter);                        
+                        this._gridAdvanced.attachFooter('#stat_count,Row Count,' + emptyFooter);                        
                     }
 
 					if(this._cfg.enableTextFiltering) {
@@ -195,11 +195,11 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                                     continue
                                 }
                                 c.push(g);
-                                if(this.filters[e][0].tagName != 'INPUT') {
-                                    h = this.filters[e][0].old_value = this.filters[e][0].value;
-                                }
                                 if (this.filters[e][0]._filter) {
                                     h = this.filters[e][0]._filter()
+                                }
+                                if(this.filters[e][0].tagName != 'INPUT') {
+                                    h = this.filters[e][0].old_value = this.filters[e][0].value;
                                 }
                                 var f;
                                 if (typeof h != "function" && (f = (this.combos[g] || ((this._col_combos && this._col_combos[g]) ? this._col_combos[g] : ((this._sub_trees && this._sub_trees[g]) ? this._sub_trees[g][1] : false))))) {
@@ -233,7 +233,7 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                             if(gridInstance.getFilterElement(i).tagName == "INPUT") {
                                 gridInstance.getFilterElement(i)._filter = function () {
                                     //if(this.old_value == this.value) {
-                                   //     return function() {return true};
+                                    //    return function() {return true};
                                     //}
                                     var input = this.value; // gets the text of the filter input and we transform it into regex
                                     var inputEscaped = input.replace(/[\-\[\]\/\{\}\(\)\+\?\.\\\^\$\|]/g, "\\$&"); // escape the regex text in the input other that start wildcard
