@@ -118,6 +118,12 @@ TW.IDE.Widgets.gridadvanced = function () {
                     'isVisible': true,
                     'defaultValue': false
                 },
+                'EnableBlockSelection' : {
+                    'description': "Enable block selection and copy paste",
+                    'baseType': 'BOOLEAN',
+                    'isVisible': true,
+                    'defaultValue': false
+                },
                 'EnableGridSearch': {
                     'baseType': 'BOOLEAN',
                     'defaultValue': false,

@@ -130,8 +130,18 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                     this._gridAdvanced.setHeader(this._dhtmlxTableData.headers, null, this._createHeaderStyles());
                    
                     this._gridAdvanced.setColumnIds(this._dhtmlxTableData.columnIds);
-
-
+                    if(this._cfg.enableBlockSelection) {
+                        this._gridAdvanced.enableBlockSelection();
+                        var self = this;
+                        this._gridAdvanced.attachEvent("onKeyPress",function (code,ctrl,shift){
+                            if(code==67&&ctrl){
+                                if (!self._gridAdvanced._selectionArea) return alert("You need to select a block area in grid first");
+                                self._gridAdvanced.setCSVDelimiter(",");
+                                self._gridAdvanced.copyBlockToClipboard();
+                                };
+                            return true;
+                        });
+                    }
                     this._configureLayout();
                     this._gridAdvanced.enableColumnMove(true);
                     this._gridAdvanced.enableColumnAutoSize(true);
@@ -7089,6 +7099,7 @@ gaRequire.define('tw-grid-advanced/mashup-builder-configuration-parser',['export
             _this._gridAdvancedConfiguration.expandAllLoadedLevels = configuration.getProperty('ExpandLoadedRows');
             _this._gridAdvancedConfiguration.includeRowExpansionParents = configuration.getProperty('IncludeRowExpansionParents');
             _this._gridAdvancedConfiguration.preserveRowExpansion = configuration.getProperty('PreserveRowExpansion');
+            _this._gridAdvancedConfiguration.enableBlockSelection = configuration.getProperty('EnableBlockSelection');
 			if(configuration.getProperty('EnableFiltering') == undefined) {
 				_this._gridAdvancedConfiguration.enableTextFiltering = true;
 			} else {
