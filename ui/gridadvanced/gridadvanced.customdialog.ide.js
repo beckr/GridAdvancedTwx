@@ -553,7 +553,12 @@ TW.IDE.Dialogs.GridAdvancedCustomEditor = function () {
             // override the renderer type selections so that only types grid-advanced supports are displayed
             var htmlRenderChoices = '';
             var dataTypeWhiteList = ['DATETIME', 'IMAGELINK', 'STRING', 'INTEGER', 'NUMBER', 'LONG', 'BOOLEAN', 'HTML', 'HYPERLINK', 'DEFAULT'];
-
+            if(TW.Renderer.HTML.formatSelectOptions.length == 2) {
+                TW.Renderer.HTML.formatSelectOptions.push( {
+                    value: 'unsanitized', 
+                    text: "Unsanitized HTML"
+                });
+            }
             for (var rendererName in TW.Renderer) {
                 if (dataTypeWhiteList.indexOf(rendererName) > -1) {
                     if (curDef.FormatOptions && rendererName === curDef.FormatOptions.renderer) {
