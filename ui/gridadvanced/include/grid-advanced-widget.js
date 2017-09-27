@@ -945,7 +945,12 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                     var columnIndex = _this7._gridAdvanced.getColIndexById(columnDef.fieldName);
                     var stateValueColumnIndex = _this7._findStateValueColumnIndex(keys, columnDef);
                     var stateValue = stateValueColumnIndex > -1 ? gridRow.rawData[stateValueColumnIndex] : value;
-                    _this7._gridAdvanced.cells(gridRow.id, columnIndex).setValue(columnDef.render(value, stateValue));
+                    // this sometimes failes on the dhtmlx side
+                    try {
+                        _this7._gridAdvanced.cells(gridRow.id, columnIndex).setValue(columnDef.render(value, stateValue));
+                    } catch(e) {
+                        _logger.Logger.warn('There was an error rendering a cell in the grid', e);
+                    }
                 }
             });
         };
