@@ -188,7 +188,7 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                         this._gridAdvanced.attachFooter('#stat_count,Row Count,' + emptyFooter);                        
                     }
 
-					if(this._cfg.enableTextFiltering) {
+					if(this._cfg.enableTextFiltering && this._dhtmlxTableData.data.rows.length != 0) {
                         
 						var globalFilterType = this._cfg.textFilteringType;
                         var filters = this._cfg._columnDefinitions.map(function (t) {
