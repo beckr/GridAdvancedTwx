@@ -260,12 +260,18 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                                     }
 
                                     return function(value, id){
-                                            // checks if the value of a cell has the text from the filter 
-                                            if (value.toString().match(inputRegex)){ 
-                                                return true;
-                                            } else {
-                                                return false; 
-                                            }
+                                        var textValue;
+                                        if(value instanceof Element || value instanceof String || typeof value == "string") {
+                                            textValue = $(value).text();
+                                        } else {
+                                            textValue = value.toString();
+                                        }
+                                        // checks if the value of a cell has the text from the filter 
+                                        if (textValue.match(inputRegex)){ 
+                                            return true;
+                                        } else {
+                                            return false; 
+                                        }
                                     }
 	    					    }
                             }
