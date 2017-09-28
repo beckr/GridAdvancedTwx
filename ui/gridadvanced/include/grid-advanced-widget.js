@@ -191,25 +191,39 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
 					if(this._cfg.enableTextFiltering) {
                         
 						var globalFilterType = this._cfg.textFilteringType;
-                        var filters = this._cfg._columnDefinitions.map(function (t) { return '#' + ((t.headerFilter && t.headerFilter != "none") ?t.headerFilter :  globalFilterType) ; });
-                        this._gridAdvanced.attachHeader(filters.join(','));
+                        var filters = this._cfg._columnDefinitions.map(function (t) {
+                            var result = " ";
+                            if (t.headerFilter) {
+                                if (t.headerFilter == "none") {
+                                    result = "#" + globalFilterType;
+                                } else if (t.headerFilter == "noDisplay") {
+                                    result = " ";
+                                } else {
+                                    result = "#" + t.headerFilter;
+                                }
+                            } else {
+                                result = "#" + globalFilterType;
+                            }
+                            return result;
+                        });
+                        var filtersOrdered = [];
+                        for(var i = 0;i<this._cfg._columnDefinitions.length;i++) {
+                            filtersOrdered[this._gridAdvanced.getColIndexById(this._cfg._columnDefinitions[i]._fieldName)] = filters[i];
+                        }
+                        this._gridAdvanced.attachHeader(filtersOrdered.join(","));         
                         this._gridAdvanced.filterByAll = function() {
                             var d = [];
                             var c = [];
-                            var h;
                             this._build_m_order();
                             for (var e = 0; e < this.filters.length; e++) {
-                                //var g = this._m_order ? this._m_order[this.filters[e][1]] : this.filters[e][1];
                                 var g = this.filters[e][1];
-                                if (g >= this._cCount || this.filters[e][0].old_value == this.filters[e][0].value) {
+                                if (g >= this._cCount) {
                                     continue
                                 }
                                 c.push(g);
+                                var h = this.filters[e][0].old_value = this.filters[e][0].value;
                                 if (this.filters[e][0]._filter) {
                                     h = this.filters[e][0]._filter()
-                                }
-                                if(this.filters[e][0].tagName != 'INPUT') {
-                                    h = this.filters[e][0].old_value = this.filters[e][0].value;
                                 }
                                 var f;
                                 if (typeof h != "function" && (f = (this.combos[g] || ((this._col_combos && this._col_combos[g]) ? this._col_combos[g] : ((this._sub_trees && this._sub_trees[g]) ? this._sub_trees[g][1] : false))))) {
@@ -237,14 +251,11 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                             if (this._f_rowsBuffer && this.rowsBuffer.length == this._f_rowsBuffer.length) {
                                 this._f_rowsBuffer = null
                             }
-                        };
+                        }              
                         var gridInstance = this._gridAdvanced;
-						this._dhtmlxTableData._columns.forEach(function(column, i) {	
-                            if(gridInstance.getFilterElement(i).tagName == "INPUT") {
+						this._cfg._columnDefinitions.forEach(function(column, i) {	
+                            if(gridInstance.getFilterElement(i) && gridInstance.getFilterElement(i).tagName == "INPUT") {
                                 gridInstance.getFilterElement(i)._filter = function () {
-                                    //if(this.old_value == this.value) {
-                                    //    return function() {return true};
-                                    //}
                                     var input = this.value; // gets the text of the filter input and we transform it into regex
                                     var inputEscaped = input.replace(/[\-\[\]\/\{\}\(\)\+\?\.\\\^\$\|]/g, "\\$&"); // escape the regex text in the input other that start wildcard
                                     var inputRegex = new RegExp("^" + this.value.replace(/\*/gi, "(.*)") + "(.*)", 'i');
@@ -261,7 +272,7 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
 
                                     return function(value, id){
                                         var textValue;
-                                        if(value instanceof Element || value instanceof String || typeof value == "string") {
+                                        if(value.match("^<.*>$")) {
                                             textValue = $(value).text();
                                         } else {
                                             textValue = value.toString();
