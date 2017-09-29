@@ -272,7 +272,9 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
 
                                     return function(value, id){
                                         var textValue;
-                                        if(value.match("^<.*>$")) {
+                                        if(!value) {
+                                            textValue = "";
+                                        } else if(value.match("^<.*>$")) {
                                             textValue = $(value).text();
                                         } else {
                                             textValue = value.toString();
@@ -623,7 +625,9 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
             adjustCols.forEach(function (ind) {
                 var width = _this2._gridAdvanced.getColWidth(ind);
                 if (isNaN(width)) {
-                    width = (0, _jquery2.default)(_this2._gridAdvanced.cells2(0, ind).cell).outerWidth();
+                    try {
+                        width = (0, _jquery2.default)(_this2._gridAdvanced.cells2(0, ind).cell).outerWidth();                        
+                    } catch (ignored) {}
                 }
                 adjustWidth += width;
             });
@@ -2003,8 +2007,11 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                 if (this._userSettingHandler.hasUserSetting('gridSettings')) {
                     try {
                         this._gridAdvanced.loadOrderFromCookie(this._userSettingHandler.userCookie);
-                        this._gridAdvanced.loadSizeFromCookie(this._userSettingHandler.userCookie);
-                        this._gridAdvanced.loadHiddenColumnsFromCookie(this._userSettingHandler.userCookie);
+                        try {
+                            // this fails from time to time
+                            this._gridAdvanced.loadSizeFromCookie(this._userSettingHandler.userCookie);                            
+                            this._gridAdvanced.loadHiddenColumnsFromCookie(this._userSettingHandler.userCookie);                            
+                        } catch (ignored) {}
                         this._updateColumnConfigWidths();
                         this._initResize = true;
                     } catch (ex) {
