@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### [3.0.5] - 02.10.2017
+## [3.0.5] - 02.10.2017
 ### Added
  * Row filtering options. You can now chose the "EnableFiltering" option and enable filtering globally for all the grid. Text based filtering in the grid is done using wildcards.
  Inside the grid column configuration you can also specify the type of filtering for each row.
