@@ -140,7 +140,8 @@ TW.IDE.Widgets.gridadvanced = function () {
                     'baseType': 'QUERY',
                     'isVisible': true,
                     'isEditable': false,
-                    'isBindingSource': true
+                    'isBindingSource': true,
+                    'isBindingTarget': true
                 },
                 'EnableGridReset': {
                     'baseType': 'BOOLEAN',
@@ -355,11 +356,6 @@ TW.IDE.Widgets.gridadvanced = function () {
                     'defaultValue': 0
                 },
                 NumberOfRows: {
-                    baseType: 'INTEGER',
-                    isEditable: false,
-                    isBindingSource: true
-                },
-                NumberOfVisibleRows: {
                     baseType: 'INTEGER',
                     isEditable: false,
                     isBindingSource: true

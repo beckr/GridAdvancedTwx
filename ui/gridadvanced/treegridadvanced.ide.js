@@ -115,6 +115,11 @@ TW.IDE.Widgets.treegridadvanced = function () {
                     'defaultValue': false,
                     'warnIfNotBoundAsTarget': false
                 },
+                'ExpandRowOnDoubleClick': {
+                    'baseType': 'BOOLEAN',
+                    'defaultValue': false,
+                    'description': TW.IDE.I18NController.translate('tw.grid-advanced-ide.properties.expand-row-on-double-click.description', 'Expand or collapse row on double click')
+                },
                 'PreserveRowExpansion': {
                     'description': TW.IDE.I18NController.translate('tw.grid-advanced-ide.properties.preserve-expansion.description'),
                     'isBindingTarget': false,
@@ -188,7 +193,8 @@ TW.IDE.Widgets.treegridadvanced = function () {
                     'baseType': 'QUERY',
                     'isVisible': true,
                     'isEditable': false,
-                    'isBindingSource': true
+                    'isBindingSource': true,
+                    'isBindingTarget': true
                 },
                 'EnableGridReset': {
                     'baseType': 'BOOLEAN',
@@ -363,6 +369,21 @@ TW.IDE.Widgets.treegridadvanced = function () {
                     'defaultValue': 'DefaultSortDescendingStyle',
                     'description': TW.IDE.I18NController.translate('tw.grid-advanced-ide.properties.sort-descending-style.description', 'Sort Descending Style')
                 },
+                'RowIconStyle': {
+                    'baseType': 'STYLEDEFINITION',
+                    'defaultValue': 'DefaultRowIconStyle',
+                    'description': TW.IDE.I18NController.translate('tw.grid-advanced-ide.properties.row-icon-style.description', 'Row Icon Style')
+                },
+                'RowExpansionIconStyle': {
+                    'baseType': 'STYLEDEFINITION',
+                    'defaultValue': 'DefaultRowExpansionIconStyle',
+                    'description': TW.IDE.I18NController.translate('tw.grid-advanced-ide.properties.row-expansion-icon-style.description', 'Row Expansion Icon Style')
+                },
+                'RowCollapseIconStyle': {
+                    'baseType': 'STYLEDEFINITION',
+                    'defaultValue': 'DefaultRowCollapseIconStyle',
+                    'description': TW.IDE.I18NController.translate('tw.grid-advanced-ide.properties.row-collapse-icon-style.description', 'Row Collapse Icon Style')
+                },
                 'HeaderOverflow': {
                     'description': TW.IDE.I18NController.translate('tw.grid-advanced-ide.properties.header-overflow.description', 'How to display text in the grid header that extends outside it\'s containing cell'),
                     'baseType': 'STRING',
@@ -443,11 +464,6 @@ TW.IDE.Widgets.treegridadvanced = function () {
                     'baseType': 'NUMBER'
                 },
                 NumberOfRows: {
-                    baseType: 'INTEGER',
-                    isEditable: false,
-                    isBindingSource: true
-                },
-                NumberOfVisibleRows: {
                     baseType: 'INTEGER',
                     isEditable: false,
                     isBindingSource: true
@@ -705,6 +721,18 @@ TW.IDE.Widgets.treegridadvanced = function () {
                 allWidgetProps['properties']['PaginationButtons']['isVisible'] = visible;
                 this.updatedProperties();
                 return true;
+            case 'RowIconStyle':
+                this.positionContainers();
+                this.updatedProperties();
+                return true;
+            case 'RowExpansionIconStyle':
+                this.positionContainers();
+                this.updatedProperties();
+                return true;
+            case 'RowCollapseIconStyle':
+                this.positionContainers();
+                this.updatedProperties();
+                return true;
             case 'Style':
                 result = true;
                 break;
@@ -752,6 +780,9 @@ TW.IDE.Widgets.treegridadvanced = function () {
         allWidgetProps['properties']['ToolbarStyle']['isVisible'] = visible;
         allWidgetProps['properties']['SortAscendingStyle']['isVisible'] = visible;
         allWidgetProps['properties']['SortDescendingStyle']['isVisible'] = visible;
+        allWidgetProps['properties']['RowIconStyle']['isVisible'] = visible;
+        allWidgetProps['properties']['RowExpansionIconStyle']['isVisible'] = visible;
+        allWidgetProps['properties']['RowCollapseIconStyle']['isVisible'] = visible;
         // allWidgetProps['properties']['SplitColumnIndex']['isVisible'] = visible;
         allWidgetProps['properties']['MaxRowCacheSize']['isVisible'] = visible;
         allWidgetProps['properties']['ParentIDFieldName']['isVisible'] = visible;
@@ -760,6 +791,7 @@ TW.IDE.Widgets.treegridadvanced = function () {
         allWidgetProps['properties']['EnableSorting']['isVisible'] = visible;
         allWidgetProps['properties']['ExpandLoadedRows']['isVisible'] = visible;
         allWidgetProps['properties']['PreserveRowExpansion']['isVisible'] = visible;
+        allWidgetProps['properties']['ExpandRowOnDoubleClick']['isVisible'] = visible;
     };
 
     this.renderHtml = function () {

@@ -61,9 +61,9 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
         };
     }();
 
-    var _dec, _class;
+    var _dec, _dec2, _class;
 
-    var TwGridAdvanced = exports.TwGridAdvanced = (_dec = (0, _registerEvent.RegisterEvent)('onRowDblClicked'), _dec(_class = function () {
+    var TwGridAdvanced = exports.TwGridAdvanced = (_dec = (0, _registerEvent.RegisterEvent)('onRowDblClicked'), _dec2 = (0, _registerEvent.RegisterEvent)('onRowExpanded'), _dec(_class = _dec2(_class = function () {
         function TwGridAdvanced(gridId, rowSelectionCallBack) {
             var isTreeGrid = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
@@ -94,8 +94,10 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
             this._expirationDate.setFullYear(this._expirationDate.getFullYear() + 1);
             this._maxRowCacheReached = false;
             this._applyDefaultRowSelections = true;
+            this._executeSelectedRowCallback = true;
             this._isTreeGrid = isTreeGrid;
             this._hiddenColumns = [];
+            this._iconStyles = '';
             this._splitIndex = -1;
             this._l8nTokens = {
                 search: 'Search',
@@ -128,7 +130,6 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                     this._performanceMonitor.startTime('_configureTable');
                     this._gridAdvanced.setImagePath(this._imagePath);
                     this._gridAdvanced.setHeader(this._dhtmlxTableData.headers, null, this._createHeaderStyles());
-                   
                     this._gridAdvanced.setColumnIds(this._dhtmlxTableData.columnIds);
                     if(this._cfg.enableBlockSelection) {
                         this._gridAdvanced.enableBlockSelection();
@@ -177,11 +178,10 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                     this._adjustHorizontalOffset();
                     this._resizePaginationControls();
                     this._adjustSpacing();
-                    this._selectionHandler.refreshSelections();
+                    this._selectionHandler.refreshSelections(this._executeSelectedRowCallback);
                     this._selectedRows = this._selectionHandler.selectedRows;
                     this._setDefaultRowSelections();
                     this._resetSearch();
-
                     var self = this;
                     if(this._cfg.showTotalRow) {
                         var emptyFooter = this._cfg._columnDefinitions.slice(0, -2).map(function() {return "#cspan";}).join(",");                        
@@ -260,16 +260,6 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                                     var inputEscaped = input.replace(/[\-\[\]\/\{\}\(\)\+\?\.\\\^\$\|]/g, "\\$&"); // escape the regex text in the input other that start wildcard
                                     var inputRegex = new RegExp("^" + this.value.replace(/\*/gi, "(.*)") + "(.*)", 'i');
                                     var currentRow = i;
-                                    var isScheduled = false;
-
-                                    if (!isScheduled) {
-                                        isScheduled = true;
-                                        window.setTimeout(function () {
-                                            self._widget.setProperty('NumberOfVisibleRows', self._gridAdvanced.getRowsNum());
-                                            isScheduled = false;
-                                        }, 0);
-                                    }
-
                                     return function(value, id){
                                         var textValue;
                                         if(!value) {
@@ -326,7 +316,7 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                     this._updatedCfg = value;
                     break;
                 case 'QueryFilter':
-                    this._updateQueryData = true;
+                    this._updateQueryData = value !== undefined;
                     this._updatedQueryFilter = value;
                     break;
                 default:
@@ -372,8 +362,8 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                             this._selectedRows = this._generateRowSelectionsFromInfoTable(this._updatedSelectedRows);
                         }
                         this._updatedSelectedRows = undefined;
+                        this._setDefaultRowSelections();
                     }
-                    this._setDefaultRowSelections();
                     if (this._updatedExpandRows) {
                         this._expandLoadedRows(false);
                     }
@@ -383,20 +373,19 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                         this._selectedRows = [];
                         this._setDefaultRowSelections();
                     }
-                    if (this._updateQueryData && this._updatedQueryFilter) {
+                    if (this._updateQueryData) {
                         this._queryData();
                         this._updateQueryData = false;
                     }
                 }
             }
             this._applyDefaultRowSelections = true;
-            this._gridAdvanced.callEvent("onGridReconstructed",[]);            
+            this._executeSelectedRowCallback = true;
             this._performanceMonitor.endTime('refresh');
         };
 
         TwGridAdvanced.prototype.destroy = function destroy() {
             this._maxRowCacheReached = false;
-            this._childGridHandler = undefined;
 
             if (this._gridAdvanced) {
                 this._gridAdvanced.destructor();
@@ -416,6 +405,40 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
             }
             if (this._selectionHandler) {
                 this._selectionHandler.removeBindings();
+            }
+        };
+
+        TwGridAdvanced.prototype.expandOrCollapseRow = function expandOrCollapseRow(rowId) {
+            var doubleClicked = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+            if (!doubleClicked || doubleClicked && this._cfg.expandRowOnDoubleClick) {
+                var gridRow = this._dhtmlxTableData.getRowById(rowId);
+                var childGridHandler = this._createChildGridHandler();
+                if (!gridRow.isExpanded && gridRow.hasChildren) {
+                    if (!this._exceedsMaxRowCacheSize()) {
+                        childGridHandler.expandChildGrid(gridRow.id, this._getQueryData());
+                        this._saveRowExpansionState();
+                    } else {
+                        this._maxRowCacheReached = false;
+                        this._showMaxRowCacheExceededMessage();
+                    }
+                } else {
+                    this._showClearingCacheMessage(gridRow.rows.length);
+                    childGridHandler.collapseChildGrid(gridRow.id);
+                    this._saveRowExpansionState();
+                    this._maxRowCacheExceededMsgShown = false;
+                }
+            }
+        };
+
+        TwGridAdvanced.prototype.selectRows = function selectRows(selectedRows, selectedRowIndexes) {
+            if (selectedRows && this._isTreeGrid) {
+                var selectedRowIds = selectedRows.map(function (gridRow) {
+                    return gridRow.id;
+                });
+                this._selectionHandler.setSelectionsById(selectedRowIds);
+            } else if (selectedRowIndexes) {
+                this._selectionHandler.setSelections(selectedRowIndexes);
             }
         };
 
@@ -627,8 +650,8 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                 var width = _this2._gridAdvanced.getColWidth(ind);
                 if (isNaN(width)) {
                     try {
-                        width = (0, _jquery2.default)(_this2._gridAdvanced.cells2(0, ind).cell).outerWidth();                        
-                    } catch (ignored) {}
+                    width = (0, _jquery2.default)(_this2._gridAdvanced.cells2(0, ind).cell).outerWidth();
+                } catch (ignored) {}                
                 }
                 adjustWidth += width;
             });
@@ -723,6 +746,7 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
             this._performanceMonitor.startTime('updateStyles');
             var styleRules = '';
             var idSelector = '#' + this._gridId;
+            this._iconStyles = '';
 
             (0, _jquery2.default)(this._gridAdvanced.entBox).siblings('style').remove();
             var styleMap = new Map();
@@ -735,6 +759,7 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                     var backgroundStyle = styleDef.getBackgroundStyle();
                     var borderStyle = styleDef.getBorderStyle();
                     var fontStyle = styleDef.getFontStyle();
+                    var iconStyle = '';
                     switch (styleDef.displayName) {
                         case _this3._cfg.TABLE_WRAPPER_STYLE:
                             styleRules += idSelector + ' {' + backgroundStyle + borderStyle + '}';
@@ -808,6 +833,21 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                             break;
                         case _this3._cfg.SORT_DESCENDING_STYLE:
                             styleRules += idSelector + ' .xhdr table tbody tr td.dhxgrid_sort_desc_col {' + ' background-image: url(' + styleDef.image + ');' + ' background-position: 2px 15px;' + ' background-repeat: no-repeat;' + ' background-size: 10px 10px;' + '}';
+                            break;
+                        case _this3._cfg.ROW_ICON_STYLE:
+                            iconStyle = styleDef.image && styleDef.image !== '' ? ' background-image: url(' + styleDef.image + '); ' : ' display: none;';
+                            styleRules += idSelector + ' .objbox table tbody tr td .treegrid_cell img:nth-last-child(2) {' + iconStyle + ' }';
+                            _this3._iconStyles += idSelector + ' .objbox table tbody tr td .treegrid_cell img:nth-last-child(2) {' + iconStyle + ' }';
+                            break;
+                        case _this3._cfg.ROW_EXPANSION_ICON_STYLE:
+                            iconStyle = styleDef.image && styleDef.image !== '' ? ' background-image: url(' + styleDef.image + '); ' : ' display: none;';
+                            styleRules += idSelector + ' .objbox table tbody tr td .treegrid_cell img.grid_collapse_icon[src*="minus.gif"] {' + iconStyle + ' }';
+                            _this3._iconStyles += idSelector + ' .objbox table tbody tr td .treegrid_cell img.grid_collapse_icon[src*="minus.gif"] {' + iconStyle + ' }';
+                            break;
+                        case _this3._cfg.ROW_COLLAPSE_ICON_STYLE:
+                            iconStyle = styleDef.image && styleDef.image !== '' ? ' background-image: url(' + styleDef.image + '); ' : ' display: none;';
+                            styleRules += idSelector + ' .objbox table tbody tr td .treegrid_cell img.grid_collapse_icon[src*="plus.gif"] {' + iconStyle + ' }';
+                            _this3._iconStyles += idSelector + ' .objbox table tbody tr td .treegrid_cell img.grid_collapse_icon[src*="plus.gif"] {' + iconStyle + ' }';
                             break;
                     }
                 }
@@ -1275,6 +1315,7 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
             searchElem.val('');
             this._searchValue = '';
             this._applyDefaultRowSelections = true;
+            this._executeSelectedRowCallback = true;
             this._resetColumnSort();
             if (refresh) {
                 this.refresh();
@@ -1563,7 +1604,7 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
         TwGridAdvanced.prototype._createChildGridHandler = function _createChildGridHandler() {
             var _this17 = this;
 
-            return new _childGridHandler.ChildGridHandler(this._gridId, this._gridAdvanced, this._dhtmlxTableData, this._childDataServiceInvoker, this._cfg, function () {
+            return new _childGridHandler.ChildGridHandler(this._gridId, this._gridAdvanced, this._dhtmlxTableData, this._childDataServiceInvoker, this.childDataServiceParameters(), this._cfg, function () {
                 _this17._resizeColumns(-1);
                 _this17._formatRowsInView();
                 _this17._selectionHandler.refreshSelections();
@@ -1655,30 +1696,23 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
             var _this19 = this;
 
             this._gridAdvanced.attachEvent('onDynXLS', function (rowId) {
-                var gridRow = _this19._dhtmlxTableData.getRowById(rowId);
-                var childGridHandler = _this19._createChildGridHandler();
-                if (!gridRow.isExpanded) {
-                    if (!_this19._exceedsMaxRowCacheSize()) {
-                        childGridHandler.expandChildGrid(gridRow.id);
-                        _this19._saveRowExpansionState();
-                    } else {
-                        _this19._maxRowCacheReached = false;
-                        _this19._showMaxRowCacheExceededMessage();
-                    }
-                } else {
-                    _this19._showClearingCacheMessage(gridRow.rows.length);
-                    childGridHandler.collapseChildGrid(gridRow.id);
-                    _this19._saveRowExpansionState();
-                    _this19._maxRowCacheExceededMsgShown = false;
-                }
+                _this19.expandOrCollapseRow(rowId);
             });
 
             this._gridAdvanced.attachEvent('onOpenEnd', function (rowId, state) {
+                var gridRow = _this19._dhtmlxTableData.getRowById(rowId);
                 if (state === 1) {
+                    var clearCache = _this19._dhtmlxTableData.hasRowExpired(rowId, _this19._gridAdvanced.getRowsNum());
+                    if (clearCache) {
+                        _this19._createChildGridHandler()._deleteChildItems(rowId);
+                        _this19._gridAdvanced.openItem(rowId);
+                        return;
+                    }
+                    gridRow.isExpanded = true;
+
                     _this19._formatRowsInView();
                 } else {
                     var childGridHandler = _this19._createChildGridHandler();
-                    var gridRow = _this19._dhtmlxTableData.getRowById(rowId);
                     _this19._showClearingCacheMessage(gridRow.rows.length);
                     childGridHandler.collapseChildGrid(rowId);
                     _this19._maxRowCacheExceededMsgShown = false;
@@ -1736,10 +1770,12 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                     if(!_this19._cfg.clientSideSorting) {
                         _this19._columnSortHandler.handleColumnSortEvent(index, type, direction);
                         _this19._queryData();
-                        _this19._applyDefaultRowSelections = false;
-                      } else {
-                          return true;
-                      }
+                    } 
+                    _this19._applyDefaultRowSelections = false;
+                    _this19._executeSelectedRowCallback = false;
+                    if(_this19._cfg.clientSideSorting) {
+                        return true;
+                    }       
                 }
                 return false;
             });
@@ -1788,6 +1824,7 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                         _this19._searchValue = searchElem.val();
                         _this19._queryData();
                         _this19._applyDefaultRowSelections = false;
+                        _this19._executeSelectedRowCallback = false;
                     }, 1500));
                 })();
             }
@@ -2004,14 +2041,14 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
 
         TwGridAdvanced.prototype._readColumnSettingPersistence = function _readColumnSettingPersistence() {
             this._performanceMonitor.startTime('readColumnSettingPersistence');
-            if (this._userSettingHandler && this._userSettingHandler.cookiePersistenceEnabled && this._dhtmlxTableData && this._dhtmlxTableData._data.rows.length > 0) {
+            if (this._userSettingHandler && this._userSettingHandler.cookiePersistenceEnabled && this._dhtmlxTableData && this._dhtmlxTableData._data.rows.length >= 0) {
                 if (this._userSettingHandler.hasUserSetting('gridSettings')) {
                     try {
                         this._gridAdvanced.loadOrderFromCookie(this._userSettingHandler.userCookie);
                         try {
                             // this fails from time to time
-                            this._gridAdvanced.loadSizeFromCookie(this._userSettingHandler.userCookie);                            
-                            this._gridAdvanced.loadHiddenColumnsFromCookie(this._userSettingHandler.userCookie);                            
+                            this._gridAdvanced.loadSizeFromCookie(this._userSettingHandler.userCookie);
+                            this._gridAdvanced.loadHiddenColumnsFromCookie(this._userSettingHandler.userCookie);
                         } catch (ignored) {}
                         this._updateColumnConfigWidths();
                         this._initResize = true;
@@ -2136,10 +2173,17 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
         };
 
         TwGridAdvanced.prototype._queryData = function _queryData() {
-            this._queryHandler = new _queryHandler.QueryHandler(this._cfg, this._queryDataServiceInvoker);
-            var query = this._queryHandler.createFilterQuery(this._searchValue, this._columnSortHandler._sortColumns, this._updatedQueryFilter);
+            if (this._dhtmlxTableData) {
+                this._dhtmlxTableData.cacheTimestamp = new Date().getTime();
+            }
+            var query = this._getQueryData();
             var params = [query.query];
             this._triggerGridEvent('queryGridColumns', params);
+        };
+
+        TwGridAdvanced.prototype._getQueryData = function _getQueryData() {
+            this._queryHandler = new _queryHandler.QueryHandler(this._cfg);
+            return this._queryHandler.createFilterQuery(this._searchValue, this._columnSortHandler._sortColumns, this._updatedQueryFilter);
         };
 
         _createClass(TwGridAdvanced, [{
@@ -2197,9 +2241,17 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
                 this._childDataServiceInvoker = childDataServiceInvoker;
             }
         }, {
-            key: 'queryDataServiceInvoker',
-            set: function set(queryDataServiceInvoker) {
-                this._queryDataServiceInvoker = queryDataServiceInvoker;
+            key: 'childDataServiceParameters',
+            set: function set(childDataServiceParameters) {
+                this._childDataServiceParameters = childDataServiceParameters;
+            },
+            get: function get() {
+                if (this._childDataServiceParameters === undefined) {
+                    this._childDataServiceParameters = function () {
+                        return {};
+                    };
+                }
+                return this._childDataServiceParameters;
             }
         }, {
             key: 'l8nTokens',
@@ -2209,7 +2261,7 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
         }]);
 
         return TwGridAdvanced;
-    }()) || _class);
+    }()) || _class) || _class);
 });
 //# sourceMappingURL=../../maps/advanced-widgets/grid-advanced/tw-grid-advanced.js.map
 
@@ -2338,8 +2390,8 @@ gaRequire.define('tw-grid-advanced/selection-handler',['exports', 'jquery', 'lod
             this._autoScroll = false;
         }
 
-        SelectionHandler.prototype.refreshSelections = function refreshSelections() {
-            this.setSelectionsById(_lodashAmd2.default.keys(this._selections));
+        SelectionHandler.prototype.refreshSelections = function refreshSelections(executeCallback) {
+            this.setSelectionsById(_lodashAmd2.default.keys(this._selections), executeCallback);
         };
 
         SelectionHandler.prototype.autoScrollToLastSelected = function autoScrollToLastSelected() {
@@ -2373,7 +2425,7 @@ gaRequire.define('tw-grid-advanced/selection-handler',['exports', 'jquery', 'lod
             return false;
         };
 
-        SelectionHandler.prototype.setSelectionsById = function setSelectionsById(selections) {
+        SelectionHandler.prototype.setSelectionsById = function setSelectionsById(selections, executeCallback) {
             var _this = this;
 
             var newSelections = [];
@@ -2402,7 +2454,7 @@ gaRequire.define('tw-grid-advanced/selection-handler',['exports', 'jquery', 'lod
                     }
                 });
                 this._triggerSelectionEvent = true;
-                this._onSelectRows(selections.join(','));
+                this._onSelectRows(selections.join(','), executeCallback);
             }
 
             this._lastSelectedId = _lodashAmd2.default.difference(newSelections, currentSelected)[0];
@@ -2427,7 +2479,7 @@ gaRequire.define('tw-grid-advanced/selection-handler',['exports', 'jquery', 'lod
                 selectionIndices = selectionIndices.map(function (index) {
                     return _this3._gridAdvanced.getRowId(index);
                 });
-                this.setSelectionsById(selectionIndices);
+                this.setSelectionsById(selectionIndices, true);
             }
         };
 
@@ -2435,23 +2487,28 @@ gaRequire.define('tw-grid-advanced/selection-handler',['exports', 'jquery', 'lod
             (0, _jquery2.default)(this._gridAdvanced).off('click', 'tr');
         };
 
-        SelectionHandler.prototype._onSelectRows = function _onSelectRows(ids) {
+        SelectionHandler.prototype._onSelectRows = function _onSelectRows(ids, executeCallback) {
+            executeCallback = executeCallback === null ? true : executeCallback;
             if (!this._rowSelectionCallback || !this._triggerSelectionEvent) {
                 return;
             }
             if (ids === undefined || ids === null || ids.length === 0) {
                 this._selections = {};
                 this._lastSelectedId = undefined;
-                this._rowSelectionCallback(this.selectedRows, []);
+                if (executeCallback) {
+                    this._rowSelectionCallback(this._createSelectedRowIndexes(), []);
+                }
                 return;
             }
             var idsArray = ids.split(',');
             this._lastSelectedId = idsArray[idsArray.length - 1];
             this._selections = this._convertIdsToGridType(idsArray);
-            if (this._isTreeGrid) {
-                this._rowSelectionCallback(this.selectedRows, this._createSelectedRows());
-            } else {
-                this._rowSelectionCallback(this.selectedRows);
+            if (executeCallback) {
+                if (this._isTreeGrid) {
+                    this._rowSelectionCallback(this._createSelectedRowIndexes(), this._createSelectedRows());
+                } else {
+                    this._rowSelectionCallback(this._createSelectedRowIndexes());
+                }
             }
         };
 
@@ -2460,9 +2517,9 @@ gaRequire.define('tw-grid-advanced/selection-handler',['exports', 'jquery', 'lod
                 this._lastSelectedId = rowId;
                 this._selections = this._convertIdsToGridType([rowId]);
                 if (this._isTreeGrid) {
-                    this._rowSelectionCallback(this.selectedRows, this._createSelectedRows());
+                    this._rowSelectionCallback(this._createSelectedRowIndexes(), this._createSelectedRows());
                 } else {
-                    this._rowSelectionCallback(this.selectedRows);
+                    this._rowSelectionCallback(this._createSelectedRowIndexes());
                 }
             }
         };
@@ -2484,6 +2541,21 @@ gaRequire.define('tw-grid-advanced/selection-handler',['exports', 'jquery', 'lod
                 });
             }
             return selectionData;
+        };
+
+        SelectionHandler.prototype._createSelectedRowIndexes = function _createSelectedRowIndexes() {
+            var _this5 = this;
+
+            var selectedRowIndexes = [];
+            if (this._dhtmlxTableData) {
+                selectedRowIndexes = _lodashAmd2.default.keys(this._selections).map(function (id) {
+                    var rowData = _this5._dhtmlxTableData.getRowById(id);
+                    return rowData ? rowData.dataIndex : undefined;
+                }).filter(function (row) {
+                    return row !== null;
+                });
+            }
+            return selectedRowIndexes;
         };
 
         _createClass(SelectionHandler, [{
@@ -2522,7 +2594,7 @@ gaRequire.define('tw-grid-advanced/selection-handler',['exports', 'jquery', 'lod
 });
 //# sourceMappingURL=../../maps/advanced-widgets/grid-advanced/selection-handler.js.map
 
-gaRequire.define('tw-grid-advanced/column-sort-handler',['exports', 'jquery', 'lodash-amd', '../../components/renderers/string-renderer', '../../components/renderers/boolean-renderer', '../../components/renderers/datetime-renderer', '../../components/renderers/number-renderer'], function (exports, _jquery, _lodashAmd, _stringRenderer, _booleanRenderer, _datetimeRenderer, _numberRenderer) {
+gaRequire.define('tw-grid-advanced/column-sort-handler',['exports', 'jquery', 'lodash-amd', '../../components/renderers/string-renderer', '../../components/renderers/boolean-renderer', '../../components/renderers/datetime-renderer', '../../components/renderers/number-renderer', '../../components/renderers/html-renderer', '../../components/renderers/hyperlink-renderer'], function (exports, _jquery, _lodashAmd, _stringRenderer, _booleanRenderer, _datetimeRenderer, _numberRenderer, _htmlRenderer, _hyperlinkRenderer) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
@@ -2682,7 +2754,7 @@ gaRequire.define('tw-grid-advanced/column-sort-handler',['exports', 'jquery', 'l
                         var valueConverter = columnDef.columnFormatter.valueConverter;
                         if (valueConverter instanceof _numberRenderer.NumberRenderer) {
                             colSort = 'int';
-                        } else if (valueConverter instanceof _stringRenderer.StringRenderer || valueConverter instanceof _booleanRenderer.BooleanRenderer) {
+                        } else if (valueConverter instanceof _stringRenderer.StringRenderer || valueConverter instanceof _booleanRenderer.BooleanRenderer || valueConverter instanceof _hyperlinkRenderer.HyperlinkRenderer || valueConverter instanceof _htmlRenderer.HtmlRenderer) {
                             colSort = 'str';
                         } else if (valueConverter instanceof _datetimeRenderer.DatetimeRenderer) {
                             colSort = 'date';
@@ -2808,7 +2880,7 @@ gaRequire.define('tw-grid-advanced/../../components/renderers/string-renderer',[
             var _this = _possibleConstructorReturn(this, _DefaultRenderer.call(this, valueFormat, params));
 
             _this._maxLength = _this._limitLength();
-            _this.widget = widget;
+            _this.widget = widget;            
             return _this;
         }
 
@@ -2831,7 +2903,7 @@ gaRequire.define('tw-grid-advanced/../../components/renderers/string-renderer',[
         };
 
         StringRenderer.prototype.toView = function toView(value, imageLink) {
-            if (value === undefined) value = this.widget.getProperty('EmptyCellText');
+            if (value === undefined) value = this.widget.getProperty('EmptyCellText');            
             value = _DefaultRenderer.prototype.toView.call(this, value);
             var truncateLength = this._maxLength;
             if (value && value.length > truncateLength) {
@@ -3120,7 +3192,7 @@ gaRequire.define('tw-grid-advanced/../../components/renderers/number-renderer',[
         }
 
         NumberRenderer.prototype.toView = function toView(value, imageLink) {
-            if (value === undefined) return this.widget.getProperty('EmptyCellText');
+            if (value === undefined) return this.widget.getProperty('EmptyCellText');            
             value = parseFloat(value);
             value = this._format(value, this._valueFormat);
             if (imageLink) {
@@ -3188,6 +3260,187 @@ gaRequire.define('tw-grid-advanced/../../components/renderers/number-renderer',[
     }(_defaultRenderer.DefaultRenderer);
 });
 //# sourceMappingURL=../../maps/components/renderers/number-renderer.js.map
+
+gaRequire.define('tw-grid-advanced/../../components/renderers/html-renderer',['exports', 'html-css-sanitizer', './default-renderer', 'htmlencode'], function (exports, _htmlCssSanitizer, _defaultRenderer, _htmlencode) {
+    'use strict';
+
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
+    exports.HtmlRenderer = undefined;
+
+    var _htmlCssSanitizer2 = _interopRequireDefault(_htmlCssSanitizer);
+
+    var _htmlencode2 = _interopRequireDefault(_htmlencode);
+
+    function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : {
+            default: obj
+        };
+    }
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    function _possibleConstructorReturn(self, call) {
+        if (!self) {
+            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }
+
+        return call && (typeof call === "object" || typeof call === "function") ? call : self;
+    }
+
+    function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        }
+
+        subClass.prototype = Object.create(superClass && superClass.prototype, {
+            constructor: {
+                value: subClass,
+                enumerable: false,
+                writable: true,
+                configurable: true
+            }
+        });
+        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+    }
+
+    var HtmlRenderer = exports.HtmlRenderer = function (_DefaultRenderer) {
+        _inherits(HtmlRenderer, _DefaultRenderer);
+
+        function HtmlRenderer(valueFormat, params) {
+            _classCallCheck(this, HtmlRenderer);
+
+            return _possibleConstructorReturn(this, _DefaultRenderer.call(this, valueFormat, params, valueFormat === 'raw'));
+        }
+
+        HtmlRenderer.prototype.toView = function toView(value) {
+            var valString = _DefaultRenderer.prototype.toView.call(this, value);
+            switch (this._valueFormat) {
+                case 'raw':
+                    break;
+                case 'unsanitized':
+                    break;
+                case 'format':
+                default:
+                    valString = HtmlRenderer.sanitize(valString);
+            }
+            return valString;
+        };
+
+        HtmlRenderer.sanitize = function sanitize(html) {
+            return _htmlCssSanitizer2.default.sanitize(_htmlencode2.default.htmlDecode(html), function (u) {
+                return u;
+            }, function (id) {
+                return id;
+            });
+        };
+
+        return HtmlRenderer;
+    }(_defaultRenderer.DefaultRenderer);
+});
+//# sourceMappingURL=../../maps/components/renderers/html-renderer.js.map
+
+gaRequire.define('tw-grid-advanced/../../components/renderers/hyperlink-renderer',['exports', 'html-css-sanitizer', './default-renderer'], function (exports, _htmlCssSanitizer, _defaultRenderer) {
+    'use strict';
+
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
+    exports.HyperlinkRenderer = undefined;
+
+    var _htmlCssSanitizer2 = _interopRequireDefault(_htmlCssSanitizer);
+
+    function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : {
+            default: obj
+        };
+    }
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    function _possibleConstructorReturn(self, call) {
+        if (!self) {
+            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }
+
+        return call && (typeof call === "object" || typeof call === "function") ? call : self;
+    }
+
+    function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        }
+
+        subClass.prototype = Object.create(superClass && superClass.prototype, {
+            constructor: {
+                value: subClass,
+                enumerable: false,
+                writable: true,
+                configurable: true
+            }
+        });
+        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+    }
+
+    var _class, _temp;
+
+    var HyperlinkRenderer = exports.HyperlinkRenderer = (_temp = _class = function (_DefaultRenderer) {
+        _inherits(HyperlinkRenderer, _DefaultRenderer);
+
+        function HyperlinkRenderer(valueFormat, params) {
+            _classCallCheck(this, HyperlinkRenderer);
+
+            var _this = _possibleConstructorReturn(this, _DefaultRenderer.call(this, valueFormat, params));
+
+            _this._validateValueFormat();
+            _this._validateTextFormat();
+            return _this;
+        }
+
+        HyperlinkRenderer.prototype._validateTextFormat = function _validateTextFormat() {
+            if (!this._params) {
+                this._params = {
+                    textFormat: HyperlinkRenderer.DEFAULT_TEXT_FORMAT
+                };
+            }
+        };
+
+        HyperlinkRenderer.prototype._validateValueFormat = function _validateValueFormat() {
+            if (['_self', '_blank', '_parent', '_top'].indexOf(this._valueFormat) === -1) {
+                this._valueFormat = HyperlinkRenderer.DEFAULT_VALUE_FORMAT;
+            }
+        };
+
+        HyperlinkRenderer.prototype.toView = function toView(value) {
+            var view = '';
+            if (value) {
+                var encodedValue = _DefaultRenderer.prototype.toView.call(this, this._sanitize(value));
+                view = '<a target="' + this._valueFormat + '" href="' + encodedValue + '">' + this._params.textFormat + '</a>';
+            }
+            return view;
+        };
+
+        HyperlinkRenderer.prototype._sanitize = function _sanitize(html) {
+            return _htmlCssSanitizer2.default.sanitize(html, function (u) {
+                return u;
+            }, function (id) {
+                return id;
+            });
+        };
+
+        return HyperlinkRenderer;
+    }(_defaultRenderer.DefaultRenderer), _class.DEFAULT_VALUE_FORMAT = '_blank', _class.DEFAULT_TEXT_FORMAT = 'View', _temp);
+});
+//# sourceMappingURL=../../maps/components/renderers/hyperlink-renderer.js.map
 
 gaRequire.define('tw-grid-advanced/configuration-parser',['exports', './grid-advanced-configuration', '../../components/definitions/style-definition', './logger', 'lodash-amd'], function (exports, _gridAdvancedConfiguration, _styleDefinition, _logger, _lodashAmd) {
     'use strict';
@@ -3373,12 +3626,15 @@ gaRequire.define('tw-grid-advanced/grid-advanced-configuration',['exports', './l
             this.TOOLBAR_STYLE = 'toolbarStyle';
             this.SORT_ASCENDING_STYLE = 'sortAscendingStyle';
             this.SORT_DESCENDING_STYLE = 'sortDescendingStyle';
+            this.ROW_ICON_STYLE = 'rowIconStyle';
+            this.ROW_EXPANSION_ICON_STYLE = 'rowExpansionIconStyle';
+            this.ROW_COLLAPSE_ICON_STYLE = 'rowCollapseIconStyle';
 
             this._defaultSelectedRows = [];
             this._preLoadTreeLevels = 1;
             this._maxRowCacheSize = 10000;
             this._enableColumnSorting = false;
-            this._orderedStyleNames = [this.TABLE_WRAPPER_STYLE, this.TABLE_FOCUS_STYLE, this.TABLE_HEADER_STYLE, this.TABLE_SORTING_STYLE, this.ROW_BORDER_STYLE, this.PAGINATION_BUTTON_STYLE, this.CELL_BORDER_STYLE, this.ROW_BACKGROUND_STYLE, this.ROW_ALTERNATE_BACKGROUND_STYLE, this.ROW_SELECTED_STYLE, this.ROW_HOVER_STYLE, this.PAGINATION_SELECTED_STYLE, this.PAGINATION_HOVER_STYLE, this.TOOLTIP_STYLE, this.TOOLBAR_STYLE, this.SORT_ASCENDING_STYLE, this.SORT_DESCENDING_STYLE];
+            this._orderedStyleNames = [this.TABLE_WRAPPER_STYLE, this.TABLE_FOCUS_STYLE, this.TABLE_HEADER_STYLE, this.TABLE_SORTING_STYLE, this.ROW_BORDER_STYLE, this.PAGINATION_BUTTON_STYLE, this.CELL_BORDER_STYLE, this.ROW_BACKGROUND_STYLE, this.ROW_ALTERNATE_BACKGROUND_STYLE, this.ROW_SELECTED_STYLE, this.ROW_HOVER_STYLE, this.PAGINATION_SELECTED_STYLE, this.PAGINATION_HOVER_STYLE, this.TOOLTIP_STYLE, this.TOOLBAR_STYLE, this.SORT_ASCENDING_STYLE, this.SORT_DESCENDING_STYLE, this.ROW_ICON_STYLE, this.ROW_EXPANSION_ICON_STYLE, this.ROW_COLLAPSE_ICON_STYLE];
         }
 
         GridAdvancedConfiguration.prototype.findColumnDefinition = function findColumnDefinition(fieldName) {
@@ -3420,7 +3676,9 @@ gaRequire.define('tw-grid-advanced/grid-advanced-configuration',['exports', './l
                 for (var i = 0; i < columnDefinitions.length; i++) {
                     var index = parseInt(columnDefinitions[i].columnIndex, 10);
                     if (index < 0) {
-                        _logger.Logger.error('Invalid column target "' + index + '" for field name "' + columnDefinitions[i].fieldName + '". Column target should be a positive integer.');
+                        if (columnDefinitions[i].inLayout) {
+                            _logger.Logger.error('Invalid column target "' + index + '" for field name "' + columnDefinitions[i].fieldName + '". Column target should be a positive integer.');
+                        }
                     } else if (!indexMap.has(index)) {
                         indexMap.set(index, columnDefinitions[i]);
                     } else {
@@ -3445,6 +3703,14 @@ gaRequire.define('tw-grid-advanced/grid-advanced-configuration',['exports', './l
         };
 
         _createClass(GridAdvancedConfiguration, [{
+            key: 'isTreeGrid',
+            set: function set(isTreeGrid) {
+                this._isTreeGrid = isTreeGrid;
+            },
+            get: function get() {
+                return this._isTreeGrid;
+            }
+        }, {
             key: 'tableId',
             set: function set(tableId) {
                 this._tableId = tableId;
@@ -3633,6 +3899,14 @@ gaRequire.define('tw-grid-advanced/grid-advanced-configuration',['exports', './l
             },
             get: function get() {
                 return this._preserveRowExpansion;
+            }
+        }, {
+            key: 'expandRowOnDoubleClick',
+            set: function set(expandRowOnDoubleClick) {
+                this._expandRowOnDoubleClick = expandRowOnDoubleClick;
+            },
+            get: function get() {
+                return this._expandRowOnDoubleClick;
             }
         }, {
             key: 'allColumnsHidden',
@@ -4323,6 +4597,7 @@ gaRequire.define('tw-grid-advanced/dhtmlx-table-data',['exports', 'lodash-amd', 
             this._cfg = cfg;
             this._rowIdMap = new Map();
             this._data = this.orderData(rows);
+            this._filterCacheTimestamp = 0;
         }
 
         DhtmlxTableData.prototype._createPrivateFieldNameMap = function _createPrivateFieldNameMap() {
@@ -4380,6 +4655,7 @@ gaRequire.define('tw-grid-advanced/dhtmlx-table-data',['exports', 'lodash-amd', 
             var newData = [];
             var tree = {};
             var orderedColumns = void 0;
+            var cacheTimestamp = new Date().getTime();
 
             data.forEach(function (row, index) {
                 var rowId = _this2._createRowId(parentId, row, index);
@@ -4398,7 +4674,7 @@ gaRequire.define('tw-grid-advanced/dhtmlx-table-data',['exports', 'lodash-amd', 
                 }
                 _this2._setNodeIcon(orderedColumns[0], values, hasChildren);
 
-                var gridRow = new _gridRow.GridRow(rowId, myParentId, values, rawValues, hasChildren, expandRows);
+                var gridRow = new _gridRow.GridRow(rowId, myParentId, values, rawValues, hasChildren, expandRows, cacheTimestamp, index);
                 tree[rowId] = gridRow;
                 newData[index] = gridRow;
                 _this2._rowIdMap.set(gridRow.id, gridRow);
@@ -4513,6 +4789,16 @@ gaRequire.define('tw-grid-advanced/dhtmlx-table-data',['exports', 'lodash-amd', 
             this._rowIdMap.delete(rowId);
         };
 
+        DhtmlxTableData.prototype.hasRowExpired = function hasRowExpired(rowId, totalRows) {
+            var rowExpired = totalRows > this._cfg.maxRowCacheSize;
+            var row = this.getRowById(rowId);
+            if (!rowExpired && row && row.rows.length > 0) {
+                rowExpired = row.rows[0].createdAt < this.cacheTimestamp;
+            }
+
+            return rowExpired;
+        };
+
         DhtmlxTableData.prototype._determineColumnOrder = function _determineColumnOrder(cookieConfig) {
             var _this4 = this;
 
@@ -4605,6 +4891,14 @@ gaRequire.define('tw-grid-advanced/dhtmlx-table-data',['exports', 'lodash-amd', 
             get: function get() {
                 return this._data;
             }
+        }, {
+            key: 'cacheTimestamp',
+            get: function get() {
+                return this._filterCacheTimestamp;
+            },
+            set: function set(timestamp) {
+                this._filterCacheTimestamp = timestamp;
+            }
         }]);
 
         return DhtmlxTableData;
@@ -4655,10 +4949,12 @@ gaRequire.define('tw-grid-advanced/grid-row',['exports', '../../components/rende
     var GridRow = exports.GridRow = function () {
         function GridRow(rowId, parentId, values, rawValues, hasChildren) {
             var expandRow = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : false;
+            var createdAt = arguments[6];
+            var dataIndex = arguments[7];
 
             _classCallCheck(this, GridRow);
 
-            this._id = rowId;
+            this._id = rowId + '';
             this._parent = parentId;
             this._rawData = rawValues;
             this._data = values.map(function (value) {
@@ -4675,6 +4971,8 @@ gaRequire.define('tw-grid-advanced/grid-row',['exports', '../../components/rende
             this._isExpanded = false;
             this._rows = [];
             this._open = expandRow;
+            this._createdAt = createdAt;
+            this._dataIndex = dataIndex;
         }
 
         _createClass(GridRow, [{
@@ -4744,96 +5042,23 @@ gaRequire.define('tw-grid-advanced/grid-row',['exports', '../../components/rende
             set: function set(isExpanded) {
                 this._isExpanded = isExpanded;
             }
+        }, {
+            key: 'createdAt',
+            get: function get() {
+                return this._createdAt;
+            },
+            set: function set(createdAt) {}
+        }, {
+            key: 'dataIndex',
+            get: function get() {
+                return this._dataIndex;
+            }
         }]);
 
         return GridRow;
     }();
 });
 //# sourceMappingURL=../../maps/advanced-widgets/grid-advanced/grid-row.js.map
-
-gaRequire.define('tw-grid-advanced/../../components/renderers/html-renderer',['exports', 'html-css-sanitizer', './default-renderer', 'htmlencode'], function (exports, _htmlCssSanitizer, _defaultRenderer, _htmlencode) {
-    'use strict';
-
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
-    exports.HtmlRenderer = undefined;
-
-    var _htmlCssSanitizer2 = _interopRequireDefault(_htmlCssSanitizer);
-
-    var _htmlencode2 = _interopRequireDefault(_htmlencode);
-
-    function _interopRequireDefault(obj) {
-        return obj && obj.__esModule ? obj : {
-            default: obj
-        };
-    }
-
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
-    }
-
-    function _possibleConstructorReturn(self, call) {
-        if (!self) {
-            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        }
-
-        return call && (typeof call === "object" || typeof call === "function") ? call : self;
-    }
-
-    function _inherits(subClass, superClass) {
-        if (typeof superClass !== "function" && superClass !== null) {
-            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-        }
-
-        subClass.prototype = Object.create(superClass && superClass.prototype, {
-            constructor: {
-                value: subClass,
-                enumerable: false,
-                writable: true,
-                configurable: true
-            }
-        });
-        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-    }
-
-    var HtmlRenderer = exports.HtmlRenderer = function (_DefaultRenderer) {
-        _inherits(HtmlRenderer, _DefaultRenderer);
-
-        function HtmlRenderer(valueFormat, params) {
-            _classCallCheck(this, HtmlRenderer);
-
-            return _possibleConstructorReturn(this, _DefaultRenderer.call(this, valueFormat, params, valueFormat === 'raw'));
-        }
-
-        HtmlRenderer.prototype.toView = function toView(value) {
-            var valString = _DefaultRenderer.prototype.toView.call(this, value);
-            switch (this._valueFormat) {
-                case 'raw':
-                    break;
-                case 'unsanitized':
-                    break;
-                case 'format':
-                default:
-                    valString = HtmlRenderer.sanitize(valString);
-            }
-            return valString;
-        };
-
-        HtmlRenderer.sanitize = function sanitize(html) {
-            return _htmlCssSanitizer2.default.sanitize(_htmlencode2.default.htmlDecode(html), function (u) {
-                return u;
-            }, function (id) {
-                return id;
-            });
-        };
-
-        return HtmlRenderer;
-    }(_defaultRenderer.DefaultRenderer);
-});
-//# sourceMappingURL=../../maps/components/renderers/html-renderer.js.map
 
 gaRequire.define('tw-grid-advanced/events/register-event',['exports', '../logger'], function (exports, _logger) {
     'use strict';
@@ -5208,8 +5433,8 @@ gaRequire.define('tw-grid-advanced/child-grid-handler',['exports', 'jquery', './
     var _SPINNER_ICON = '../Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/imgs/spinner.gif';
 
     var ChildGridHandler = exports.ChildGridHandler = function () {
-        function ChildGridHandler(gridId, gridAdvanced, dhtmlxTableData, serviceInvoker, configuration) {
-            var callback = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
+        function ChildGridHandler(gridId, gridAdvanced, dhtmlxTableData, serviceInvoker, parameters, configuration) {
+            var callback = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : null;
 
             _classCallCheck(this, ChildGridHandler);
 
@@ -5219,13 +5444,15 @@ gaRequire.define('tw-grid-advanced/child-grid-handler',['exports', 'jquery', './
             this._serviceInvoker = serviceInvoker;
             this._cfg = configuration;
             this._callback = callback;
-            this._defaultParams = serviceInvoker ? serviceInvoker.parameters : {};
+            this._defaultParams = parameters;
 
             this._performanceMonitor = new _performanceMonitor.PerformanceMonitor(false);
         }
 
         ChildGridHandler.prototype.expandChildGrid = function expandChildGrid(rowId) {
             var _this = this;
+
+            var query = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
             var _rowId = this._getRowId(rowId);
             this._performanceMonitor.startTime('loadChildGrid-' + _rowId);
@@ -5234,15 +5461,11 @@ gaRequire.define('tw-grid-advanced/child-grid-handler',['exports', 'jquery', './
                 if (this._serviceInvoker) {
                     this._setTreeLoadingIcon(_rowId);
                     var params = {
-                        maxLevels: this._defaultParams.maxLevels || 1
+                        query: query.query
                     };
-
-                    if (this._defaultParams.rowsPerLevel) {
-                        params.rowsPerLevel = this._defaultParams.rowsPerLevel;
-                    }
                     params[this._cfg.idFieldName] = _rowId;
 
-                    this._serviceInvoker.parameters = params;
+                    this._serviceInvoker.parameters = _jquery2.default.extend({ maxLevels: 1 }, this._defaultParams, params);
                     this._serviceInvoker.invokeService(function (invoker) {
                         if (invoker && invoker.result) {
                             _this._createTableData(invoker.result.rows, _rowId);
@@ -5250,9 +5473,10 @@ gaRequire.define('tw-grid-advanced/child-grid-handler',['exports', 'jquery', './
                     }, function (message) {
                         _logger.Logger.error(message);
                     });
-
-                    this._serviceInvoker.parameters = this._defaultParams;
                 }
+            } else {
+                this._gridAdvanced.openItem(rowId);
+                gridRow.isExpanded = true;
             }
         };
 
@@ -5275,10 +5499,7 @@ gaRequire.define('tw-grid-advanced/child-grid-handler',['exports', 'jquery', './
                             leafId: rowId
                         };
 
-                        if (_this2._defaultParams.rowsPerLevel) {
-                            params.rowsPerLevel = _this2._defaultParams.rowsPerLevel;
-                        }
-                        _this2._serviceInvoker.parameters = params;
+                        _this2._serviceInvoker.parameters = _jquery2.default.extend({}, _this2._defaultParams, params);
                         _this2._serviceInvoker.invokeService(function (invoker) {
                             if (invoker && invoker.result) {
                                 var rows = invoker.result.rows.filter(_this2._filterLoadedRows.bind(_this2));
@@ -5287,8 +5508,6 @@ gaRequire.define('tw-grid-advanced/child-grid-handler',['exports', 'jquery', './
                         }, function (message) {
                             _logger.Logger.error(message);
                         });
-
-                        _this2._serviceInvoker.parameters = _this2._defaultParams;
                     })();
                 }
             }
@@ -5309,8 +5528,14 @@ gaRequire.define('tw-grid-advanced/child-grid-handler',['exports', 'jquery', './
         ChildGridHandler.prototype.collapseChildGrid = function collapseChildGrid(rowId) {
             var _this3 = this;
 
-            var clearCache = this._gridAdvanced.getRowsNum() > this._cfg.maxRowCacheSize;
+            var clearCache = this._dhtmlxTableData.hasRowExpired(rowId, this._gridAdvanced.getRowsNum());
             this._rowId = this._getRowId(rowId);
+            var gridRow = this._dhtmlxTableData.getRowById(rowId);
+            if (this._gridAdvanced.getOpenState(rowId)) {
+                this._gridAdvanced.closeItem(rowId);
+            }
+            gridRow.isExpanded = false;
+
             if (clearCache) {
                 this._setTreeLoadingIcon(this._rowId);
 
@@ -5390,10 +5615,12 @@ gaRequire.define('tw-grid-advanced/child-grid-handler',['exports', 'jquery', './
 
         ChildGridHandler.prototype._resetSpinner = function _resetSpinner(topRowId) {
             var topGridRow = this._dhtmlxTableData.getRowById(topRowId);
-            var item = this._gridAdvanced._h2.get[topRowId];
-            item.update = true;
-            item.state = topGridRow.isExpanded ? 'minus' : 'plus';
-            this._gridAdvanced._updateTGRState(item);
+            if (this._gridAdvanced._h2) {
+                var item = this._gridAdvanced._h2.get[topRowId];
+                item.update = true;
+                item.state = topGridRow.isExpanded ? 'minus' : 'plus';
+                this._gridAdvanced._updateTGRState(item);
+            }
         };
 
         return ChildGridHandler;
@@ -5654,7 +5881,7 @@ gaRequire.define('tw-grid-advanced/json-configuration-parser',['exports', 'lodas
 
             var _this = _possibleConstructorReturn(this, _ConfigurationParser.call(this));
 
-            _this._isTreeGrid = isTreeGrid;
+            _this._gridAdvancedConfiguration.isTreeGrid = isTreeGrid;
             _this._gridAdvancedConfiguration.styleDefinitions = _this.createStyleDefinitions(configuration.styles);
             _this._gridAdvancedConfiguration.headerDefinition = _this._createHeaderDefinition(configuration);
             _this._gridAdvancedConfiguration.columnDefinitions = _this._createColumnDefinitions(configuration);
@@ -5673,6 +5900,7 @@ gaRequire.define('tw-grid-advanced/json-configuration-parser',['exports', 'lodas
             _this._gridAdvancedConfiguration.expandAllLoadedLevels = _this._createExpandAllLoadedLevels(configuration);
             _this._gridAdvancedConfiguration.includeRowExpansionParents = _this._createIncludeRowExpansionParents(configuration);
             _this._gridAdvancedConfiguration.preserveRowExpansion = _this._createPreserveRowExpansion(configuration);
+            _this._gridAdvancedConfiguration.expandRowOnDoubleClick = _this._expandRowOnDoubleClick(configuration);
             return _this;
         }
 
@@ -5891,6 +6119,14 @@ gaRequire.define('tw-grid-advanced/json-configuration-parser',['exports', 'lodas
             return preserveRowExpansion;
         };
 
+        JsonConfigurationParser.prototype._expandRowOnDoubleClick = function _expandRowOnDoubleClick(config) {
+            var expandRowOnDoubleClick = false;
+            if (config && config.treeSettings && config.treeSettings.expandRowOnDoubleClick) {
+                expandRowOnDoubleClick = config.treeSettings.expandRowOnDoubleClick;
+            }
+            return expandRowOnDoubleClick;
+        };
+
         JsonConfigurationParser.prototype._findStyleDefinition = function _findStyleDefinition(styleName) {
             return _lodashAmd2.default.find(this._gridAdvancedConfiguration.styleDefinitions, function (styleDef) {
                 return styleName === styleDef.displayName;
@@ -6062,8 +6298,8 @@ gaRequire.define('tw-grid-advanced/column-formatter-factory',['exports', './colu
             var converter = void 0;
             switch (type.toLowerCase()) {
                 case 'string':
-                    converter = new _stringRenderer.StringRenderer(valueFormat, params, widget);
-                    break;
+                converter = new _stringRenderer.StringRenderer(valueFormat, params, widget);
+                break;
                 case 'integer':
                     converter = new _integerRenderer.IntegerRenderer(valueFormat, params, widget);
                     break;
@@ -6415,103 +6651,6 @@ gaRequire.define('tw-grid-advanced/../../components/renderers/imagelink-renderer
     }(_defaultRenderer.DefaultRenderer);
 });
 //# sourceMappingURL=../../maps/components/renderers/imagelink-renderer.js.map
-
-gaRequire.define('tw-grid-advanced/../../components/renderers/hyperlink-renderer',['exports', 'html-css-sanitizer', './default-renderer'], function (exports, _htmlCssSanitizer, _defaultRenderer) {
-    'use strict';
-
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
-    exports.HyperlinkRenderer = undefined;
-
-    var _htmlCssSanitizer2 = _interopRequireDefault(_htmlCssSanitizer);
-
-    function _interopRequireDefault(obj) {
-        return obj && obj.__esModule ? obj : {
-            default: obj
-        };
-    }
-
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
-    }
-
-    function _possibleConstructorReturn(self, call) {
-        if (!self) {
-            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        }
-
-        return call && (typeof call === "object" || typeof call === "function") ? call : self;
-    }
-
-    function _inherits(subClass, superClass) {
-        if (typeof superClass !== "function" && superClass !== null) {
-            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-        }
-
-        subClass.prototype = Object.create(superClass && superClass.prototype, {
-            constructor: {
-                value: subClass,
-                enumerable: false,
-                writable: true,
-                configurable: true
-            }
-        });
-        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-    }
-
-    var _class, _temp;
-
-    var HyperlinkRenderer = exports.HyperlinkRenderer = (_temp = _class = function (_DefaultRenderer) {
-        _inherits(HyperlinkRenderer, _DefaultRenderer);
-
-        function HyperlinkRenderer(valueFormat, params) {
-            _classCallCheck(this, HyperlinkRenderer);
-
-            var _this = _possibleConstructorReturn(this, _DefaultRenderer.call(this, valueFormat, params));
-
-            _this._validateValueFormat();
-            _this._validateTextFormat();
-            return _this;
-        }
-
-        HyperlinkRenderer.prototype._validateTextFormat = function _validateTextFormat() {
-            if (!this._params) {
-                this._params = {
-                    textFormat: HyperlinkRenderer.DEFAULT_TEXT_FORMAT
-                };
-            }
-        };
-
-        HyperlinkRenderer.prototype._validateValueFormat = function _validateValueFormat() {
-            if (['_self', '_blank', '_parent', '_top'].indexOf(this._valueFormat) === -1) {
-                this._valueFormat = HyperlinkRenderer.DEFAULT_VALUE_FORMAT;
-            }
-        };
-
-        HyperlinkRenderer.prototype.toView = function toView(value) {
-            var view = '';
-            if (value) {
-                var encodedValue = _DefaultRenderer.prototype.toView.call(this, this._sanitize(value));
-                view = '<a target="' + this._valueFormat + '" href="' + encodedValue + '">' + this._params.textFormat + '</a>';
-            }
-            return view;
-        };
-
-        HyperlinkRenderer.prototype._sanitize = function _sanitize(html) {
-            return _htmlCssSanitizer2.default.sanitize(html, function (u) {
-                return u;
-            }, function (id) {
-                return id;
-            });
-        };
-
-        return HyperlinkRenderer;
-    }(_defaultRenderer.DefaultRenderer), _class.DEFAULT_VALUE_FORMAT = '_blank', _class.DEFAULT_TEXT_FORMAT = 'View', _temp);
-});
-//# sourceMappingURL=../../maps/components/renderers/hyperlink-renderer.js.map
 
 gaRequire.define('tw-grid-advanced/../../components/definitions/state-definition',['exports', 'lodash-amd'], function (exports, _lodashAmd) {
     'use strict';
@@ -7100,10 +7239,8 @@ gaRequire.define('tw-grid-advanced/mashup-builder-configuration-parser',['export
             _classCallCheck(this, MashupBuilderConfigurationParser);
 
             var _this = _possibleConstructorReturn(this, _ConfigurationParser.call(this));
-
-            _this._widget = configuration;
-
-            _this._isTreeGrid = isTreeGrid;
+            
+            _this._gridAdvancedConfiguration.isTreeGrid = isTreeGrid;
             _this._styleResolver = styleResolver;
             _this._localizationResolver = localizationResolver;
             _this._gridAdvancedConfiguration.headerDefinition = _this._convertHeaderDefinition(configuration.getProperty('HeaderOverflow'), configuration.getProperty('MaxHeaderHeight'));
@@ -7123,19 +7260,18 @@ gaRequire.define('tw-grid-advanced/mashup-builder-configuration-parser',['export
             _this._gridAdvancedConfiguration.idFieldName = configuration.getProperty('IDFieldName');
             _this._gridAdvancedConfiguration.hasChildrenFieldName = configuration.getProperty('HasChildrenFieldName');
             _this._gridAdvancedConfiguration.enableColumnSorting = configuration.getProperty('EnableSorting');
-            _this._gridAdvancedConfiguration.clientSideSorting = configuration.getProperty('ClientSideSorting');      
-            _this._gridAdvancedConfiguration.showTotalRow = configuration.getProperty('ShowTotalRowCount');                                      
             _this._gridAdvancedConfiguration.selectedRow = configuration.getProperty('SelectedRow');
             _this._gridAdvancedConfiguration.expandAllLoadedLevels = configuration.getProperty('ExpandLoadedRows');
             _this._gridAdvancedConfiguration.includeRowExpansionParents = configuration.getProperty('IncludeRowExpansionParents');
             _this._gridAdvancedConfiguration.preserveRowExpansion = configuration.getProperty('PreserveRowExpansion');
+            _this._gridAdvancedConfiguration.expandRowOnDoubleClick = configuration.getProperty('ExpandRowOnDoubleClick');
             _this._gridAdvancedConfiguration.enableBlockSelection = configuration.getProperty('EnableBlockSelection');
 			if(configuration.getProperty('EnableFiltering') == undefined) {
 				_this._gridAdvancedConfiguration.enableTextFiltering = true;
 			} else {
 				_this._gridAdvancedConfiguration.enableTextFiltering = configuration.getProperty('EnableFiltering');
 			}
-			_this._gridAdvancedConfiguration.textFilteringType = configuration.getProperty('FilteringType') || "text_filter";
+			_this._gridAdvancedConfiguration.textFilteringType = configuration.getProperty('FilteringType') || "text_filter";  
             return _this;
         }
 
@@ -7210,6 +7346,9 @@ gaRequire.define('tw-grid-advanced/mashup-builder-configuration-parser',['export
             styles.toolbarStyle = this._styleResolver(configuration.getProperty('ToolbarStyle', 'DefaultToolbarStyle'));
             styles.sortAscendingStyle = this._styleResolver(configuration.getProperty('SortAscendingStyle', 'DefaultSortAscendingStyle'));
             styles.sortDescendingStyle = this._styleResolver(configuration.getProperty('SortDescendingStyle', 'DefaultSortDescendingStyle'));
+            styles.rowIconStyle = this._styleResolver(configuration.getProperty('RowIconStyle', 'DefaultRowIconStyle'));
+            styles.rowExpansionIconStyle = this._styleResolver(configuration.getProperty('RowExpansionIconStyle', 'DefaultRowExpansionIconStyle'));
+            styles.rowCollapseIconStyle = this._styleResolver(configuration.getProperty('RowCollapseIconStyle', 'DefaultRowCollapseIconStyle'));
             return this.createStyleDefinitions(styles);
         };
 
@@ -7234,7 +7373,8 @@ gaRequire.define('tw-grid-advanced/mashup-builder-configuration-parser',['export
 
             if (inputColumnDefs && inputColumnDefs.formatInfo) {
                 columnDefinitions = [];
-                inputColumnDefs.formatInfo.forEach(function (inputColumnDef, columnIndex) {
+                var columnIndex = -1;
+                inputColumnDefs.formatInfo.forEach(function (inputColumnDef, index) {
                     var columnFormatter = _columnFormatterFactory.ColumnFormatterFactory.getFormatter(inputColumnDef.FormatOptions.renderer, _this3._localizationResolver(inputColumnDef.FormatOptions.FormatString), { textFormat: inputColumnDef.FormatOptions.formatText }, widget);
 
                     if (inputColumnDef.FormatOptions.formatInfo && (inputColumnDef.FormatOptions.formatInfo.StateDefinition || inputColumnDef.FormatOptions.formatInfo.StateDefinitionType === 'fixed')) {
@@ -7247,9 +7387,11 @@ gaRequire.define('tw-grid-advanced/mashup-builder-configuration-parser',['export
                             }
                         });
                     }
-                    var columnDefinition = new _columnDefinition.ColumnDefinition(columnIndex, inputColumnDef.FieldName, inputColumnDef.Title, columnFormatter);
+                    var inLayout = inputColumnDef.inLayout !== undefined ? inputColumnDef.inLayout : true;
+                    var cIndex = inLayout ? columnIndex += 1 : -1;
+                    var columnDefinition = new _columnDefinition.ColumnDefinition(cIndex, inputColumnDef.FieldName, inputColumnDef.Title, columnFormatter);
                     columnDefinition.hidden = inputColumnDef.hidden !== undefined ? inputColumnDef.hidden : false;
-                    columnDefinition.inLayout = inputColumnDef.inLayout !== undefined ? inputColumnDef.inLayout : true;
+                    columnDefinition.inLayout = inLayout;
                     columnDefinition.overflow = inputColumnDef.overflow !== undefined ? inputColumnDef.overflow : overflow;
 
                     if (inputColumnDef.Width === 'auto') {
@@ -7261,7 +7403,7 @@ gaRequire.define('tw-grid-advanced/mashup-builder-configuration-parser',['export
                             columnDefinition.width += 'px';
                         }
                     }
-                    columnDefinition.headerFilter = inputColumnDef.HeaderFilter;
+                    columnDefinition.headerFilter = inputColumnDef.HeaderFilter;                    
                     columnDefinition.textAlignment = inputColumnDef.Align.toLowerCase();
                     columnDefinition.headerTextAlignment = inputColumnDef.headerTextAlignment;
                     columnDefinitions.push(columnDefinition);

@@ -1,5 +1,6 @@
 ﻿gaRequire.require.config({
-    baseUrl: '../Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/include'
+    baseUrl: '../Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/include',
+    waitSeconds: 30
 });
 
 TW.Runtime.Widgets.treegridadvanced = function () {
@@ -18,6 +19,7 @@ TW.Runtime.Widgets.treegridadvanced = function () {
     var configLoaded = false;
     var tableSized = false;
     var infoTableDataShape;
+    var idFieldName = 'id';
 
     this.runtimeProperties = function () {
         return {
@@ -44,6 +46,7 @@ TW.Runtime.Widgets.treegridadvanced = function () {
 
     this.renderHtml = function () {
         gridId = thisWidget.getProperty('Id');
+        idFieldName = thisWidget.getProperty('IDFieldName');
         var responsiveStyle = "";
         TW.Session.UpdateCurrentUser(function() {
             currentUser = TW.Session.CurrentUser;
@@ -52,7 +55,7 @@ TW.Runtime.Widgets.treegridadvanced = function () {
         {
         	responsiveStyle = ' style="width: 100%; height: 100%" ';
         }
-        var html = '<div class="widget-content widget-gridadvanced' + (this.getProperty('WrapsTextInColumns') ? ' TWWrapColumns' : '') + '">' +
+        var html = '<div class="widget-content widget-gridadvanced">' +
             '<div id="' + gridId + '-top-container" class="grid-control-container"></div>' +
             '<div id="' + gridId + '-bottom-container" class="grid-control-container"></div>' +
             '<div id="' + gridId + '" ' + responsiveStyle + '></div></div>';
@@ -67,10 +70,10 @@ TW.Runtime.Widgets.treegridadvanced = function () {
                 break;
             case 'Data' :
             this.setProperty('NumberOfRows', updatePropertyInfo.ActualDataRows.length);
-                if (!updated) {
-                    updated = true;
-                    this.setProperty('NumberOfVisibleRows', updatePropertyInfo.ActualDataRows.length);
-                }
+            if (!updated) {
+                updated = true;
+                this.setProperty('NumberOfVisibleRows', updatePropertyInfo.ActualDataRows.length);
+            }
                 infoTableDataShape = updatePropertyInfo.DataShape;
                 updatedProperties[updatePropertyInfo.TargetProperty] = updatePropertyInfo.ActualDataRows;
                 break;
@@ -125,7 +128,7 @@ TW.Runtime.Widgets.treegridadvanced = function () {
             || (gridAdvanced && updatedProperties['SelectedRows'])
             || (gridAdvanced && updatedProperties['ExpandRows'])
             || (gridAdvanced && updatedProperties['DefaultSelectedRows']
-            || (gridAdvanced && updatedProperties['QueryFilter']))) {
+            || (gridAdvanced && updatedProperties.hasOwnProperty('QueryFilter')))) {
             return true;
         } else {
             return false;
@@ -157,7 +160,7 @@ TW.Runtime.Widgets.treegridadvanced = function () {
                 gridAdvanced.updateBindable('DefaultSelectedRows', propertyData);
             }
             else if (property === 'QueryFilter') {
-                    gridAdvanced.updateBindable('QueryFilter', propertyData);
+                gridAdvanced.updateBindable('QueryFilter', propertyData);
             }
         });
         this.positionContainers();
@@ -167,7 +170,6 @@ TW.Runtime.Widgets.treegridadvanced = function () {
     };
 
     var self = this;
-
     this.afterRender = function () {
         gaRequire.define("jquery", function () {
             //drop the `true` if you want jQuery (but not $) to remain global
@@ -185,14 +187,12 @@ TW.Runtime.Widgets.treegridadvanced = function () {
                         thisWidget.TwGridAdvanced = arguments[1].TwGridAdvanced;
                         thisWidget.ConfigurationParserFactory = arguments[2].ConfigurationParserFactory;
                         gridAdvanced = new thisWidget.TwGridAdvanced(gridId, thisWidget.rowSelectionCallback, true);
-                        gridAdvanced._widget = self;
                         gridAdvanced.childDataServiceInvoker = thisWidget.createServiceInvoker(
                             thisWidget.getProperty('ChildDataServiceBindingDef')
                         );
-                        gridAdvanced.queryDataServiceInvoker = thisWidget.createServiceInvoker(
-                            thisWidget.getProperty('DataServiceBindingDef')
-                        );
-
+                        gridAdvanced._widget = self;
+                        
+                        gridAdvanced.childDataServiceParameters = thisWidget.childDataServiceParameters;
                         gridAdvanced.imagePath = '../Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/imgs/';
                         gridAdvanced.menuIconsPath = '../Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/common/images/';
                         gridAdvanced.structPath = '../Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/common/';
@@ -215,6 +215,7 @@ TW.Runtime.Widgets.treegridadvanced = function () {
                                                                                             TW.getStyleFromStyleDefinition,
                                                                                             TW.Runtime.convertLocalizableString, true);
 		                    gridAdvanced.updateBindable('Configuration', parser.configuration);
+                            idFieldName = parser.configuration.idFieldName;
 	                    }
                         gridAdvanced.localizationUtil = function(token) {
                             var val = TW.Runtime.convertLocalizableString(Encoder.htmlEncode(token)).replace(/,/g,'&#44;');
@@ -241,7 +242,7 @@ TW.Runtime.Widgets.treegridadvanced = function () {
                             freeMemoryWarning: TW.Runtime.convertLocalizableString("[[freeMemoryWarning]]", "Please wait while we clear the row cache to free up memory, this may take a minute..."),
                             splitGrid: TW.Runtime.convertLocalizableString("[[splitGrid]]", "Split"),
                             unSplitGrid: TW.Runtime.convertLocalizableString("[[unSplitGrid]]", "Unsplit")
-                        }
+                        };
 
                         var bound = thisWidget.isConfigurationBound();
                         if (thisWidget.checkBindables(bound)) {
@@ -253,6 +254,113 @@ TW.Runtime.Widgets.treegridadvanced = function () {
         });
     };
 
+    /**
+     * Copied from thingworx.datamanager.controller.js
+     * This code updates the parameters for the service by looping through
+     * each binding and getting the current value.
+     * @param {string} entityName Example: 'Things_GridAdvancedExampleServices'
+     * @param {string} target Example: 'GetPartsData'
+     */
+    this.updateServiceParameters = function(entityName, target) {
+        var parmVal, parmName, fieldName;
+        var didSetEntityName = false;
+        var entityNameSetTo = undefined;
+        var def = thisWidget.mashup.Data[entityName].ServiceInvocations[target]
+        var thisData = thisWidget.mashup.Data[entityName];
+        var thisDataMgr = thisWidget.mashup.dataMgr;
+        $.each(thisWidget.mashup.DataBindings, function () {
+            var dataBinding = this;
+            parmVal = undefined;
+            try {
+                // handle EntityName for DynamicThing{Shapes,Templates}
+                if (this.TargetArea === "Data" && this.TargetSection === thisData.DataName && this.TargetId === "EntityName" && this.PropertyMaps[0].TargetPropertyType === "Entity") {
+                    // entity name being set
+                    didSetEntityName = true;
+
+                    var updatePropertyInfo = thisDataMgr.getUpdatePropertyInfoFromBindingSource(dataBinding);
+                    entityNameSetTo = updatePropertyInfo.SinglePropertyValue;
+                } else if (this.TargetArea === "Data" && this.TargetSection === thisData.DataName && this.TargetId === def.Name) {
+                    // another parameter being set
+                    var updatePropertyInfo = thisDataMgr.getUpdatePropertyInfoFromBindingSource(dataBinding);
+                    if (dataBinding.PropertyMaps[0].SourceProperty === '' && (dataBinding.PropertyMaps[0].SourcePropertyBaseType === 'INFOTABLE' || dataBinding.PropertyMaps[0].SourcePropertyBaseType === '') && dataBinding.PropertyMaps[0].TargetPropertyBaseType === 'INFOTABLE') {
+                        //parmVal = updatePropertyInfo.RawDataFromInvoke;
+                        parmVal = updatePropertyInfo.RawSinglePropertyValue;
+                    } else if( dataBinding.PropertyMaps[0].TargetProperty.indexOf('.') > 0 ) {
+                        // nested infotable parameter ... create a row if it doesn't exist
+                        var tgtProp =  dataBinding.PropertyMaps[0].TargetProperty;
+                        var nDot = tgtProp.indexOf('.');
+                        parmName = tgtProp.substring(0,nDot);
+                        fieldName = tgtProp.substring(nDot+1);
+                        if( def.Parameters[parmName] === undefined ) {
+                            def.Parameters[parmName] = {
+                                'dataShape': {
+                                    fieldDefinitions: {},
+                                    name: 'handBuilt',
+                                    description: ''
+                                },
+                                'name': '',
+                                'description': '',
+                                'rows': [{}]
+                            };
+                        }
+
+                        // add it to the dataShape
+                        def.Parameters[parmName].dataShape.fieldDefinitions[fieldName] = {
+                            name: fieldName,
+                            baseType: dataBinding.PropertyMaps[0].TargetPropertyBaseType
+                        };
+
+                        // set the value
+                        def.Parameters[parmName].rows[0][fieldName] = updatePropertyInfo.RawSinglePropertyValue;
+                    } else {
+                        // normal parameter
+                        if( dataBinding.PropertyMaps[0].SourcePropertyBaseType === 'JSON'  ) {
+                            // for JSON parms, just put them in directly
+                            def.Parameters[dataBinding.PropertyMaps[0].TargetProperty] = updatePropertyInfo.RawDataFromInvoke;
+                            // def.Parameters[dataBinding.PropertyMaps[0].TargetProperty] = updatePropertyInfo.RawSinglePropertyValue;
+                        } else {
+                            if (updatePropertyInfo.ActualDataRows !== undefined && updatePropertyInfo.ActualDataRows.length > 0) {
+                                //parmVal = updatePropertyInfo.ActualDataRows[0][dataBinding.PropertyMaps[0].SourceProperty];
+                                parmVal = updatePropertyInfo.RawSinglePropertyValue;
+                            }
+                            if (parmVal === undefined) {
+                                // pjh 1/16/2012 - it's ok to set the parameter to undefined - sometimes that's what's correct
+                                def.Parameters[this.PropertyMaps[0].TargetProperty] = undefined;
+                            } else {
+                                parmVal = TW.Runtime.baseTypeConversion(parmVal, dataBinding.PropertyMaps[0]);
+                                def.Parameters[dataBinding.PropertyMaps[0].TargetProperty] = parmVal;
+                            }
+                        }
+                    }
+                    if (parmVal !== undefined) {
+                        def.Parameters[this.PropertyMaps[0].TargetProperty] = parmVal;
+                    }
+                }
+            } catch (err) {
+                TW.log.error('exception populating parameter for data binding within trigger for dataBinding ' + JSON.stringify(dataBinding), err);
+            }
+        });
+    };
+
+    /**
+     * Get the current set child data service parameters
+     * @return {object} parameters with updated values to pass to the advanced grid widget
+     */
+    this.childDataServiceParameters = function() {
+        var parameters = {};
+        var bindingDef = thisWidget.getProperty('ChildDataServiceBindingDef');
+        var entityName = bindingDef.entityType + '_' + bindingDef.entityName;
+        var target = bindingDef.target;
+        thisWidget.updateServiceParameters(entityName, target);
+        try {
+            parameters = thisWidget.mashup.Data[entityName].ServiceInvocations[target].Parameters;
+        } catch(e) {
+            TW.log.warn('Error retrieving the binding definition for the TreeGrid advanced child service');
+        }
+
+        return parameters;
+    };
+
     this.attachEvents = function() {
         $('#' + gridId).on('queryGridColumns', function(event, query) {
             thisWidget.setProperty('QueryFilter', query);
@@ -260,15 +368,19 @@ TW.Runtime.Widgets.treegridadvanced = function () {
         });
     };
 
-    this.onRowDblClicked = function(){
+    this.onRowDblClicked = function(rowId){
         thisWidget.jqElement.triggerHandler('DoubleClicked');
+        gridAdvanced.expandOrCollapseRow(rowId, true);
     };
 
-    this.rowSelectionCallback = function(rowIds, rows){
+    this.rowSelectionCallback = function(rowIndexes, rows){
         var clonedTable = TW.InfoTableUtilities.CloneInfoTable({ "dataShape" : { "fieldDefinitions" : infoTableDataShape}, "rows" : rows });
 
         thisWidget.setProperty('SelectedRows', clonedTable);
         thisWidget.jqElement.triggerHandler('SelectedRowsChanged');
+        setTimeout(function() {
+            thisWidget.updateSelection('Data', rowIndexes);
+        },1);
     };
 
     /**
@@ -324,4 +436,9 @@ TW.Runtime.Widgets.treegridadvanced = function () {
             return new ThingworxInvoker(invokeInfo);
         }
     };
+
+    // callback from runtime to tell us that the selection has been changed by another widget
+    // this.handleSelectionUpdate = function (propertyName, selectedRows, newSelectedRowIndices) {
+        // gridAdvanced.selectRows(selectedRows, newSelectedRowIndices);
+    // };
 };

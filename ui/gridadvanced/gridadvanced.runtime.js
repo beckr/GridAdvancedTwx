@@ -1,5 +1,6 @@
 ﻿gaRequire.require.config({
-    baseUrl: '../Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/include'
+    baseUrl: '../Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/include',
+    waitSeconds: 30
 });
 
 TW.Runtime.Widgets.gridadvanced = function () {
@@ -51,21 +52,20 @@ TW.Runtime.Widgets.gridadvanced = function () {
         {
         	responsiveStyle = ' style="width: 100%; height: 100%" ';
         }
-        var html = '<div class="widget-content widget-gridadvanced' + (this.getProperty('WrapsTextInColumns') ? ' TWWrapColumns' : '') + '">' +
+        var html = '<div class="widget-content widget-gridadvanced">' +
             '<div id="' + gridId + '-top-container" class="grid-control-container"></div>' +
             '<div id="' + gridId + '-bottom-container" class="grid-control-container"></div>' +
             '<div id="' + gridId + '" ' + responsiveStyle + '></div></div>';
         return html;
     };
-
     var updated = false;
-
+    
     this.updateProperty = function (updatePropertyInfo) {
         switch (updatePropertyInfo.TargetProperty) {
             case 'Configuration' :
                 updatedProperties[updatePropertyInfo.TargetProperty] = updatePropertyInfo.SinglePropertyValue;
                 break;
-            case 'Data' :
+            case 'Data' :            
                 this.setProperty('NumberOfRows', updatePropertyInfo.ActualDataRows.length);
                 if (!updated) {
                     updated = true;
@@ -119,7 +119,7 @@ TW.Runtime.Widgets.gridadvanced = function () {
             || (gridAdvanced && updatedProperties['SelectedRow'])
             || (gridAdvanced && updatedProperties['ExpandRow'])
             || (gridAdvanced && updatedProperties['DefaultSelectedRows']
-            || (gridAdvanced && updatedProperties['QueryFilter']))) {
+            || (gridAdvanced && updatedProperties.hasOwnProperty('QueryFilter')))) {
             return true;
         } else {
             return false;
@@ -162,8 +162,6 @@ TW.Runtime.Widgets.gridadvanced = function () {
         propertyUpdateOrder = [];
     };
 
-    var self = this;
-
     this.afterRender = function () {
         gaRequire.define("jquery", function () {
             //drop the `true` if you want jQuery (but not $) to remain global
@@ -180,7 +178,6 @@ TW.Runtime.Widgets.gridadvanced = function () {
                     thisWidget.TwGridAdvanced = arguments[1].TwGridAdvanced;
                     thisWidget.ConfigurationParserFactory = arguments[2].ConfigurationParserFactory;
                     gridAdvanced = new thisWidget.TwGridAdvanced(gridId, thisWidget.rowSelectionCallback);
-                    gridAdvanced._widget = self;
                     gridAdvanced.queryDataServiceInvoker = thisWidget.createServiceInvoker(
                         thisWidget.getProperty('DataServiceBindingDef'),
                         undefined
@@ -252,9 +249,9 @@ TW.Runtime.Widgets.gridadvanced = function () {
         thisWidget.jqElement.triggerHandler('DoubleClicked');
     };
 
-    this.rowSelectionCallback = function(rows){
+    this.rowSelectionCallback = function(rowIndexes, rows){
         setTimeout(function() {
-            thisWidget.updateSelection('Data', rows);
+            thisWidget.updateSelection('Data', rowIndexes);
         },1);
     };
 
@@ -282,7 +279,7 @@ TW.Runtime.Widgets.gridadvanced = function () {
 
     // callback from runtime to tell us that the selection has been changed by another widget
     this.handleSelectionUpdate = function (propertyName, selectedRows, newSelectedRowIndices) {
-
+        gridAdvanced.selectRows(selectedRows, newSelectedRowIndices);
     };
 
     /**

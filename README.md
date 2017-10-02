@@ -1,11 +1,11 @@
 # Grid and Tree Advanced widgets
 
-This repository is a fork of the Grid Advanced widget from the 2.0 version
+This repository is a fork of the Grid Advanced widget from the 3.0.1 version
 
 ## New features
  * Row filtering options. You can now chose the "EnableFiltering" option and enable filtering globally for all the grid. Text based filtering in the grid is done using wildcards.
  Inside the grid column configuration you can also specify the type of filtering for each row.
- * Additional properties to get the total number of rows and the total number of displayed rows in the grid. Properties are `NumberOfRows` and `NumberOfVisibleRows`.
+ * Additional properties to get the total number of rows in the grid. Properties is `NumberOfRows`.
  * Additional option to display a text in the cells where the row is undefiend. The property is `EmptyCellText`.
  * The css styles for the grid are not marked as `!important` so they can be overwritten.
  * Sorting can be done client-side. The relevant property is `ClientSideSorting`.

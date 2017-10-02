@@ -134,6 +134,33 @@
   padding: 5px;
 }
 
+.widget-gridadvanced .objbox table tbody tr td .treegrid_cell img:nth-last-child(2) {
+    width: 18px;
+    height: 18px;
+    box-sizing: border-box;
+    padding-left: 18px;
+    background-size: 18px 18px;
+    background-repeat: no-repeat;
+    margin-top: 1px;
+}
+
+.widget-gridadvanced .objbox table tbody tr td .treegrid_cell img.grid_collapse_icon:not([src*="spinner.gif"]) {
+    width: 18px;
+    height: 18px;
+    box-sizing: border-box;
+    padding-left: 18px;
+    background-size: 18px 18px;
+    background-repeat: no-repeat;
+}
+
+.widget-gridadvanced .objbox table tbody tr td .treegrid_cell img:nth-last-child(2)[src*="blank.gif"] {
+    background-image: none !important;
+}
+
+.widget-gridadvanced .objbox table tbody tr td .treegrid_cell span {
+    vertical-align: middle;
+}
+
 div.dhtmlxMenu_material_SubLevelArea_Polygon td.sub_item_icon div.sub_icon{
   background-image:url("imgs/dhxmenu_material/dhxmenu_chrd.png") !important;
 }
@@ -162,11 +189,6 @@ div.dhtmlxMenu_material_SubLevelArea_Polygon div + div {
     margin-top: -15px;
     margin-left: -30px;
 }
-
-.TWWrapColumns .twdhtmlxcell {
-  white-space: normal !important;
-}
-
 div.gridbox div.ftr {
   position: relative;
 }

@@ -208,6 +208,29 @@ div.gridbox_material.gridbox table.hdr tr  {
     background-clip: padding-box !important;
 }
 
+.widget-gridadvanced .objbox table tbody tr td .treegrid_cell img:nth-last-child(2) {
+    width: 18px;
+    height: 18px;
+    box-sizing: border-box;
+    padding-left: 18px;
+    background-size: 18px 18px;
+    background-repeat: no-repeat;
+    margin-top: 1px;
+}
+
+.widget-gridadvanced .objbox table tbody tr td .treegrid_cell img.grid_collapse_icon {
+    width: 18px;
+    height: 18px;
+    box-sizing: border-box;
+    padding-left: 18px;
+    background-size: 18px 18px;
+    background-repeat: no-repeat;
+}
+
+.widget-gridadvanced .objbox table tbody tr td .treegrid_cell span {
+    vertical-align: middle;
+}
+
 #grid-config select#column-width-format {
     height: 30px;
     margin-left: 8px;
