@@ -291,6 +291,7 @@ gaRequire.define('tw-grid-advanced/tw-grid-advanced',['exports', 'lodash-amd', '
 							
 						});
                     }
+                    this._resizeColumns(-1);
                     this._performanceMonitor.endTime('_configureTable');
                 } catch (e) {
                     _logger.Logger.error('DHTMLX Grid loading error: ' + e.stack);
