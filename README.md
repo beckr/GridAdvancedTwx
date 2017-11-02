@@ -21,3 +21,7 @@ This repository is a fork of the Grid Advanced widget from the 3.0.1 version
 ## Known issues
 * The combobox and search fitler are untested.
 * The select filter is known to not work then the display order of the columns is different from the order of the columns in the datashape.
+
+## Screenshots
+![Example screenshot with tooltips](https://i.imgur.com/J1Dr3SD.png)
+![Example screneshot](https://i.imgur.com/Kns6YWo.png)
