@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<Entities build="latest" majorVersion="0" minorVersion="0" modelPersistenceProviderPackage="NeoPersistenceProviderPackage" revision="0" schemaVersion="940">
+<Entities build="latest" majorVersion="7" minorVersion="2" modelPersistenceProviderPackage="NeoPersistenceProviderPackage" revision="0" schemaVersion="940">
     <StyleDefinitions>
         <StyleDefinition aspect.isExtension="true" aspect.isThemeObject="true" description="Default cell border style" documentationContent="" homeMashup="" lastModifiedDate="2017-04-17T11:08:48.540-04:00" name="DefaultGridAdvancedCellBorderStyle" projectName="" tags="">
             <Owner name="SuperUser" type="User"/>
@@ -16,7 +16,7 @@
                 <Visibility/>
             </VisibilityPermissions>
             <ConfigurationTables/>
-            <content><![CDATA[{"image":"","backgroundColor":"#e6e6e6","textSize":"normal","lineStyle":"solid","fontEmphasisUnderline":false,"displayString":"","fontEmphasisItalic":false,"lineThickness":1,"lineColor":"","foregroundColor":"","fontEmphasisBold":false,"secondaryBackgroundColor":"#ffffff"}]]></content>
+            <content><![CDATA[{"image":"","backgroundColor":"#e6e6e6","textSize":"normal","lineStyle":"none","fontEmphasisUnderline":false,"displayString":"","fontEmphasisItalic":false,"lineThickness":0,"lineColor":"","foregroundColor":"","fontEmphasisBold":false,"secondaryBackgroundColor":"#ffffff"}]]></content>
             <ConfigurationChanges>
                 <ConfigurationChange changeAction="CREATE" changeReason="Importing Extension Package Metadata" timestamp="2017-04-17T11:08:48.540-04:00" user="SuperUser"/>
             </ConfigurationChanges>

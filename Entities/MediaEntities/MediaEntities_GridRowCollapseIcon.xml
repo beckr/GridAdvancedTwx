@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<Entities build="latest" majorVersion="0" minorVersion="0" modelPersistenceProviderPackage="NeoPersistenceProviderPackage" revision="0" schemaVersion="931">
+<Entities build="latest" majorVersion="7" minorVersion="2" modelPersistenceProviderPackage="NeoPersistenceProviderPackage" revision="0" schemaVersion="931">
     <MediaEntities>
         <MediaEntity aspect.isExtension="true" description="" documentationContent="" homeMashup="" lastModifiedDate="2017-09-13T01:56:15.951-04:00" name="GridRowCollapseIcon" projectName="" tags="">
             <Owner name="SuperUser" type="User"/>

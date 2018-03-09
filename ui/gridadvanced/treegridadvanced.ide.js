@@ -1,4 +1,4 @@
-﻿gaRequire.require.config({
+gaRequire.require.config({
     baseUrl: '../Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/include'
 });
 TW.IDE.Widgets.treegridadvanced = function () {
@@ -10,6 +10,8 @@ TW.IDE.Widgets.treegridadvanced = function () {
         'IMAGELINK': 'IMAGELINK',
         'IMAGE': 'IMAGE',
         'NUMBER': 'NUMBER',
+        'INTEGER': 'INTEGER',
+        'LONG': 'LONG',
         'STRING': 'STRING',
         'BOOLEAN': 'BOOLEAN',
         'THINGNAME': 'THINGNAME',
@@ -82,6 +84,16 @@ TW.IDE.Widgets.treegridadvanced = function () {
                     'isBindingTarget': true,
                     'defaultValue': ''
                 },
+                'IsEditable': {
+                    'description': TW.IDE.I18NController.translate('tw.dhxgrid-ide.properties.is-editable.description'),
+                    'defaultValue': false,
+                    'baseType': 'BOOLEAN'
+                },
+                'EditedTable': {
+                    'isBindingSource': true,
+                    'baseType': 'INFOTABLE',
+                    'description': TW.IDE.I18NController.translate('tw.dhxgrid-ide.properties.edited-table.description')
+                },
                 'DefaultSelectedRows': {
                     'description': TW.IDE.I18NController.translate('tw.grid-advanced-ide.properties.default-selected-rows.description', 'Either a specified range (e.g. 1-10) or a comma separated list (e.g. 2,4,7,9,12-15) used to highlight rows with a \"selected\" style by default when the grid is loaded.'),
                     'baseType': 'STRING',
@@ -148,6 +160,12 @@ TW.IDE.Widgets.treegridadvanced = function () {
                     'defaultValue': true,
                     'baseType': 'BOOLEAN'
                 },
+                'EnableContextMenu' : {
+                    'description': TW.IDE.I18NController.translate('tw.grid-advanced-ide.properties.enable-context-menu.description', 'Determines whether to enable or disable the context menu'),
+                    'baseType': 'BOOLEAN',
+                    'isVisible': true,
+                    'defaultValue': true
+                },
                 'EnableSorting' : {
                     'description': TW.IDE.I18NController.translate('tw.grid-advanced-ide.properties.enable-sorting.description', 'Determines whether to enable or disable column sorting'),
                     'baseType': 'BOOLEAN',
@@ -201,7 +219,12 @@ TW.IDE.Widgets.treegridadvanced = function () {
                     'defaultValue': false,
                     'description': TW.IDE.I18NController.translate('tw.grid-advanced-ide.properties.enable-grid-reset.description', 'Enable a toolbar button for clearing the user cookie configurations, resetting the grid to it\'s default configuration')
                 },
-				'EnableFiltering': {
+                'EnableFilterEventOnConfigChange': {
+                    'baseType': 'BOOLEAN',
+                    'defaultValue': true,
+                    'description': TW.IDE.I18NController.translate('tw.grid-advanced-ide.properties.enable-filter-event-on-config-change.description', 'When enabled, fire the Filter event when a grid configuration update from a service occurs.')
+                },
+                'EnableFiltering': {
                     'baseType': 'BOOLEAN',
                     'defaultValue': true,
                     'description': 'Enable grid filtering'
@@ -331,8 +354,13 @@ TW.IDE.Widgets.treegridadvanced = function () {
                 },
                 'CellBorderStyle': {
                     'baseType': 'STYLEDEFINITION',
-                    'defaultValue': 'DefaultCellBorderStyle',
-                    'description': TW.IDE.I18NController.translate('tw.grid-advanced-ide.properties.cell-border-style.description', 'Cell border style')
+                    'defaultValue': 'DefaultGridAdvancedCellBorderStyle',
+                    'description': TW.IDE.I18NController.translate('tw.grid-advanced-ide.properties.cell-border-style.description', 'Cell border style applies a line color to the left and right borders.')
+                },
+                'RowBorderStyle': {
+                    'baseType': 'STYLEDEFINITION',
+                    'defaultValue': 'DefaultGridAdvancedRowBorderStyle',
+                    'description': TW.IDE.I18NController.translate('tw.grid-advanced-ide.properties.row-border-style.description', 'Row border style applies a line color to the bottom cell border.')
                 },
                 'ToolbarStyle': {
                     'baseType': 'STYLEDEFINITION',
@@ -488,8 +516,10 @@ TW.IDE.Widgets.treegridadvanced = function () {
     this.widgetEvents = function () {
         return {
             'DoubleClicked': {},
-            'Filter': {},
-            'SelectedRowsChanged': {}
+            'Filter': { 'description': TW.IDE.I18NController.translate('tw.grid-advanced-ide.events.filter.description', 'Event triggered when there is either a text search or a sort performed') },
+            'SelectedRowsChanged': { 'description': TW.IDE.I18NController.translate('tw.grid-advanced-ide.events.filter.description', 'Event triggered when row selections are updated') },
+            'EditCellStarted': { 'description': TW.IDE.I18NController.translate('tw.grid-advanced-ide.events.filter.description', 'Event triggered when a user starts editing a cell in the grid') },
+            'EditCellCompleted': { 'description': TW.IDE.I18NController.translate('tw.grid-advanced-ide.events.filter.description', 'Event triggered when a user finishes editing a cell in the grid') }
         };
     };
 
@@ -666,7 +696,8 @@ TW.IDE.Widgets.treegridadvanced = function () {
             case 'RowSelection':
                 allWidgetProps['properties']['AutoScroll']['isVisible'] = this.getProperty('RowSelection') !== 'none';
                 this.updatedProperties();
-                return true;
+                result = true;
+                break;
             case 'Width':
             case 'Height':
             case 'ColumnFormat':
@@ -683,18 +714,21 @@ TW.IDE.Widgets.treegridadvanced = function () {
             case 'EnableGridReset':
             	allWidgetProps['properties']['GridResetButtonLocation']['isVisible'] = this.getProperty('EnableGridReset');
                 this.updatedProperties();
-                return true;	
+                result = true;
+                break;
             case 'EnableGridSearch':
             	allWidgetProps['properties']['GridSearchLocation']['isVisible'] = this.getProperty('EnableGridSearch');
             	allWidgetProps['properties']['QueryFilter']['isVisible'] = this.getProperty('EnableGridSearch') || this.getProperty('EnableSorting');
                 allWidgetProps['properties']['Filter']['isVisible'] = this.getProperty('EnableGridSearch') || this.getProperty('EnableSorting');
                 this.updatedProperties();
-                return true;
+                result = true;
+                break;
             case 'EnableSorting':
             	allWidgetProps['properties']['QueryFilter']['isVisible'] = this.getProperty('EnableGridSearch') || this.getProperty('EnableSorting');
                 allWidgetProps['properties']['Filter']['isVisible'] = this.getProperty('EnableGridSearch') || this.getProperty('EnableSorting');
                 this.updatedProperties();
-                return true;
+                result = true;
+                break;
             case 'ClientPagination':
                 //control visibility of dependant properties
                 allWidgetProps['properties']['RowsPerPage']['isVisible'] = this.getProperty('ClientPagination');
@@ -702,47 +736,58 @@ TW.IDE.Widgets.treegridadvanced = function () {
                 allWidgetProps['properties']['RowFormat']['isVisible'] = this.getProperty('ClientPagination');
                 allWidgetProps['properties']['PaginationLocation']['isVisible'] = this.getProperty('ClientPagination');
                 this.updatedProperties();
-                return true;
+                result = true;
             case 'PaginationLocation':
                 this.positionContainers();
                 this.updatedProperties();
-                return true;
+                result = true;
+                break;
             case 'GridSearchLocation':
                 this.positionContainers();
                 this.updatedProperties();
-                return true;
+                result = true;
+                break;
             case 'GridResetButtonLocation':
                 this.positionContainers();
                 this.updatedProperties();
-                return true;
+                result = true;
+                break;
             case 'PaginationControls':
                 var visible = (this.getProperty('PaginationControls') !== 'simple' &&
                 this.getProperty('PaginationControls') !== 'simple_numbers');
                 allWidgetProps['properties']['PaginationButtons']['isVisible'] = visible;
                 this.updatedProperties();
-                return true;
+                result = true;
+                break;
             case 'RowIconStyle':
                 this.positionContainers();
                 this.updatedProperties();
-                return true;
+                result = true;
+                break;
             case 'RowExpansionIconStyle':
                 this.positionContainers();
                 this.updatedProperties();
-                return true;
+                result = true;
+                break;
             case 'RowCollapseIconStyle':
                 this.positionContainers();
                 this.updatedProperties();
-                return true;
-            case 'Style':
                 result = true;
+                break;
+            case 'Style':
+                result = false;
                 break;
             default:
                 break;
         }
 
-        thisWidget.getPropertyConfig();
-        thisWidget.buildGrid();
-        return false;
+        setTimeout(function() {
+            if (!result) {
+                thisWidget.buildGrid();
+                thisWidget.getPropertyConfig();
+            }
+        }, 500);
+        return result;
     };
 
     this.toggleConfigurationProperties = function(visible) {
@@ -792,6 +837,8 @@ TW.IDE.Widgets.treegridadvanced = function () {
         allWidgetProps['properties']['ExpandLoadedRows']['isVisible'] = visible;
         allWidgetProps['properties']['PreserveRowExpansion']['isVisible'] = visible;
         allWidgetProps['properties']['ExpandRowOnDoubleClick']['isVisible'] = visible;
+        allWidgetProps['properties']['IsEditable']['isVisible'] = visible;
+        allWidgetProps['properties']['EnableContextMenu']['isVisible'] = visible;
     };
 
     this.renderHtml = function () {
@@ -822,9 +869,9 @@ TW.IDE.Widgets.treegridadvanced = function () {
             gaRequire.require(["dhtmlx-tree-bundle"], function() {
 
                 gaRequire.requirejs(['jquery',
-                        'tw-grid-advanced/tw-grid-advanced',
-                        'tw-grid-advanced/configuration-parser-factory',
-                        'tw-grid-advanced/tooltip/tooltip-factory',
+                        'tw-grid-advanced/grid-advanced/tw-grid-advanced',
+                        'tw-grid-advanced/grid-advanced/configuration-parser-factory',
+                        'tw-grid-advanced/grid-advanced/tooltip/tooltip-factory',
                         'dhxtreegrid'
                     ],
                     function() {
@@ -918,7 +965,7 @@ TW.IDE.Widgets.treegridadvanced = function () {
 
         var bottomId = '#' + gridId + '-bottom-container';
         var $bottom = $(bottomId).detach();
-        
+
         $top.insertBefore('#'+gridId);
         $bottom.insertAfter('#'+gridId);
     };

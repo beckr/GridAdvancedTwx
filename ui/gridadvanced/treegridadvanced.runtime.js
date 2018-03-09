@@ -1,4 +1,4 @@
-﻿gaRequire.require.config({
+gaRequire.require.config({
     baseUrl: '../Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/include',
     waitSeconds: 30
 });
@@ -27,25 +27,26 @@ TW.Runtime.Widgets.treegridadvanced = function () {
             'supportsAutoResize': true
         };
     };
-    
-    this.handleResponsiveWidgets = function () {
+
+    this.resize = function () {
         // If the container for the table has been made visible we need to resize the columns
-        if(gridAdvanced && this.properties.ResponsiveLayout) {
+        if(this.properties.ResponsiveLayout) {
             var widgetObj = this;
 
             clearTimeout(this.resizeHandle);
             this.resizeHandle = setTimeout(function() {
-                gridAdvanced.resize();
-
+                if (gridAdvanced) {
+                    gridAdvanced.resize();
+                }
                 // Now that the columns have been resized we can reset the height and show the grid
                 widgetObj.jqElement.height("auto");
                 tableSized = true;
-            }, 50);
+            }, 500);
         }
     };
 
     this.renderHtml = function () {
-        gridId = thisWidget.getProperty('Id');
+        gridId = thisWidget.jqElementId + '-grid-advanced';
         idFieldName = thisWidget.getProperty('IDFieldName');
         var responsiveStyle = "";
         TW.Session.UpdateCurrentUser(function() {
@@ -55,27 +56,31 @@ TW.Runtime.Widgets.treegridadvanced = function () {
         {
         	responsiveStyle = ' style="width: 100%; height: 100%" ';
         }
-        var html = '<div class="widget-content widget-gridadvanced">' +
-            '<div id="' + gridId + '-top-container" class="grid-control-container"></div>' +
+        var html = '<div class="widget-content widget-gridadvanced">';
+        if (thisWidget.getProperty('ShowDataLoading')) {
+            var icon = '../Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/imgs/loader-100.gif';
+            var spinnerId = gridId + '-spinner';
+            html += '<div id="' + spinnerId + '" class="spinner"><img src="' + icon + '"/></div>';
+        }
+        html += '<div id="' + gridId + '-top-container" class="grid-control-container"></div>' +
             '<div id="' + gridId + '-bottom-container" class="grid-control-container"></div>' +
             '<div id="' + gridId + '" ' + responsiveStyle + '></div></div>';
         return html;
     };
 
-    var updated = false;
     this.updateProperty = function (updatePropertyInfo) {
         switch (updatePropertyInfo.TargetProperty) {
             case 'Configuration' :
                 updatedProperties[updatePropertyInfo.TargetProperty] = updatePropertyInfo.SinglePropertyValue;
                 break;
             case 'Data' :
-            this.setProperty('NumberOfRows', updatePropertyInfo.ActualDataRows.length);
-            if (!updated) {
-                updated = true;
-                this.setProperty('NumberOfVisibleRows', updatePropertyInfo.ActualDataRows.length);
-            }
-                infoTableDataShape = updatePropertyInfo.DataShape;
+                this.setProperty('NumberOfRows', updatePropertyInfo.ActualDataRows.length);
+                if (!updated) {
+                    updated = true;
+                    this.setProperty('NumberOfVisibleRows', updatePropertyInfo.ActualDataRows.length);
+                }
                 updatedProperties[updatePropertyInfo.TargetProperty] = updatePropertyInfo.ActualDataRows;
+                infoTableDataShape = updatePropertyInfo.DataShape;
                 break;
             case 'SelectedRows':
                 updatedProperties[updatePropertyInfo.TargetProperty] = updatePropertyInfo.ActualDataRows
@@ -168,7 +173,6 @@ TW.Runtime.Widgets.treegridadvanced = function () {
         updatedProperties = {};
         propertyUpdateOrder = [];
     };
-
     var self = this;
     this.afterRender = function () {
         gaRequire.define("jquery", function () {
@@ -178,9 +182,9 @@ TW.Runtime.Widgets.treegridadvanced = function () {
         gaRequire.require(["grid-advanced-widget", "dhtmlx-bundle"], function() {
             gaRequire.require(["dhtmlx-tree-bundle"], function(){
                 gaRequire.requirejs(['jquery',
-                        'tw-grid-advanced/tw-grid-advanced',
-                        'tw-grid-advanced/configuration-parser-factory',
-                        'tw-grid-advanced/tooltip/tooltip-factory',
+                        'tw-grid-advanced/grid-advanced/tw-grid-advanced',
+                        'tw-grid-advanced/grid-advanced/configuration-parser-factory',
+                        'tw-grid-advanced/grid-advanced/tooltip/tooltip-factory',
                         'dhxtreegrid'
                     ],
                     function() {
@@ -191,7 +195,6 @@ TW.Runtime.Widgets.treegridadvanced = function () {
                             thisWidget.getProperty('ChildDataServiceBindingDef')
                         );
                         gridAdvanced._widget = self;
-                        
                         gridAdvanced.childDataServiceParameters = thisWidget.childDataServiceParameters;
                         gridAdvanced.imagePath = '../Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/imgs/';
                         gridAdvanced.menuIconsPath = '../Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/common/images/';
@@ -209,6 +212,8 @@ TW.Runtime.Widgets.treegridadvanced = function () {
                                                              thisWidget.getProperty('CookiePersistence'));
 
                         gridAdvanced.statusTextMessageCallback = TW.Runtime.showStatusText;
+                        gridAdvanced.rowEditCallback = thisWidget.handleRowEditsCallback;
+                        gridAdvanced.enableFilterEventOnConfigChange = thisWidget.getProperty('EnableFilterEventOnConfigChange');
                         thisWidget.attachEvents();
 	                    if(!thisWidget.isConfigurationBound()) {
 		                    var parser = thisWidget.ConfigurationParserFactory.createParser('mashup-builder', thisWidget,
@@ -349,15 +354,16 @@ TW.Runtime.Widgets.treegridadvanced = function () {
     this.childDataServiceParameters = function() {
         var parameters = {};
         var bindingDef = thisWidget.getProperty('ChildDataServiceBindingDef');
-        var entityName = bindingDef.entityType + '_' + bindingDef.entityName;
-        var target = bindingDef.target;
-        thisWidget.updateServiceParameters(entityName, target);
-        try {
-            parameters = thisWidget.mashup.Data[entityName].ServiceInvocations[target].Parameters;
-        } catch(e) {
-            TW.log.warn('Error retrieving the binding definition for the TreeGrid advanced child service');
+        if (bindingDef) {
+            var entityName = bindingDef.entityType + '_' + bindingDef.entityName;
+            var target = bindingDef.target;
+            thisWidget.updateServiceParameters(entityName, target);
+            try {
+                parameters = thisWidget.mashup.Data[entityName].ServiceInvocations[target].Parameters;
+            } catch(e) {
+                TW.log.warn('Error retrieving the binding definition for the TreeGrid advanced child service');
+            }
         }
-
         return parameters;
     };
 
@@ -378,10 +384,25 @@ TW.Runtime.Widgets.treegridadvanced = function () {
 
         thisWidget.setProperty('SelectedRows', clonedTable);
         thisWidget.jqElement.triggerHandler('SelectedRowsChanged');
-        setTimeout(function() {
-            thisWidget.updateSelection('Data', rowIndexes);
-        },1);
+        // setTimeout(function() {
+        //     thisWidget.updateSelection('Data', rowIndexes);
+        // },1);
     };
+
+    this.handleRowEditsCallback = function(stage, rows) {
+        var editedRowsInfoTable = { "dataShape" : { "fieldDefinitions" : infoTableDataShape}, "rows" : rows };
+
+        if(thisWidget.getProperty("IsEditable", false) === true) {
+            if (stage === 0) {
+                thisWidget.jqElement.triggerHandler('EditCellStarted');
+            }
+            else if (stage === 2) {
+                thisWidget.setProperty('EditedTable', editedRowsInfoTable);
+                thisWidget.jqElement.triggerHandler('EditCellCompleted');
+            }
+        }
+    };
+
 
     /**
      * Place the pagination container either above or below the grid depending on the 'pageLocation' setting.
@@ -393,7 +414,7 @@ TW.Runtime.Widgets.treegridadvanced = function () {
 
         var bottomId = '#' + gridId + '-bottom-container';
         var $bottom = $(bottomId).detach();
-        
+
         $top.insertBefore('#'+gridId);
         $bottom.insertAfter('#'+gridId);
     };

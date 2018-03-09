@@ -151,6 +151,24 @@
 .widget-gridadvanced table.gridadvanced thead .sorting_desc_disabled {
     background-image: url("/Thingworx/Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/images/sort_desc_disabled.png");
 }
+.widget-gridadvanced .objbox table tbody tr [src*="item_chk0.gif"] {
+    background-image: url(common/images/unchecked.PNG);
+	width: 15px;
+    height: 15px;
+    box-sizing: border-box;
+    padding-left: 15px;
+    background-size: 15px 15px;
+    background-repeat: no-repeat;
+}
+.widget-gridadvanced .objbox table tbody tr [src*="item_chk1.gif"] {
+    background-image: url(common/images/checked.PNG);
+	width: 15px;
+    height: 15px;
+    box-sizing: border-box;
+    padding-left: 15px;
+    background-size: 15px 15px;
+    background-repeat: no-repeat;
+}
 .widget-gridadvanced .gridadvanced_wrapper .gridadvanced_paginate .paginate_button.current, .gridadvanced_wrapper .gridadvanced_paginate .paginate_button.current:hover {
     color: #333;
 }

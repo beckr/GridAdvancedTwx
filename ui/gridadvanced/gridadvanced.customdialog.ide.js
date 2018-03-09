@@ -1,4 +1,4 @@
-﻿// this will be instantiated with
+// this will be instantiated with
 // new TW.IDE.Dialogs.GridCustomEditor()
 
 TW.IDE.Dialogs.GridAdvancedCustomEditor = function () {
@@ -77,7 +77,6 @@ TW.IDE.Dialogs.GridAdvancedCustomEditor = function () {
                         // ValidationExpression: "",
                         // ValidationMessage: "",
                         Width: "auto",
-                        HeaderFilter: "none",
                         Align: "left",
                         headerTextAlignment: "left",
                         "FormatOptions": {
@@ -105,14 +104,17 @@ TW.IDE.Dialogs.GridAdvancedCustomEditor = function () {
                         case 'IMAGE':
                             thisColumnFormatInfo.FormatOptions.renderer = 'IMAGE';
                             break;
+                        case "INTEGER":
+                        case "LONG":
                         case "NUMBER":
-                            thisColumnFormatInfo.FormatOptions.renderer = 'NUMBER';
+                            thisColumnFormatInfo.FormatOptions.renderer = this.resultingShape[fieldName].baseType;
                             break;
                         case "STRING":
                             thisColumnFormatInfo.FormatOptions.renderer = 'STRING';
                             break;
                         case "BOOLEAN":
                             thisColumnFormatInfo.FormatOptions.renderer = 'BOOLEAN';
+							thisColumnFormatInfo.AllowEdit = true;
                             break;
                         case "THINGNAME":
                             thisColumnFormatInfo.FormatOptions.renderer = 'THINGNAME';
@@ -250,13 +252,13 @@ TW.IDE.Dialogs.GridAdvancedCustomEditor = function () {
                     + ' <option value="numeric_filter" title=" a text filter that allows using comparison operators in it. Retrieves values which contain mask defined through text field. ">Numeric Filter</option>'
                     + '</select>'
                 + '</td>'
-            + '</tr>'
-+ '<tr>'
+                + '</tr>'
+                + '<tr>'
                 + '</tr>'
                                     + '</table>'
-                    /*
-                                    + '<h5>'+ TW.IDE.I18NController.translate('tw.dhxgrid-customdialog-ide.cell-editing-options') +'</h5>'
-                                    + '<table class="table table-striped table-bordered">'
+
+                                    + '<h5 id="editable-config-title" style="display: none">'+ TW.IDE.I18NController.translate('tw.dhxgrid-customdialog-ide.cell-editing-options') +'</h5>'
+                                    + '<table id="column-editable-config" class="table table-striped table-bordered" style="display: none">'
                                         + '<tr>'
                                             + '<td class="grid-config-label">'
                                                 + '<label class="editable-label">'+ TW.IDE.I18NController.translate('tw.dhxgrid-customdialog-ide.editable') +'</label>'
@@ -270,7 +272,7 @@ TW.IDE.Dialogs.GridAdvancedCustomEditor = function () {
                                                 + '<label>'+ TW.IDE.I18NController.translate('tw.dhxgrid-customdialog-ide.validation-expression') +'</label>'
                                             + '</td>'
                                             + '<td>'
-                                                + '<input id="column-validation-expression" type="text" /><span class="disabled-explanation-edit">'+ TW.IDE.I18NController.translate('tw.dhxgrid-customdialog-ide.column-validation-disabled') +'</span>'
+                                                + '<input id="column-validation-expression" type="text" style="display: none"/><span class="disabled-explanation-edit">'+ TW.IDE.I18NController.translate('tw.dhxgrid-customdialog-ide.column-validation-disabled') +'</span>'
                                             + '</td>'
                                         + '</tr>'
                                         + '<tr>'
@@ -278,11 +280,10 @@ TW.IDE.Dialogs.GridAdvancedCustomEditor = function () {
                                                 + '<label>'+ TW.IDE.I18NController.translate('tw.dhxgrid-customdialog-ide.validation-message') +'</label>'
                                             + '</td>'
                                             + '<td>'
-                                                + '<div id="column-validation-message"></div><span class="disabled-explanation-edit">'+ TW.IDE.I18NController.translate('tw.dhxgrid-customdialog-ide.column-validation-disabled') +'</span>'
+                                                + '<div id="column-validation-message" style="display: none"></div><span class="disabled-explanation-edit">'+ TW.IDE.I18NController.translate('tw.dhxgrid-customdialog-ide.column-validation-disabled') +'</span>'
                                             + '</td>'
                                         + '</tr>'
                                     + '</table>'
-                                    */
                                 + '</div>'
                                 + '<div id="renderer-with-state" class="column-renderer-state tab" style="display: none;">'
                                 + '</div>'
@@ -455,9 +456,6 @@ TW.IDE.Dialogs.GridAdvancedCustomEditor = function () {
                 var allowEdit = this.jqElement.find('#allow-edit').is(":checked");
                 var widthSpecified = this.jqElement.find('#column-width').val();
                 var widthFormatSpecified = this.jqElement.find('#column-width-format').val();
-                // Editable grid not supported
-                // var validationExpression = this.jqElement.find('#column-validation-expression').val().trim();
-                // var validationMessage = this.jqElement.find('#column-validation-message').twStdTextBox('getProperty', 'value').trim();
                 var title = this.jqElement.find('#column-display-name').twStdTextBox('getProperty', 'value').trim();
                 var alignment = this.jqElement.find('#alignment').val();
                 var hAlignment = this.jqElement.find('#h-alignment').val();
@@ -495,6 +493,11 @@ TW.IDE.Dialogs.GridAdvancedCustomEditor = function () {
                     headerTextAlignment: hAlignment,
                     "FormatOptions": curStateFormat
                 };
+                // Editable grid not supported except for boolean
+                if(allowEdit) {
+                    this.currentColDefinitions[fieldName].ValidationExpression = this.jqElement.find('#column-validation-expression').val().trim();
+                    this.currentColDefinitions[fieldName].ValidationMessage = this.jqElement.find('#column-validation-message').twStdTextBox('getProperty', 'value').trim();
+                }
             }
         }
 
@@ -516,10 +519,43 @@ TW.IDE.Dialogs.GridAdvancedCustomEditor = function () {
             var columnWidthFormat = gridConfigDOM.find('#column-width-format');
             var disabledExplanation = gridConfigDOM.find('.disabled-explanation');
             var disabledExplanationEditable = gridConfigDOM.find('.disabled-explanation-edit');
-            // Editable grid not supported
-            // var columnValidationExpression = gridConfigDOM.find('#column-validation-expression');
-            // var columnValidationMessage = gridConfigDOM.find('#column-validation-message');
+            var columnValidationExpression = gridConfigDOM.find('#column-validation-expression');
+			var columnValidationMessage = gridConfigDOM.find('#column-validation-message');
+            this.jqElement.find('#column-validation-expression').val(curDef.ValidationExpression ? curDef.ValidationExpression : "");
+            this.jqElement.find('#column-validation-message').twStdTextBox({
+                value: curDef.ValidationMessage || '',
+                editable: true,
+                isLocalizable: true
+            });		
+            if (curDef.FormatOptions.renderer === "BOOLEAN") {
+                $("#grid-config #editable-config-title").show();
+                $("#grid-config #column-editable-config").show();
+                if(curDef.AllowEdit) {
+                    columnValidationExpression.show();
+                    columnValidationMessage.show();
+                    disabledExplanationEditable.hide();
+                } else {
+                    columnValidationExpression.hide();
+                    columnValidationMessage.hide();
+                    disabledExplanationEditable.show();
+                }
+            } else {
+                $("#grid-config #editable-config-title").hide();
+                $("#grid-config #column-editable-config").hide();
+            }
+            disableEditing.change(function() {
+                if (disableEditing.is(":checked")) {
+                    columnValidationExpression.show();
+                    columnValidationMessage.show();
+                    disabledExplanationEditable.hide();
+                } else {
+                    columnValidationExpression.hide();
+                    columnValidationMessage.hide();
+                    disableEditing.attr("checked");
+                    disabledExplanationEditable.show();
 
+                }
+            });
             this.jqElement.find('#auto-width').prop('checked', curDef.Width === "auto" ? true : false);
             this.jqElement.find('#allow-edit').prop('checked', curDef.AllowEdit);
             this.jqElement.find('#field-name').text(fieldName);
@@ -531,14 +567,7 @@ TW.IDE.Dialogs.GridAdvancedCustomEditor = function () {
 	            editable: true,
 	            isLocalizable: true
             });
-         /* Editable grid not supported
-            this.jqElement.find('#column-validation-expression').val(curDef.ValidationExpression ? curDef.ValidationExpression : "");
-            this.jqElement.find('#column-validation-message').twStdTextBox({
-                value: curDef.ValidationMessage || '',
-                editable: true,
-                isLocalizable: true
-            });
-         */
+
             this.jqElement.find('#alignment').val(curDef.Align);
             if (curDef.headerTextAlignment) {
                 this.jqElement.find('#h-alignment').val(curDef.headerTextAlignment);
@@ -551,7 +580,7 @@ TW.IDE.Dialogs.GridAdvancedCustomEditor = function () {
 
             // override the renderer type selections so that only types grid-advanced supports are displayed
             var htmlRenderChoices = '';
-            var dataTypeWhiteList = ['DATETIME', 'IMAGELINK', 'STRING', 'INTEGER', 'NUMBER', 'LONG', 'BOOLEAN', 'HTML', 'HYPERLINK', 'DEFAULT'];
+            var dataTypeWhiteList = ['DEFAULT', 'BOOLEAN', 'DATETIME', 'HTML', 'HYPERLINK', 'IMAGELINK', 'INTEGER', 'LOCATION', 'LONG', 'NUMBER', 'STRING'];
             if(TW.Renderer.HTML.formatSelectOptions.length == 2) {
                 TW.Renderer.HTML.formatSelectOptions.push( {
                     value: 'unsanitized', 
@@ -568,7 +597,17 @@ TW.IDE.Dialogs.GridAdvancedCustomEditor = function () {
 
                 }
             }
-            $('#grid-config').find('#grid-config-renderers').empty().html(htmlRenderChoices);
+            var gridConfigRendererSelect = $('#grid-config').find('#grid-config-renderers');
+            gridConfigRendererSelect.empty().html(htmlRenderChoices);
+            gridConfigRendererSelect.change(function (event) {
+                if (event.currentTarget.value === "BOOLEAN") {
+                    $("#grid-config #editable-config-title").show();
+                    $("#grid-config #column-editable-config").show();
+                } else {
+                    $("#grid-config #editable-config-title").hide();
+				    $("#grid-config #column-editable-config").hide();
+                }
+            });
 
             if (this.resultingShape !== undefined) {
                 this.jqElement.find('.field-description').text(this.resultingShape[fieldName].description);
@@ -590,21 +629,6 @@ TW.IDE.Dialogs.GridAdvancedCustomEditor = function () {
                 columnWidthFormat.removeAttr('disabled','disabled');
                 disabledExplanation.hide();
             }
-
-        /*  Editable grid not supported
-            
-            if(disableEditing.is(":checked")) {
-                columnValidationExpression.show();
-                columnValidationMessage.show();
-                disabledExplanationEditable.hide();
-            } else {
-                columnValidationExpression.hide();
-                columnValidationMessage.hide();
-                disabledExplanationEditable.show();
-
-            }
-        */
-
         }
     };
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<Entities build="latest" majorVersion="0" minorVersion="0" modelPersistenceProviderPackage="NeoPersistenceProviderPackage" revision="0" schemaVersion="931">
+<Entities build="latest" majorVersion="7" minorVersion="2" modelPersistenceProviderPackage="NeoPersistenceProviderPackage" revision="0" schemaVersion="931">
     <StyleDefinitions>
         <StyleDefinition aspect.isExtension="true" aspect.isThemeObject="true" description="Default row icon style" documentationContent="" homeMashup="" lastModifiedDate="2017-09-13T00:02:05.373-04:00" name="DefaultRowIconStyle" projectName="" tags="">
             <Owner name="SuperUser" type="User"/>

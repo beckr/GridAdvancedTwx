@@ -97,6 +97,24 @@
 .widget-gridadvanced table.gridadvanced thead .sorting_desc_disabled {
   background-image: url("/Thingworx/Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/images/sort_desc_disabled.png");
 }
+.widget-gridadvanced .objbox table tbody tr [src*="item_chk0.gif"] {
+    background-image: url(common/images/unchecked.PNG);
+	width: 15px;
+    height: 15px;
+    box-sizing: border-box;
+    padding-left: 15px;
+    background-size: 15px 15px;
+    background-repeat: no-repeat;
+}
+.widget-gridadvanced .objbox table tbody tr [src*="item_chk1.gif"] {
+    background-image: url(common/images/checked.PNG);
+	width: 15px;
+    height: 15px;
+    box-sizing: border-box;
+    padding-left: 15px;
+    background-size: 15px 15px;
+    background-repeat: no-repeat;
+}
 .widget-gridadvanced .gridadvanced_wrapper .gridadvanced_paginate .paginate_button.current, .gridadvanced_wrapper .gridadvanced_paginate .paginate_button.current:hover {
   color: #333;
 }
@@ -178,7 +196,7 @@ div.gridbox_material.gridbox table.hdr tr  {
 }
 
 .dhtmlxMenu_material_SubLevelArea_Polygon  {
-  z-index: 9000 !important;
+  z-index: 999999 !important;
 }
 
 div.dhtmlxMenu_material_SubLevelArea_Polygon div + div {
@@ -189,6 +207,16 @@ div.dhtmlxMenu_material_SubLevelArea_Polygon div + div {
     margin-top: -15px;
     margin-left: -30px;
 }
-div.gridbox div.ftr {
-  position: relative;
+
+.widget-gridadvanced .spinner {
+    display: none;
+    margin: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 999999;
+}
+
+#tiptip_content {
+    text-shadow: inherit !important;
 }

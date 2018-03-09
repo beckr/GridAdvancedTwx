@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Entities
+ build="latest"
+ majorVersion="0"
+ minorVersion="0"
+ modelPersistenceProviderPackage="NeoPersistenceProviderPackage"
+ revision="0"
+ schemaVersion="1020">
+    <StyleDefinitions>
+        <StyleDefinition
+         description="Default Row Background Style for Grid Advanced in Thingworx Theme"
+         documentationContent=""
+         homeMashup=""
+         lastModifiedDate="2018-02-01T03:25:34.994-05:00"
+         name="DefaultGridAdvancedRowBorderStyle"
+         projectName=""
+         tags="">
+            <avatar></avatar>
+            <DesignTimePermissions>
+                <Create></Create>
+                <Read></Read>
+                <Update></Update>
+                <Delete></Delete>
+                <Metadata></Metadata>
+            </DesignTimePermissions>
+            <RunTimePermissions></RunTimePermissions>
+            <VisibilityPermissions>
+                <Visibility></Visibility>
+            </VisibilityPermissions>
+            <ConfigurationTables></ConfigurationTables>
+            <content>
+            <![CDATA[
+            {
+              "backgroundColor" : "",
+              "displayString" : "",
+              "fontEmphasisBold" : false,
+              "fontEmphasisItalic" : false,
+              "fontEmphasisUnderline" : false,
+              "foregroundColor" : "",
+              "image" : "",
+              "lineColor" : "#dddddd",
+              "lineStyle" : "solid",
+              "lineThickness" : 1,
+              "secondaryBackgroundColor" : "",
+              "textSize" : "small"
+            }
+            ]]>
+            </content>
+        </StyleDefinition>
+    </StyleDefinitions>
+</Entities>
