@@ -1,6 +1,6 @@
 # Grid and Tree Advanced widgets
 
-This repository is a fork of the Grid Advanced widget from the 3.0.1 version
+This repository is a fork of the Grid Advanced widget from the 3.0.6 version
 
 ## New features
  * Row filtering options. You can now chose the "EnableFiltering" option and enable filtering globally for all the grid. Text based filtering in the grid is done using wildcards.
