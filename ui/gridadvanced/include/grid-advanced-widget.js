@@ -3197,6 +3197,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/mashup-builder-configuration-pa
             _this._gridAdvancedConfiguration.expandRowOnDoubleClick = configuration.getProperty('ExpandRowOnDoubleClick');
             _this._gridAdvancedConfiguration.enableContextMenu = configuration.getProperty('EnableContextMenu');
             _this._gridAdvancedConfiguration.enableBlockSelection = configuration.getProperty('EnableBlockSelection');
+            _this._gridAdvancedConfiguration.showTotalRow = configuration.getProperty('ShowTotalRowCount');
 			if(configuration.getProperty('EnableFiltering') == undefined) {
 				_this._gridAdvancedConfiguration.enableTextFiltering = true;
 			} else {
