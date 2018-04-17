@@ -3190,6 +3190,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/mashup-builder-configuration-pa
             _this._gridAdvancedConfiguration.idFieldName = configuration.getProperty('IDFieldName');
             _this._gridAdvancedConfiguration.hasChildrenFieldName = configuration.getProperty('HasChildrenFieldName');
             _this._gridAdvancedConfiguration.enableColumnSorting = configuration.getProperty('EnableSorting');
+            _this._gridAdvancedConfiguration.clientSideSorting = configuration.getProperty('ClientSideSorting');
             _this._gridAdvancedConfiguration.selectedRow = configuration.getProperty('SelectedRow');
             _this._gridAdvancedConfiguration.expandAllLoadedLevels = configuration.getProperty('ExpandLoadedRows');
             _this._gridAdvancedConfiguration.includeRowExpansionParents = configuration.getProperty('IncludeRowExpansionParents');
