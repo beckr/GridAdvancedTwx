@@ -40,7 +40,7 @@ TW.Runtime.Widgets.gridadvanced = function () {
                 // Now that the columns have been resized we can reset the height and show the grid
                 widgetObj.jqElement.height("auto");
                 tableSized = true;
-            }, 500);
+            }, 50);
         }
     };
 
@@ -60,14 +60,12 @@ TW.Runtime.Widgets.gridadvanced = function () {
             '<div id="' + gridId + '" ' + responsiveStyle + '></div></div>';
         return html;
     };
-    var updated = false;
     this.updateProperty = function (updatePropertyInfo) {
         switch (updatePropertyInfo.TargetProperty) {
             case 'Configuration' :
                 updatedProperties[updatePropertyInfo.TargetProperty] = updatePropertyInfo.SinglePropertyValue;
                 break;
             case 'Data' :
-                this.setProperty('NumberOfRows', updatePropertyInfo.ActualDataRows.length);
                 updatedProperties[updatePropertyInfo.TargetProperty] = updatePropertyInfo.ActualDataRows;
                 infoTableDataShape = updatePropertyInfo.DataShape;
                 break;
@@ -85,6 +83,12 @@ TW.Runtime.Widgets.gridadvanced = function () {
                 break;
             case 'QueryFilter' :
                 updatedProperties[updatePropertyInfo.TargetProperty] = updatePropertyInfo.ActualDataRows[0].Query;
+                break;
+            case 'IsEditable' :
+                updatedProperties[updatePropertyInfo.TargetProperty] = updatePropertyInfo.RawSinglePropertyValue;
+                break;
+            case 'FooterData' :
+                updatedProperties[updatePropertyInfo.TargetProperty] = updatePropertyInfo.ActualDataRows;
                 break;
         }
         propertyUpdateOrder.push(updatePropertyInfo.TargetProperty);
@@ -116,8 +120,10 @@ TW.Runtime.Widgets.gridadvanced = function () {
             || (gridAdvanced && updatedProperties['SelectedRows'])
             || (gridAdvanced && updatedProperties['SelectedRow'])
             || (gridAdvanced && updatedProperties['ExpandRow'])
-            || (gridAdvanced && updatedProperties['DefaultSelectedRows']
-            || (gridAdvanced && updatedProperties.hasOwnProperty('QueryFilter')))) {
+            || (gridAdvanced && updatedProperties['DefaultSelectedRows'])
+            || (gridAdvanced && updatedProperties['IsEditable'] !== undefined)
+            || (gridAdvanced && updatedProperties['FooterData'])
+            || (gridAdvanced && updatedProperties.hasOwnProperty('QueryFilter'))) {
             return true;
         } else {
             return false;
@@ -152,6 +158,12 @@ TW.Runtime.Widgets.gridadvanced = function () {
             }
             else if (property === 'QueryFilter') {
                 gridAdvanced.updateBindable('QueryFilter', propertyData);
+            }
+            else if (property === 'IsEditable') {
+                gridAdvanced.updateBindable('IsEditable', propertyData);
+            }
+            else if (property === 'FooterData') {
+                gridAdvanced.updateBindable('FooterData', propertyData);
             }
         });
         this.positionContainers();
@@ -194,7 +206,8 @@ TW.Runtime.Widgets.gridadvanced = function () {
                     gridAdvanced.enableUserConfiguration(currentUser, thisWidget.getProperty('ConfigurationId'),
                         thisWidget.getProperty('CookiePersistence'));
                     gridAdvanced.statusTextMessageCallback = TW.Runtime.showStatusText;
-                    gridAdvanced.rowEditCallback = thisWidget.handleRowEditsCallback;
+                    gridAdvanced.cellEditCallback = thisWidget.handleCellEditsCallback;
+                    gridAdvanced.gridEditCallback = thisWidget.handleGridEditsCallback;
                     gridAdvanced.enableFilterEventOnConfigChange = thisWidget.getProperty('EnableFilterEventOnConfigChange');
                     thisWidget.attachEvents();
                     if(!thisWidget.isConfigurationBound()) {
@@ -210,6 +223,9 @@ TW.Runtime.Widgets.gridadvanced = function () {
                     gridAdvanced.l8nTokens = {
                         search: TW.Runtime.convertLocalizableString("[[search]]", "Search"),
                         reset: TW.Runtime.convertLocalizableString("[[reset]]", "Reset"),
+                        edit: TW.Runtime.convertLocalizableString("[[edit]]", "Edit"),
+                        save: TW.Runtime.convertLocalizableString("[[save]]", "Save"),
+                        cancel: TW.Runtime.convertLocalizableString("[[cancel]]", "Cancel"),
                         results: TW.Runtime.convertLocalizableString("[[results]]", "Results"),
                         records: TW.Runtime.convertLocalizableString("[[records]]", "Rows"),
                         to: ' - ',
@@ -226,8 +242,6 @@ TW.Runtime.Widgets.gridadvanced = function () {
                         maxRowsWarning2: TW.Runtime.convertLocalizableString("[[maxRowsWarning2]]", " rows has been reached. "),
                         maxRowsWarning3: TW.Runtime.convertLocalizableString("[[maxRowsWarning3]]", "Please refresh your browser or close some nodes to free up memory. "),
                         freeMemoryWarning: TW.Runtime.convertLocalizableString("[[freeMemoryWarning]]", "Please wait while we clear the row cache to free up memory, this may take a minute..."),
-                        splitGrid: TW.Runtime.convertLocalizableString("[[splitGrid]]", "Split"),
-                        unSplitGrid: TW.Runtime.convertLocalizableString("[[unSplitGrid]]", "Unsplit")
                     };
 
                     var bound = thisWidget.isConfigurationBound();
@@ -255,19 +269,27 @@ TW.Runtime.Widgets.gridadvanced = function () {
         },1);
     };
 
-    this.handleRowEditsCallback = function(stage, rows) {
-        var editedRowsInfoTable = { "dataShape" : { "fieldDefinitions" : infoTableDataShape}, "rows" : rows };
-
-        if(thisWidget.getProperty("IsEditable", false) === true) {
-            if (stage === 0) {
-                thisWidget.jqElement.triggerHandler('EditCellStarted');
-            }
-            else if (stage === 2) {
-                thisWidget.setProperty('EditedTable', editedRowsInfoTable);
-                thisWidget.jqElement.triggerHandler('EditCellCompleted');
-            }
+    this.handleCellEditsCallback = function(stage, rows) {
+        if (stage === 0) {
+            thisWidget.jqElement.triggerHandler('EditCellStarted');
+        }
+        else if (stage === 2) {
+            var editedRowsInfoTable = { "dataShape" : { "fieldDefinitions" : infoTableDataShape}, "rows" : rows };
+            thisWidget.setProperty('EditedTable', editedRowsInfoTable);
+            thisWidget.jqElement.triggerHandler('EditCellCompleted');
         }
     };
+
+    this.handleGridEditsCallback = function(stage) {
+        if (stage === 0) {
+            thisWidget.jqElement.triggerHandler('EditStarted');
+        } else if (stage === 1) {
+            thisWidget.jqElement.triggerHandler('EditCompleted');
+        } else if (stage === 2) {
+            thisWidget.jqElement.triggerHandler('EditCancelled');
+        }
+    };
+
 
     /**
      * Place the pagination container either above or below the grid depending on the 'pageLocation' setting.

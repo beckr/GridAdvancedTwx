@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Entities build="latest" majorVersion="7" minorVersion="2" modelPersistenceProviderPackage="NeoPersistenceProviderPackage" revision="0" schemaVersion="940">
+    <StyleDefinitions>
+        <StyleDefinition aspect.isExtension="true" aspect.isThemeObject="true" description="Default table footer style" documentationContent="" homeMashup="" lastModifiedDate="2017-04-17T11:08:48.556-04:00" name="DefaultGridAdvancedFooterStyle" projectName="" tags="">
+            <Owner name="SuperUser" type="User"/>
+            <avatar/>
+            <DesignTimePermissions>
+                <Create/>
+                <Read/>
+                <Update/>
+                <Delete/>
+                <Metadata/>
+            </DesignTimePermissions>
+            <RunTimePermissions/>
+            <VisibilityPermissions>
+                <Visibility/>
+            </VisibilityPermissions>
+            <ConfigurationTables/>
+            <content><![CDATA[{"image":"","backgroundColor":"#202020","textSize":"normal","lineStyle":"solid","fontEmphasisUnderline":false,"displayString":"","fontEmphasisItalic":false,"lineThickness":2,"lineColor":"#c0c0c0","foregroundColor":"#ffffff","fontEmphasisBold":false,"secondaryBackgroundColor":""}]]></content>
+            <ConfigurationChanges>
+                <ConfigurationChange changeAction="CREATE" changeReason="Importing Extension Package Metadata" timestamp="2017-04-17T11:08:48.556-04:00" user="SuperUser"/>
+            </ConfigurationChanges>
+        </StyleDefinition>
+    </StyleDefinitions>
+</Entities>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><Entities>
   <ExtensionPackages>
-    <ExtensionPackage name="grid-advanced_ExtensionPackage" description="Advanced Grid Widget" vendor="ThingWorx" packageVersion="3.0.11" minimumThingWorxVersion="7.2.14" buildNumber="{&quot;giteaURL&quot;: &quot;http://roicentersvn.ptcnet.ptc.com/api/v1/repos/placatus/GridAdvancedDaimlerWidget/releases/latest&quot;}"/>
+    <ExtensionPackage name="grid-advanced_ExtensionPackage" description="Advanced Grid Widget" vendor="ThingWorx" packageVersion="4.0.7" minimumThingWorxVersion="8.2"/>
   </ExtensionPackages>
   <Widgets>
     <Widget name="gridadvanced">

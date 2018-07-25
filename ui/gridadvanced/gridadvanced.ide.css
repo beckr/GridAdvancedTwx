@@ -1,15 +1,15 @@
 .top-container-controls {
 	display: flex;
-	box-shadow: none !important;
+	box-shadow: none ;
 }
 
 .bottom-container-controls {
 	display: flex;
-	box-shadow: none !important;
+	box-shadow: none ;
 }
 
 .dhx_toolbar_material {
-	box-shadow: none !important;
+	box-shadow: none ;
 }
 
 .widget-gridadvanced-helper, .widget-treegridadvanced-helper {
@@ -182,8 +182,8 @@
     text-align: left;
 }
 #grid-config-list{
-     width: 260px;
- }
+    width: 260px;
+}
 #grid-config{
     width: 890px;
 }
@@ -217,13 +217,13 @@
 }
 
 div.gridbox_material.gridbox table.hdr tr  {
-  background-color: transparent !important;
+  background-color: transparent ;
 }
 
 .widget-gridadvanced .xhdr td {
-    height: auto !important;
-    line-height: normal !important;
-    background-clip: padding-box !important;
+    height: auto ;
+    line-height: normal ;
+    background-clip: padding-box ;
 }
 
 .widget-gridadvanced .objbox table tbody tr td .treegrid_cell img:nth-last-child(2) {
@@ -254,3 +254,22 @@ div.gridbox_material.gridbox table.hdr tr  {
     margin-left: 8px;
 }
 #grid-config-list-ul a, #grid-config-list-ul .nav-header { margin-left: -9px; margin-right: -9px; }
+
+#configure-bindings-dialog-custom-contents table {
+    width: inherit;
+}
+#configure-bindings-dialog-custom-contents #grid-config {
+    padding-right:20px;
+    width: calc(100% - 300px);
+}
+#configure-bindings-dialog-custom #grid-config-list #grid-config-list-ul {
+    height: 530px;
+}
+
+.widget-gridadvanced div.gridbox div.ftr {
+    z-index: 1;
+}
+
+.widget-gridadvanced div.gridbox div.ftr td{
+    border: inherit;
+}

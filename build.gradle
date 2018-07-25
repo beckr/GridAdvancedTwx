@@ -31,7 +31,7 @@ project.ext {
     packageVendor = "ThingWorx Customer Service"
     thingworxServerRoot = "http://localhost:8016"
     thingworxUser = "Administrator"
-    thingworxPass = "admin"
+    thingworxPass = "Administrator"
     skipJsFiles = []
 }
 

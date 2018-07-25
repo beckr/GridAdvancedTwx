@@ -1,15 +1,5 @@
-.top-container-controls {
-	display: flex;
-	box-shadow: none !important;
-}
-
-.bottom-container-controls {
-	display: flex;
-	box-shadow: none !important;
-}
-
-.dhx_toolbar_material {
-	box-shadow: none !important;
+.widget-gridadvanced .dhx_toolbar_material.dhx_toolbar_shadow {
+	box-shadow: none ;
 }
 
 .widget-gridadvanced {
@@ -18,26 +8,6 @@
   display: flex;
   flex-flow: column;
 }
-
-.widget-gridadvanced .xhdr {
-	height: auto !important;
-	overflow: hidden;
-}
-
-.widget-gridadvanced .xhdr table {
-	height: 101% !important;
-}
-
-.widget-gridadvanced .xhdr td {
-	height: auto !important;
-	line-height: normal !important;
-	background-clip: padding-box !important;
-}
-
-.widget-gridadvanced .xhdr tr {
-	height: auto !important;
-}
-
 .widget-gridadvanced div.gridbox_material.gridbox table.hdr td div.hdrcell {
     max-height: inherit;
     overflow-y: inherit;
@@ -52,11 +22,11 @@
   flex: 2;
   display: flex;
   flex-flow: column;
-  height: 100% !important;
+  height: 100% ;
 }
 .widget-gridadvanced > .gridbox > .objbox{
   flex: 2;
-  width: 100% !important;
+  width: 100% ;
 }
 .widget-gridadvanced .objbox table {
 	overflow: hidden;
@@ -172,15 +142,17 @@
 }
 
 .widget-gridadvanced .objbox table tbody tr td .treegrid_cell img:nth-last-child(2)[src*="blank.gif"] {
-    background-image: none !important;
+    background-image: none;
 }
 
 .widget-gridadvanced .objbox table tbody tr td .treegrid_cell span {
     vertical-align: middle;
 }
 
-div.dhtmlxMenu_material_SubLevelArea_Polygon td.sub_item_icon div.sub_icon{
-  background-image:url("imgs/dhxmenu_material/dhxmenu_chrd.png") !important;
+.widget-gridadvanced .objbox table tbody tr td {
+    overflow: hidden;
+    text-overflow: clip;
+    white-space: nowrap;
 }
 
 .widget-gridadvanced .grid-control-container .dhx_toolbar_material {
@@ -191,19 +163,23 @@ div.dhtmlxMenu_material_SubLevelArea_Polygon td.sub_item_icon div.sub_icon{
     font-size: inherit;
 }
 
-div.gridbox_material.gridbox table.hdr tr  {
-  background-color: transparent !important;
+.widget-gridadvanced div.gridbox_material.gridbox table.hdr tr  {
+  background-color: transparent;
 }
 
-.dhtmlxMenu_material_SubLevelArea_Polygon  {
-  z-index: 999999 !important;
+#runtime div.dhtmlxMenu_material_SubLevelArea_Polygon td.sub_item_icon div.sub_icon{
+    background-image:url("imgs/dhxmenu_material/dhxmenu_chrd.png") ;
 }
 
-div.dhtmlxMenu_material_SubLevelArea_Polygon div + div {
+#runtime .dhtmlxMenu_material_SubLevelArea_Polygon  {
+  z-index: 999999 ;
+}
+
+#runtime div.dhtmlxMenu_material_SubLevelArea_Polygon div + div {
     top: -5px;
 }
 
-.dhtmlxMenu_material_SubLevelArea_Polygon {
+#runtime .dhtmlxMenu_material_SubLevelArea_Polygon {
     margin-top: -15px;
     margin-left: -30px;
 }
@@ -218,5 +194,49 @@ div.dhtmlxMenu_material_SubLevelArea_Polygon div + div {
 }
 
 #tiptip_content {
-    text-shadow: inherit !important;
+    text-shadow: inherit;
+}
+
+.widget-gridadvanced div.gridbox div.ftr {
+    bottom: 0px ;
+    position: relative;
+    z-index: 1;
+}
+
+.widget-gridadvanced div.gridbox div.ftr td {
+    bottom: 0px ;
+    border: inherit;
+}
+
+.widget-gridadvanced .treegrid_cell .dhx_combo_edit {
+    display: inline;
+}
+
+.dhtmlxcalendar_material div.dhtmlxcalendar_month_cont ul.dhtmlxcalendar_line li.dhtmlxcalendar_cell.dhtmlxcalendar_month_hdr div.dhtmlxcalendar_month_arrow.dhtmlxcalendar_month_arrow_right,.dhtmlxcalendar_material div.dhtmlxcalendar_month_cont ul.dhtmlxcalendar_line li.dhtmlxcalendar_cell.dhtmlxcalendar_month_hdr div.dhtmlxcalendar_month_arrow.dhtmlxcalendar_month_arrow_right_hover {
+    background-image: url("imgs/dhxcalendar_material/dhxcalendar_arrow_right.png");
+}
+.dhtmlxcalendar_material div.dhtmlxcalendar_selector_obj table.dhtmlxcalendar_selector_table td.dhtmlxcalendar_selector_cell_right {
+    background-image: url("imgs/dhxcalendar_material/dhxcalendar_arrow_right.png");
+}
+
+.dhtmlxcalendar_material div.dhtmlxcalendar_time_cont ul.dhtmlxcalendar_line li div.dhtmlxcalendar_time_img {
+    background-image: url("imgs/dhxcalendar_material/dhxcalendar_clock.png");
+}
+.dhtmlxcalendar_material div.dhtmlxcalendar_selector_obj table.dhtmlxcalendar_selector_table td.dhtmlxcalendar_selector_cell_left {
+    background-image: url("imgs/dhxcalendar_material/dhxcalendar_arrow_left.png");
+}
+
+.dhtmlxcalendar_material div.dhtmlxcalendar_selector_obj div.dhtmlxcalendar_selector_obj_arrow {
+    background-image: url("imgs/dhxcalendar_material/dhxcalendar_selector_top.gif");
+}
+.dhtmlxcalendar_material div.dhtmlxcalendar_selector_obj.dhtmlxcalendar_selector_hours div.dhtmlxcalendar_selector_obj_arrow,.dhtmlxcalendar_material div.dhtmlxcalendar_selector_obj.dhtmlxcalendar_selector_hours2 div.dhtmlxcalendar_selector_obj_arrow,.dhtmlxcalendar_material div.dhtmlxcalendar_selector_obj.dhtmlxcalendar_selector_minutes div.dhtmlxcalendar_selector_obj_arrow {
+    background-image: url("imgs/dhxcalendar_material/dhxcalendar_selector_bottom.gif");
+}
+
+.widget-gridadvanced div.gridbox_material.gridbox table.hdr td.dhxgrid_sort_desc_col {
+    background-image: url("imgs/dhxgrid_material/sort_desc.gif");
+}
+
+.widget-gridadvanced div.gridbox_material.gridbox table.hdr td.dhxgrid_sort_asc_col {
+    background-image: url("imgs/dhxgrid_material/sort_asc.gif");
 }

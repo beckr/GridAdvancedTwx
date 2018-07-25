@@ -5806,7 +5806,7 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.getSetObserver = exports.BindingEngine = exports.NameExpression = exports.Listener = exports.ListenerExpression = exports.BindingBehaviorResource = exports.ValueConverterResource = exports.Call = exports.CallExpression = exports.Binding = exports.BindingExpression = exports.ObjectObservationAdapter = exports.ObserverLocator = exports.SVGAnalyzer = exports.presentationAttributes = exports.presentationElements = exports.elements = exports.ComputedExpression = exports.ClassObserver = exports.SelectValueObserver = exports.CheckedObserver = exports.ValueAttributeObserver = exports.StyleObserver = exports.DataAttributeObserver = exports.dataAttributeAccessor = exports.XLinkAttributeObserver = exports.SetterObserver = exports.PrimitiveObserver = exports.propertyAccessor = exports.DirtyCheckProperty = exports.DirtyChecker = exports.EventManager = exports.delegationStrategy = exports.getMapObserver = exports.ParserImplementation = exports.Parser = exports.Scanner = exports.Lexer = exports.Token = exports.bindingMode = exports.ExpressionCloner = exports.Unparser = exports.LiteralObject = exports.LiteralArray = exports.LiteralString = exports.LiteralPrimitive = exports.PrefixNot = exports.Binary = exports.CallFunction = exports.CallMember = exports.CallScope = exports.AccessKeyed = exports.AccessMember = exports.AccessScope = exports.AccessThis = exports.Conditional = exports.Assign = exports.ValueConverter = exports.BindingBehavior = exports.Chain = exports.Expression = exports.getArrayObserver = exports.CollectionLengthObserver = exports.ModifyCollectionObserver = exports.ExpressionObserver = exports.sourceContext = exports.targetContext = undefined;
+  exports.getSetObserver = exports.BindingEngine = exports.NameExpression = exports.Listener = exports.ListenerExpression = exports.BindingBehaviorResource = exports.ValueConverterResource = exports.Call = exports.CallExpression = exports.Binding = exports.BindingExpression = exports.ObjectObservationAdapter = exports.ObserverLocator = exports.SVGAnalyzer = exports.presentationAttributes = exports.presentationElements = exports.elements = exports.ComputedExpression = exports.ClassObserver = exports.SelectValueObserver = exports.CheckedObserver = exports.ValueAttributeObserver = exports.StyleObserver = exports.DataAttributeObserver = exports.dataAttributeAccessor = exports.XLinkAttributeObserver = exports.SetterObserver = exports.PrimitiveObserver = exports.propertyAccessor = exports.DirtyCheckProperty = exports.DirtyChecker = exports.EventSubscriber = exports.EventManager = exports.delegationStrategy = exports.getMapObserver = exports.ParserImplementation = exports.Parser = exports.Scanner = exports.Lexer = exports.Token = exports.bindingMode = exports.ExpressionCloner = exports.Unparser = exports.LiteralObject = exports.LiteralArray = exports.LiteralString = exports.LiteralPrimitive = exports.PrefixNot = exports.Binary = exports.CallFunction = exports.CallMember = exports.CallScope = exports.AccessKeyed = exports.AccessMember = exports.AccessScope = exports.AccessThis = exports.Conditional = exports.Assign = exports.ValueConverter = exports.BindingBehavior = exports.Chain = exports.Expression = exports.getArrayObserver = exports.CollectionLengthObserver = exports.ModifyCollectionObserver = exports.ExpressionObserver = exports.sourceContext = exports.targetContext = undefined;
   exports.camelCase = camelCase;
   exports.createOverrideContext = createOverrideContext;
   exports.getContextFor = getContextFor;
@@ -5851,7 +5851,7 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
   var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
     return typeof obj;
   } : function (obj) {
-    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
   };
 
   var _createClass = function () {
@@ -7871,7 +7871,7 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
       Unparser.prototype.visitChain = function visitChain(chain) {
         var expressions = chain.expressions;
 
-        for (var _i16 = 0, length = expression.length; _i16 < length; ++_i16) {
+        for (var _i16 = 0, length = expressions.length; _i16 < length; ++_i16) {
           if (_i16 !== 0) {
             this.write(';');
           }
@@ -8422,7 +8422,7 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
     };
 
     Scanner.prototype.error = function error(message) {
-      var offset = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
+      var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 
       var position = this.index + offset;
       throw new Error('Lexer Error: ' + message + ' at column ' + position + ' in expression [' + this.input + ']');
@@ -8663,9 +8663,9 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
       while (this.peek.text === '=') {
         if (!result.isAssignable) {
           var end = this.index < this.tokens.length ? this.peek.index : this.input.length;
-          var _expression = this.input.substring(start, end);
+          var expression = this.input.substring(start, end);
 
-          this.error('Expression ' + _expression + ' is not assignable');
+          this.error('Expression ' + expression + ' is not assignable');
         }
 
         this.expect('=');
@@ -8684,9 +8684,9 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
 
         if (!this.optional(':')) {
           var end = this.index < this.tokens.length ? this.peek.index : this.input.length;
-          var _expression2 = this.input.substring(start, end);
+          var expression = this.input.substring(start, end);
 
-          this.error('Conditional expression ' + _expression2 + ' requires all 3 expressions');
+          this.error('Conditional expression ' + expression + ' requires all 3 expressions');
         }
 
         var no = this.parseExpression();
@@ -8846,9 +8846,9 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
       } else if (this.optional('false')) {
         return new LiteralPrimitive(false);
       } else if (this.optional('[')) {
-        var elements = this.parseExpressionList(']');
+        var _elements = this.parseExpressionList(']');
         this.expect(']');
-        return new LiteralArray(elements);
+        return new LiteralArray(_elements);
       } else if (this.peek.text === '{') {
         return this.parseObject();
       } else if (this.peek.key !== null && this.peek.key !== undefined) {
@@ -9066,13 +9066,7 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
     this.propagationStopped = true;
   }
 
-  function interceptStopPropagation(event) {
-    event.standardStopPropagation = event.stopPropagation;
-    event.stopPropagation = stopPropagation;
-  }
-
   function handleCapturedEvent(event) {
-    var interceptInstalled = false;
     event.propagationStopped = false;
     var target = findOriginalEventTarget(event);
 
@@ -9082,24 +9076,21 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
       if (target.capturedCallbacks) {
         var callback = target.capturedCallbacks[event.type];
         if (callback) {
-          if (!interceptInstalled) {
-            interceptStopPropagation(event);
-            interceptInstalled = true;
+          if (event.stopPropagation !== stopPropagation) {
+            event.standardStopPropagation = event.stopPropagation;
+            event.stopPropagation = stopPropagation;
           }
           orderedCallbacks.push(callback);
         }
       }
       target = target.parentNode;
     }
-    for (var _i22 = orderedCallbacks.length - 1; _i22 >= 0; _i22--) {
+    for (var _i22 = orderedCallbacks.length - 1; _i22 >= 0 && !event.propagationStopped; _i22--) {
       var orderedCallback = orderedCallbacks[_i22];
       if ('handleEvent' in orderedCallback) {
         orderedCallback.handleEvent(event);
       } else {
         orderedCallback(event);
-      }
-      if (event.propagationStopped) {
-        break;
       }
     }
   }
@@ -9132,7 +9123,6 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
   }();
 
   function handleDelegatedEvent(event) {
-    var interceptInstalled = false;
     event.propagationStopped = false;
     var target = findOriginalEventTarget(event);
 
@@ -9140,9 +9130,9 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
       if (target.delegatedCallbacks) {
         var callback = target.delegatedCallbacks[event.type];
         if (callback) {
-          if (!interceptInstalled) {
-            interceptStopPropagation(event);
-            interceptInstalled = true;
+          if (event.stopPropagation !== stopPropagation) {
+            event.standardStopPropagation = event.stopPropagation;
+            event.stopPropagation = stopPropagation;
           }
           if ('handleEvent' in callback) {
             callback.handleEvent(event);
@@ -9176,11 +9166,46 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
       this.count--;
 
       if (this.count === 0) {
-        _aureliaPal.DOM.removeEventListener(this.eventName, handleDelegatedEvent);
+        _aureliaPal.DOM.removeEventListener(this.eventName, handleDelegatedEvent, false);
       }
     };
 
     return DelegateHandlerEntry;
+  }();
+
+  var DelegationEntryHandler = function () {
+    function DelegationEntryHandler(entry, lookup, targetEvent) {
+      
+
+      this.entry = entry;
+      this.lookup = lookup;
+      this.targetEvent = targetEvent;
+    }
+
+    DelegationEntryHandler.prototype.dispose = function dispose() {
+      this.entry.decrement();
+      this.lookup[this.targetEvent] = null;
+      this.entry = this.lookup = this.targetEvent = null;
+    };
+
+    return DelegationEntryHandler;
+  }();
+
+  var EventHandler = function () {
+    function EventHandler(target, targetEvent, callback) {
+      
+
+      this.target = target;
+      this.targetEvent = targetEvent;
+      this.callback = callback;
+    }
+
+    EventHandler.prototype.dispose = function dispose() {
+      this.target.removeEventListener(this.targetEvent, this.callback);
+      this.target = this.targetEvent = this.callback = null;
+    };
+
+    return EventHandler;
   }();
 
   var DefaultEventStrategy = function () {
@@ -9191,53 +9216,51 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
       this.capturedHandlers = {};
     }
 
-    DefaultEventStrategy.prototype.subscribe = function subscribe(target, targetEvent, callback, strategy) {
-      var _this22 = this;
-
+    DefaultEventStrategy.prototype.subscribe = function subscribe(target, targetEvent, callback, strategy, disposable) {
       var delegatedHandlers = void 0;
       var capturedHandlers = void 0;
       var handlerEntry = void 0;
 
       if (strategy === delegationStrategy.bubbling) {
-        var _ret = function () {
-          delegatedHandlers = _this22.delegatedHandlers;
-          handlerEntry = delegatedHandlers[targetEvent] || (delegatedHandlers[targetEvent] = new DelegateHandlerEntry(targetEvent));
-          var delegatedCallbacks = target.delegatedCallbacks || (target.delegatedCallbacks = {});
+        delegatedHandlers = this.delegatedHandlers;
+        handlerEntry = delegatedHandlers[targetEvent] || (delegatedHandlers[targetEvent] = new DelegateHandlerEntry(targetEvent));
+        var delegatedCallbacks = target.delegatedCallbacks || (target.delegatedCallbacks = {});
 
-          handlerEntry.increment();
-          delegatedCallbacks[targetEvent] = callback;
+        handlerEntry.increment();
+        delegatedCallbacks[targetEvent] = callback;
 
-          return {
-            v: function v() {
-              handlerEntry.decrement();
-              delegatedCallbacks[targetEvent] = null;
-            }
-          };
-        }();
+        if (disposable === true) {
+          return new DelegationEntryHandler(handlerEntry, delegatedCallbacks, targetEvent);
+        }
 
-        if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+        return function () {
+          handlerEntry.decrement();
+          delegatedCallbacks[targetEvent] = null;
+        };
       }
       if (strategy === delegationStrategy.capturing) {
-        var _ret2 = function () {
-          capturedHandlers = _this22.capturedHandlers;
-          handlerEntry = capturedHandlers[targetEvent] || (capturedHandlers[targetEvent] = new CapturedHandlerEntry(targetEvent));
-          var capturedCallbacks = target.capturedCallbacks || (target.capturedCallbacks = {});
+        capturedHandlers = this.capturedHandlers;
+        handlerEntry = capturedHandlers[targetEvent] || (capturedHandlers[targetEvent] = new CapturedHandlerEntry(targetEvent));
+        var capturedCallbacks = target.capturedCallbacks || (target.capturedCallbacks = {});
 
-          handlerEntry.increment();
-          capturedCallbacks[targetEvent] = callback;
+        handlerEntry.increment();
+        capturedCallbacks[targetEvent] = callback;
 
-          return {
-            v: function v() {
-              handlerEntry.decrement();
-              capturedCallbacks[targetEvent] = null;
-            }
-          };
-        }();
+        if (disposable === true) {
+          return new DelegationEntryHandler(handlerEntry, capturedCallbacks, targetEvent);
+        }
 
-        if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
+        return function () {
+          handlerEntry.decrement();
+          capturedCallbacks[targetEvent] = null;
+        };
       }
 
-      target.addEventListener(targetEvent, callback, false);
+      target.addEventListener(targetEvent, callback);
+
+      if (disposable === true) {
+        return new EventHandler(target, targetEvent, callback);
+      }
 
       return function () {
         target.removeEventListener(targetEvent, callback);
@@ -9306,37 +9329,13 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
       var properties = config.properties;
       var propertyName = void 0;
 
-      this.elementHandlerLookup[tagName] = {};
+      var lookup = this.elementHandlerLookup[tagName] = {};
 
       for (propertyName in properties) {
         if (properties.hasOwnProperty(propertyName)) {
-          this.registerElementPropertyConfig(tagName, propertyName, properties[propertyName]);
+          lookup[propertyName] = properties[propertyName];
         }
       }
-    };
-
-    EventManager.prototype.registerElementPropertyConfig = function registerElementPropertyConfig(tagName, propertyName, events) {
-      this.elementHandlerLookup[tagName][propertyName] = this.createElementHandler(events);
-    };
-
-    EventManager.prototype.createElementHandler = function createElementHandler(events) {
-      return {
-        subscribe: function subscribe(target, callbackOrListener) {
-          events.forEach(function (changeEvent) {
-            target.addEventListener(changeEvent, callbackOrListener, false);
-          });
-
-          return function () {
-            events.forEach(function (changeEvent) {
-              target.removeEventListener(changeEvent, callbackOrListener, false);
-            });
-          };
-        }
-      };
-    };
-
-    EventManager.prototype.registerElementHandler = function registerElementHandler(tagName, handler) {
-      this.elementHandlerLookup[tagName.toLowerCase()] = handler;
     };
 
     EventManager.prototype.registerEventStrategy = function registerEventStrategy(eventName, strategy) {
@@ -9351,26 +9350,61 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
         tagName = target.tagName.toLowerCase();
 
         if (lookup[tagName] && lookup[tagName][propertyName]) {
-          return lookup[tagName][propertyName];
+          return new EventSubscriber(lookup[tagName][propertyName]);
         }
 
         if (propertyName === 'textContent' || propertyName === 'innerHTML') {
-          return lookup['content editable'].value;
+          return new EventSubscriber(lookup['content editable'].value);
         }
 
         if (propertyName === 'scrollTop' || propertyName === 'scrollLeft') {
-          return lookup['scrollable element'][propertyName];
+          return new EventSubscriber(lookup['scrollable element'][propertyName]);
         }
       }
 
       return null;
     };
 
-    EventManager.prototype.addEventListener = function addEventListener(target, targetEvent, callbackOrListener, delegate) {
-      return (this.eventStrategyLookup[targetEvent] || this.defaultEventStrategy).subscribe(target, targetEvent, callbackOrListener, delegate);
+    EventManager.prototype.addEventListener = function addEventListener(target, targetEvent, callbackOrListener, delegate, disposable) {
+      return (this.eventStrategyLookup[targetEvent] || this.defaultEventStrategy).subscribe(target, targetEvent, callbackOrListener, delegate, disposable);
     };
 
     return EventManager;
+  }();
+
+  var EventSubscriber = exports.EventSubscriber = function () {
+    function EventSubscriber(events) {
+      
+
+      this.events = events;
+      this.element = null;
+      this.handler = null;
+    }
+
+    EventSubscriber.prototype.subscribe = function subscribe(element, callbackOrListener) {
+      this.element = element;
+      this.handler = callbackOrListener;
+
+      var events = this.events;
+      for (var _i23 = 0, ii = events.length; ii > _i23; ++_i23) {
+        element.addEventListener(events[_i23], callbackOrListener);
+      }
+    };
+
+    EventSubscriber.prototype.dispose = function dispose() {
+      if (this.element === null) {
+        return;
+      }
+      var element = this.element;
+      var callbackOrListener = this.handler;
+      var events = this.events;
+      for (var _i24 = 0, ii = events.length; ii > _i24; ++_i24) {
+        element.removeEventListener(events[_i24], callbackOrListener);
+      }
+      this.element = this.handler = null;
+    };
+
+    return EventSubscriber;
   }();
 
   var DirtyChecker = exports.DirtyChecker = function () {
@@ -9397,10 +9431,10 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
     };
 
     DirtyChecker.prototype.scheduleDirtyCheck = function scheduleDirtyCheck() {
-      var _this23 = this;
+      var _this22 = this;
 
       setTimeout(function () {
-        return _this23.check();
+        return _this22.check();
       }, this.checkDelay);
     };
 
@@ -9770,7 +9804,7 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
     ValueAttributeObserver.prototype.subscribe = function subscribe(context, callable) {
       if (!this.hasSubscribers()) {
         this.oldValue = this.getValue();
-        this.disposeHandler = this.handler.subscribe(this.element, this);
+        this.handler.subscribe(this.element, this);
       }
 
       this.addSubscriber(context, callable);
@@ -9778,8 +9812,7 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
 
     ValueAttributeObserver.prototype.unsubscribe = function unsubscribe(context, callable) {
       if (this.removeSubscriber(context, callable) && !this.hasSubscribers()) {
-        this.disposeHandler();
-        this.disposeHandler = null;
+        this.handler.dispose();
       }
     };
 
@@ -9906,15 +9939,14 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
 
     CheckedObserver.prototype.subscribe = function subscribe(context, callable) {
       if (!this.hasSubscribers()) {
-        this.disposeHandler = this.handler.subscribe(this.element, this);
+        this.handler.subscribe(this.element, this);
       }
       this.addSubscriber(context, callable);
     };
 
     CheckedObserver.prototype.unsubscribe = function unsubscribe(context, callable) {
       if (this.removeSubscriber(context, callable) && !this.hasSubscribers()) {
-        this.disposeHandler();
-        this.disposeHandler = null;
+        this.handler.dispose();
       }
     };
 
@@ -10007,21 +10039,21 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
       };
 
       while (i--) {
-        var _ret3 = _loop();
+        var _ret = _loop();
 
-        if (_ret3 === 'continue') continue;
+        if (_ret === 'continue') continue;
       }
     };
 
     SelectValueObserver.prototype.synchronizeValue = function synchronizeValue() {
-      var _this24 = this;
+      var _this23 = this;
 
       var options = this.element.options;
       var count = 0;
       var value = [];
 
-      for (var _i23 = 0, ii = options.length; _i23 < ii; _i23++) {
-        var _option = options.item(_i23);
+      for (var _i25 = 0, ii = options.length; _i25 < ii; _i25++) {
+        var _option = options.item(_i25);
         if (!_option.selected) {
           continue;
         }
@@ -10031,25 +10063,25 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
 
       if (this.element.multiple) {
         if (Array.isArray(this.value)) {
-          var _ret4 = function () {
-            var matcher = _this24.element.matcher || function (a, b) {
+          var _ret2 = function () {
+            var matcher = _this23.element.matcher || function (a, b) {
               return a === b;
             };
 
             var i = 0;
 
             var _loop2 = function _loop2() {
-              var a = _this24.value[i];
+              var a = _this23.value[i];
               if (value.findIndex(function (b) {
                 return matcher(a, b);
               }) === -1) {
-                _this24.value.splice(i, 1);
+                _this23.value.splice(i, 1);
               } else {
                 i++;
               }
             };
 
-            while (i < _this24.value.length) {
+            while (i < _this23.value.length) {
               _loop2();
             }
 
@@ -10057,10 +10089,10 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
 
             var _loop3 = function _loop3() {
               var a = value[i];
-              if (_this24.value.findIndex(function (b) {
+              if (_this23.value.findIndex(function (b) {
                 return matcher(a, b);
               }) === -1) {
-                _this24.value.push(a);
+                _this23.value.push(a);
               }
               i++;
             };
@@ -10073,7 +10105,7 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
             };
           }();
 
-          if ((typeof _ret4 === 'undefined' ? 'undefined' : _typeof(_ret4)) === "object") return _ret4.v;
+          if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
         }
       } else {
         if (count === 0) {
@@ -10103,24 +10135,23 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
 
     SelectValueObserver.prototype.subscribe = function subscribe(context, callable) {
       if (!this.hasSubscribers()) {
-        this.disposeHandler = this.handler.subscribe(this.element, this);
+        this.handler.subscribe(this.element, this);
       }
       this.addSubscriber(context, callable);
     };
 
     SelectValueObserver.prototype.unsubscribe = function unsubscribe(context, callable) {
       if (this.removeSubscriber(context, callable) && !this.hasSubscribers()) {
-        this.disposeHandler();
-        this.disposeHandler = null;
+        this.handler.dispose();
       }
     };
 
     SelectValueObserver.prototype.bind = function bind() {
-      var _this25 = this;
+      var _this24 = this;
 
       this.domObserver = _aureliaPal.DOM.createMutationObserver(function () {
-        _this25.synchronizeOptions();
-        _this25.synchronizeValue();
+        _this24.synchronizeOptions();
+        _this24.synchronizeValue();
       });
       this.domObserver.observe(this.element, { childList: true, subtree: true });
     };
@@ -10160,8 +10191,8 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
 
       if (newValue !== null && newValue !== undefined && newValue.length) {
         names = newValue.split(/\s+/);
-        for (var _i24 = 0, length = names.length; _i24 < length; _i24++) {
-          name = names[_i24];
+        for (var _i26 = 0, length = names.length; _i26 < length; _i26++) {
+          name = names[_i26];
           if (name === '') {
             continue;
           }
@@ -10220,12 +10251,12 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
     function ComputedExpression(name, dependencies) {
       
 
-      var _this26 = _possibleConstructorReturn(this, _Expression19.call(this));
+      var _this25 = _possibleConstructorReturn(this, _Expression19.call(this));
 
-      _this26.name = name;
-      _this26.dependencies = dependencies;
-      _this26.isAssignable = true;
-      return _this26;
+      _this25.name = name;
+      _this25.dependencies = dependencies;
+      _this25.isAssignable = true;
+      return _this25;
     }
 
     ComputedExpression.prototype.evaluate = function evaluate(scope, lookupFunctions) {
@@ -10254,9 +10285,9 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
   function createComputedObserver(obj, propertyName, descriptor, observerLocator) {
     var dependencies = descriptor.get.dependencies;
     if (!(dependencies instanceof ComputedExpression)) {
-      var _i25 = dependencies.length;
-      while (_i25--) {
-        dependencies[_i25] = observerLocator.parser.parse(dependencies[_i25]);
+      var _i27 = dependencies.length;
+      while (_i27--) {
+        dependencies[_i27] = observerLocator.parser.parse(dependencies[_i27]);
       }
       dependencies = descriptor.get.dependencies = new ComputedExpression(propertyName, dependencies);
     }
@@ -10271,236 +10302,234 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
   var svgAnalyzer = void 0;
 
   if (typeof FEATURE_NO_SVG === 'undefined') {
-    (function () {
-      svgElements = {
-        a: ['class', 'externalResourcesRequired', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'target', 'transform', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
-        altGlyph: ['class', 'dx', 'dy', 'externalResourcesRequired', 'format', 'glyphRef', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'rotate', 'style', 'systemLanguage', 'x', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        altGlyphDef: ['id', 'xml:base', 'xml:lang', 'xml:space'],
-        altGlyphItem: ['id', 'xml:base', 'xml:lang', 'xml:space'],
-        animate: ['accumulate', 'additive', 'attributeName', 'attributeType', 'begin', 'by', 'calcMode', 'dur', 'end', 'externalResourcesRequired', 'fill', 'from', 'id', 'keySplines', 'keyTimes', 'max', 'min', 'onbegin', 'onend', 'onload', 'onrepeat', 'repeatCount', 'repeatDur', 'requiredExtensions', 'requiredFeatures', 'restart', 'systemLanguage', 'to', 'values', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
-        animateColor: ['accumulate', 'additive', 'attributeName', 'attributeType', 'begin', 'by', 'calcMode', 'dur', 'end', 'externalResourcesRequired', 'fill', 'from', 'id', 'keySplines', 'keyTimes', 'max', 'min', 'onbegin', 'onend', 'onload', 'onrepeat', 'repeatCount', 'repeatDur', 'requiredExtensions', 'requiredFeatures', 'restart', 'systemLanguage', 'to', 'values', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
-        animateMotion: ['accumulate', 'additive', 'begin', 'by', 'calcMode', 'dur', 'end', 'externalResourcesRequired', 'fill', 'from', 'id', 'keyPoints', 'keySplines', 'keyTimes', 'max', 'min', 'onbegin', 'onend', 'onload', 'onrepeat', 'origin', 'path', 'repeatCount', 'repeatDur', 'requiredExtensions', 'requiredFeatures', 'restart', 'rotate', 'systemLanguage', 'to', 'values', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
-        animateTransform: ['accumulate', 'additive', 'attributeName', 'attributeType', 'begin', 'by', 'calcMode', 'dur', 'end', 'externalResourcesRequired', 'fill', 'from', 'id', 'keySplines', 'keyTimes', 'max', 'min', 'onbegin', 'onend', 'onload', 'onrepeat', 'repeatCount', 'repeatDur', 'requiredExtensions', 'requiredFeatures', 'restart', 'systemLanguage', 'to', 'type', 'values', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
-        circle: ['class', 'cx', 'cy', 'externalResourcesRequired', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'r', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'xml:base', 'xml:lang', 'xml:space'],
-        clipPath: ['class', 'clipPathUnits', 'externalResourcesRequired', 'id', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'xml:base', 'xml:lang', 'xml:space'],
-        'color-profile': ['id', 'local', 'name', 'rendering-intent', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
-        cursor: ['externalResourcesRequired', 'id', 'requiredExtensions', 'requiredFeatures', 'systemLanguage', 'x', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        defs: ['class', 'externalResourcesRequired', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'xml:base', 'xml:lang', 'xml:space'],
-        desc: ['class', 'id', 'style', 'xml:base', 'xml:lang', 'xml:space'],
-        ellipse: ['class', 'cx', 'cy', 'externalResourcesRequired', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'rx', 'ry', 'style', 'systemLanguage', 'transform', 'xml:base', 'xml:lang', 'xml:space'],
-        feBlend: ['class', 'height', 'id', 'in', 'in2', 'mode', 'result', 'style', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        feColorMatrix: ['class', 'height', 'id', 'in', 'result', 'style', 'type', 'values', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        feComponentTransfer: ['class', 'height', 'id', 'in', 'result', 'style', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        feComposite: ['class', 'height', 'id', 'in', 'in2', 'k1', 'k2', 'k3', 'k4', 'operator', 'result', 'style', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        feConvolveMatrix: ['bias', 'class', 'divisor', 'edgeMode', 'height', 'id', 'in', 'kernelMatrix', 'kernelUnitLength', 'order', 'preserveAlpha', 'result', 'style', 'targetX', 'targetY', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        feDiffuseLighting: ['class', 'diffuseConstant', 'height', 'id', 'in', 'kernelUnitLength', 'result', 'style', 'surfaceScale', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        feDisplacementMap: ['class', 'height', 'id', 'in', 'in2', 'result', 'scale', 'style', 'width', 'x', 'xChannelSelector', 'xml:base', 'xml:lang', 'xml:space', 'y', 'yChannelSelector'],
-        feDistantLight: ['azimuth', 'elevation', 'id', 'xml:base', 'xml:lang', 'xml:space'],
-        feFlood: ['class', 'height', 'id', 'result', 'style', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        feFuncA: ['amplitude', 'exponent', 'id', 'intercept', 'offset', 'slope', 'tableValues', 'type', 'xml:base', 'xml:lang', 'xml:space'],
-        feFuncB: ['amplitude', 'exponent', 'id', 'intercept', 'offset', 'slope', 'tableValues', 'type', 'xml:base', 'xml:lang', 'xml:space'],
-        feFuncG: ['amplitude', 'exponent', 'id', 'intercept', 'offset', 'slope', 'tableValues', 'type', 'xml:base', 'xml:lang', 'xml:space'],
-        feFuncR: ['amplitude', 'exponent', 'id', 'intercept', 'offset', 'slope', 'tableValues', 'type', 'xml:base', 'xml:lang', 'xml:space'],
-        feGaussianBlur: ['class', 'height', 'id', 'in', 'result', 'stdDeviation', 'style', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        feImage: ['class', 'externalResourcesRequired', 'height', 'id', 'preserveAspectRatio', 'result', 'style', 'width', 'x', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        feMerge: ['class', 'height', 'id', 'result', 'style', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        feMergeNode: ['id', 'xml:base', 'xml:lang', 'xml:space'],
-        feMorphology: ['class', 'height', 'id', 'in', 'operator', 'radius', 'result', 'style', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        feOffset: ['class', 'dx', 'dy', 'height', 'id', 'in', 'result', 'style', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        fePointLight: ['id', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y', 'z'],
-        feSpecularLighting: ['class', 'height', 'id', 'in', 'kernelUnitLength', 'result', 'specularConstant', 'specularExponent', 'style', 'surfaceScale', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        feSpotLight: ['id', 'limitingConeAngle', 'pointsAtX', 'pointsAtY', 'pointsAtZ', 'specularExponent', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y', 'z'],
-        feTile: ['class', 'height', 'id', 'in', 'result', 'style', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        feTurbulence: ['baseFrequency', 'class', 'height', 'id', 'numOctaves', 'result', 'seed', 'stitchTiles', 'style', 'type', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        filter: ['class', 'externalResourcesRequired', 'filterRes', 'filterUnits', 'height', 'id', 'primitiveUnits', 'style', 'width', 'x', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        font: ['class', 'externalResourcesRequired', 'horiz-adv-x', 'horiz-origin-x', 'horiz-origin-y', 'id', 'style', 'vert-adv-y', 'vert-origin-x', 'vert-origin-y', 'xml:base', 'xml:lang', 'xml:space'],
-        'font-face': ['accent-height', 'alphabetic', 'ascent', 'bbox', 'cap-height', 'descent', 'font-family', 'font-size', 'font-stretch', 'font-style', 'font-variant', 'font-weight', 'hanging', 'id', 'ideographic', 'mathematical', 'overline-position', 'overline-thickness', 'panose-1', 'slope', 'stemh', 'stemv', 'strikethrough-position', 'strikethrough-thickness', 'underline-position', 'underline-thickness', 'unicode-range', 'units-per-em', 'v-alphabetic', 'v-hanging', 'v-ideographic', 'v-mathematical', 'widths', 'x-height', 'xml:base', 'xml:lang', 'xml:space'],
-        'font-face-format': ['id', 'string', 'xml:base', 'xml:lang', 'xml:space'],
-        'font-face-name': ['id', 'name', 'xml:base', 'xml:lang', 'xml:space'],
-        'font-face-src': ['id', 'xml:base', 'xml:lang', 'xml:space'],
-        'font-face-uri': ['id', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
-        foreignObject: ['class', 'externalResourcesRequired', 'height', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        g: ['class', 'externalResourcesRequired', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'xml:base', 'xml:lang', 'xml:space'],
-        glyph: ['arabic-form', 'class', 'd', 'glyph-name', 'horiz-adv-x', 'id', 'lang', 'orientation', 'style', 'unicode', 'vert-adv-y', 'vert-origin-x', 'vert-origin-y', 'xml:base', 'xml:lang', 'xml:space'],
-        glyphRef: ['class', 'dx', 'dy', 'format', 'glyphRef', 'id', 'style', 'x', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        hkern: ['g1', 'g2', 'id', 'k', 'u1', 'u2', 'xml:base', 'xml:lang', 'xml:space'],
-        image: ['class', 'externalResourcesRequired', 'height', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'preserveAspectRatio', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'width', 'x', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        line: ['class', 'externalResourcesRequired', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'x1', 'x2', 'xml:base', 'xml:lang', 'xml:space', 'y1', 'y2'],
-        linearGradient: ['class', 'externalResourcesRequired', 'gradientTransform', 'gradientUnits', 'id', 'spreadMethod', 'style', 'x1', 'x2', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space', 'y1', 'y2'],
-        marker: ['class', 'externalResourcesRequired', 'id', 'markerHeight', 'markerUnits', 'markerWidth', 'orient', 'preserveAspectRatio', 'refX', 'refY', 'style', 'viewBox', 'xml:base', 'xml:lang', 'xml:space'],
-        mask: ['class', 'externalResourcesRequired', 'height', 'id', 'maskContentUnits', 'maskUnits', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        metadata: ['id', 'xml:base', 'xml:lang', 'xml:space'],
-        'missing-glyph': ['class', 'd', 'horiz-adv-x', 'id', 'style', 'vert-adv-y', 'vert-origin-x', 'vert-origin-y', 'xml:base', 'xml:lang', 'xml:space'],
-        mpath: ['externalResourcesRequired', 'id', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
-        path: ['class', 'd', 'externalResourcesRequired', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'pathLength', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'xml:base', 'xml:lang', 'xml:space'],
-        pattern: ['class', 'externalResourcesRequired', 'height', 'id', 'patternContentUnits', 'patternTransform', 'patternUnits', 'preserveAspectRatio', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'viewBox', 'width', 'x', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        polygon: ['class', 'externalResourcesRequired', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'points', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'xml:base', 'xml:lang', 'xml:space'],
-        polyline: ['class', 'externalResourcesRequired', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'points', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'xml:base', 'xml:lang', 'xml:space'],
-        radialGradient: ['class', 'cx', 'cy', 'externalResourcesRequired', 'fx', 'fy', 'gradientTransform', 'gradientUnits', 'id', 'r', 'spreadMethod', 'style', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
-        rect: ['class', 'externalResourcesRequired', 'height', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'rx', 'ry', 'style', 'systemLanguage', 'transform', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        script: ['externalResourcesRequired', 'id', 'type', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
-        set: ['attributeName', 'attributeType', 'begin', 'dur', 'end', 'externalResourcesRequired', 'fill', 'id', 'max', 'min', 'onbegin', 'onend', 'onload', 'onrepeat', 'repeatCount', 'repeatDur', 'requiredExtensions', 'requiredFeatures', 'restart', 'systemLanguage', 'to', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
-        stop: ['class', 'id', 'offset', 'style', 'xml:base', 'xml:lang', 'xml:space'],
-        style: ['id', 'media', 'title', 'type', 'xml:base', 'xml:lang', 'xml:space'],
-        svg: ['baseProfile', 'class', 'contentScriptType', 'contentStyleType', 'externalResourcesRequired', 'height', 'id', 'onabort', 'onactivate', 'onclick', 'onerror', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'onresize', 'onscroll', 'onunload', 'onzoom', 'preserveAspectRatio', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'version', 'viewBox', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y', 'zoomAndPan'],
-        switch: ['class', 'externalResourcesRequired', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'xml:base', 'xml:lang', 'xml:space'],
-        symbol: ['class', 'externalResourcesRequired', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'preserveAspectRatio', 'style', 'viewBox', 'xml:base', 'xml:lang', 'xml:space'],
-        text: ['class', 'dx', 'dy', 'externalResourcesRequired', 'id', 'lengthAdjust', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'rotate', 'style', 'systemLanguage', 'textLength', 'transform', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        textPath: ['class', 'externalResourcesRequired', 'id', 'lengthAdjust', 'method', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'spacing', 'startOffset', 'style', 'systemLanguage', 'textLength', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
-        title: ['class', 'id', 'style', 'xml:base', 'xml:lang', 'xml:space'],
-        tref: ['class', 'dx', 'dy', 'externalResourcesRequired', 'id', 'lengthAdjust', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'rotate', 'style', 'systemLanguage', 'textLength', 'x', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        tspan: ['class', 'dx', 'dy', 'externalResourcesRequired', 'id', 'lengthAdjust', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'rotate', 'style', 'systemLanguage', 'textLength', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        use: ['class', 'externalResourcesRequired', 'height', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'width', 'x', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space', 'y'],
-        view: ['externalResourcesRequired', 'id', 'preserveAspectRatio', 'viewBox', 'viewTarget', 'xml:base', 'xml:lang', 'xml:space', 'zoomAndPan'],
-        vkern: ['g1', 'g2', 'id', 'k', 'u1', 'u2', 'xml:base', 'xml:lang', 'xml:space']
-      };
+    svgElements = {
+      a: ['class', 'externalResourcesRequired', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'target', 'transform', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
+      altGlyph: ['class', 'dx', 'dy', 'externalResourcesRequired', 'format', 'glyphRef', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'rotate', 'style', 'systemLanguage', 'x', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      altGlyphDef: ['id', 'xml:base', 'xml:lang', 'xml:space'],
+      altGlyphItem: ['id', 'xml:base', 'xml:lang', 'xml:space'],
+      animate: ['accumulate', 'additive', 'attributeName', 'attributeType', 'begin', 'by', 'calcMode', 'dur', 'end', 'externalResourcesRequired', 'fill', 'from', 'id', 'keySplines', 'keyTimes', 'max', 'min', 'onbegin', 'onend', 'onload', 'onrepeat', 'repeatCount', 'repeatDur', 'requiredExtensions', 'requiredFeatures', 'restart', 'systemLanguage', 'to', 'values', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
+      animateColor: ['accumulate', 'additive', 'attributeName', 'attributeType', 'begin', 'by', 'calcMode', 'dur', 'end', 'externalResourcesRequired', 'fill', 'from', 'id', 'keySplines', 'keyTimes', 'max', 'min', 'onbegin', 'onend', 'onload', 'onrepeat', 'repeatCount', 'repeatDur', 'requiredExtensions', 'requiredFeatures', 'restart', 'systemLanguage', 'to', 'values', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
+      animateMotion: ['accumulate', 'additive', 'begin', 'by', 'calcMode', 'dur', 'end', 'externalResourcesRequired', 'fill', 'from', 'id', 'keyPoints', 'keySplines', 'keyTimes', 'max', 'min', 'onbegin', 'onend', 'onload', 'onrepeat', 'origin', 'path', 'repeatCount', 'repeatDur', 'requiredExtensions', 'requiredFeatures', 'restart', 'rotate', 'systemLanguage', 'to', 'values', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
+      animateTransform: ['accumulate', 'additive', 'attributeName', 'attributeType', 'begin', 'by', 'calcMode', 'dur', 'end', 'externalResourcesRequired', 'fill', 'from', 'id', 'keySplines', 'keyTimes', 'max', 'min', 'onbegin', 'onend', 'onload', 'onrepeat', 'repeatCount', 'repeatDur', 'requiredExtensions', 'requiredFeatures', 'restart', 'systemLanguage', 'to', 'type', 'values', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
+      circle: ['class', 'cx', 'cy', 'externalResourcesRequired', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'r', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'xml:base', 'xml:lang', 'xml:space'],
+      clipPath: ['class', 'clipPathUnits', 'externalResourcesRequired', 'id', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'xml:base', 'xml:lang', 'xml:space'],
+      'color-profile': ['id', 'local', 'name', 'rendering-intent', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
+      cursor: ['externalResourcesRequired', 'id', 'requiredExtensions', 'requiredFeatures', 'systemLanguage', 'x', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      defs: ['class', 'externalResourcesRequired', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'xml:base', 'xml:lang', 'xml:space'],
+      desc: ['class', 'id', 'style', 'xml:base', 'xml:lang', 'xml:space'],
+      ellipse: ['class', 'cx', 'cy', 'externalResourcesRequired', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'rx', 'ry', 'style', 'systemLanguage', 'transform', 'xml:base', 'xml:lang', 'xml:space'],
+      feBlend: ['class', 'height', 'id', 'in', 'in2', 'mode', 'result', 'style', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      feColorMatrix: ['class', 'height', 'id', 'in', 'result', 'style', 'type', 'values', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      feComponentTransfer: ['class', 'height', 'id', 'in', 'result', 'style', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      feComposite: ['class', 'height', 'id', 'in', 'in2', 'k1', 'k2', 'k3', 'k4', 'operator', 'result', 'style', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      feConvolveMatrix: ['bias', 'class', 'divisor', 'edgeMode', 'height', 'id', 'in', 'kernelMatrix', 'kernelUnitLength', 'order', 'preserveAlpha', 'result', 'style', 'targetX', 'targetY', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      feDiffuseLighting: ['class', 'diffuseConstant', 'height', 'id', 'in', 'kernelUnitLength', 'result', 'style', 'surfaceScale', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      feDisplacementMap: ['class', 'height', 'id', 'in', 'in2', 'result', 'scale', 'style', 'width', 'x', 'xChannelSelector', 'xml:base', 'xml:lang', 'xml:space', 'y', 'yChannelSelector'],
+      feDistantLight: ['azimuth', 'elevation', 'id', 'xml:base', 'xml:lang', 'xml:space'],
+      feFlood: ['class', 'height', 'id', 'result', 'style', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      feFuncA: ['amplitude', 'exponent', 'id', 'intercept', 'offset', 'slope', 'tableValues', 'type', 'xml:base', 'xml:lang', 'xml:space'],
+      feFuncB: ['amplitude', 'exponent', 'id', 'intercept', 'offset', 'slope', 'tableValues', 'type', 'xml:base', 'xml:lang', 'xml:space'],
+      feFuncG: ['amplitude', 'exponent', 'id', 'intercept', 'offset', 'slope', 'tableValues', 'type', 'xml:base', 'xml:lang', 'xml:space'],
+      feFuncR: ['amplitude', 'exponent', 'id', 'intercept', 'offset', 'slope', 'tableValues', 'type', 'xml:base', 'xml:lang', 'xml:space'],
+      feGaussianBlur: ['class', 'height', 'id', 'in', 'result', 'stdDeviation', 'style', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      feImage: ['class', 'externalResourcesRequired', 'height', 'id', 'preserveAspectRatio', 'result', 'style', 'width', 'x', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      feMerge: ['class', 'height', 'id', 'result', 'style', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      feMergeNode: ['id', 'xml:base', 'xml:lang', 'xml:space'],
+      feMorphology: ['class', 'height', 'id', 'in', 'operator', 'radius', 'result', 'style', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      feOffset: ['class', 'dx', 'dy', 'height', 'id', 'in', 'result', 'style', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      fePointLight: ['id', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y', 'z'],
+      feSpecularLighting: ['class', 'height', 'id', 'in', 'kernelUnitLength', 'result', 'specularConstant', 'specularExponent', 'style', 'surfaceScale', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      feSpotLight: ['id', 'limitingConeAngle', 'pointsAtX', 'pointsAtY', 'pointsAtZ', 'specularExponent', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y', 'z'],
+      feTile: ['class', 'height', 'id', 'in', 'result', 'style', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      feTurbulence: ['baseFrequency', 'class', 'height', 'id', 'numOctaves', 'result', 'seed', 'stitchTiles', 'style', 'type', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      filter: ['class', 'externalResourcesRequired', 'filterRes', 'filterUnits', 'height', 'id', 'primitiveUnits', 'style', 'width', 'x', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      font: ['class', 'externalResourcesRequired', 'horiz-adv-x', 'horiz-origin-x', 'horiz-origin-y', 'id', 'style', 'vert-adv-y', 'vert-origin-x', 'vert-origin-y', 'xml:base', 'xml:lang', 'xml:space'],
+      'font-face': ['accent-height', 'alphabetic', 'ascent', 'bbox', 'cap-height', 'descent', 'font-family', 'font-size', 'font-stretch', 'font-style', 'font-variant', 'font-weight', 'hanging', 'id', 'ideographic', 'mathematical', 'overline-position', 'overline-thickness', 'panose-1', 'slope', 'stemh', 'stemv', 'strikethrough-position', 'strikethrough-thickness', 'underline-position', 'underline-thickness', 'unicode-range', 'units-per-em', 'v-alphabetic', 'v-hanging', 'v-ideographic', 'v-mathematical', 'widths', 'x-height', 'xml:base', 'xml:lang', 'xml:space'],
+      'font-face-format': ['id', 'string', 'xml:base', 'xml:lang', 'xml:space'],
+      'font-face-name': ['id', 'name', 'xml:base', 'xml:lang', 'xml:space'],
+      'font-face-src': ['id', 'xml:base', 'xml:lang', 'xml:space'],
+      'font-face-uri': ['id', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
+      foreignObject: ['class', 'externalResourcesRequired', 'height', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      g: ['class', 'externalResourcesRequired', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'xml:base', 'xml:lang', 'xml:space'],
+      glyph: ['arabic-form', 'class', 'd', 'glyph-name', 'horiz-adv-x', 'id', 'lang', 'orientation', 'style', 'unicode', 'vert-adv-y', 'vert-origin-x', 'vert-origin-y', 'xml:base', 'xml:lang', 'xml:space'],
+      glyphRef: ['class', 'dx', 'dy', 'format', 'glyphRef', 'id', 'style', 'x', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      hkern: ['g1', 'g2', 'id', 'k', 'u1', 'u2', 'xml:base', 'xml:lang', 'xml:space'],
+      image: ['class', 'externalResourcesRequired', 'height', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'preserveAspectRatio', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'width', 'x', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      line: ['class', 'externalResourcesRequired', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'x1', 'x2', 'xml:base', 'xml:lang', 'xml:space', 'y1', 'y2'],
+      linearGradient: ['class', 'externalResourcesRequired', 'gradientTransform', 'gradientUnits', 'id', 'spreadMethod', 'style', 'x1', 'x2', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space', 'y1', 'y2'],
+      marker: ['class', 'externalResourcesRequired', 'id', 'markerHeight', 'markerUnits', 'markerWidth', 'orient', 'preserveAspectRatio', 'refX', 'refY', 'style', 'viewBox', 'xml:base', 'xml:lang', 'xml:space'],
+      mask: ['class', 'externalResourcesRequired', 'height', 'id', 'maskContentUnits', 'maskUnits', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      metadata: ['id', 'xml:base', 'xml:lang', 'xml:space'],
+      'missing-glyph': ['class', 'd', 'horiz-adv-x', 'id', 'style', 'vert-adv-y', 'vert-origin-x', 'vert-origin-y', 'xml:base', 'xml:lang', 'xml:space'],
+      mpath: ['externalResourcesRequired', 'id', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
+      path: ['class', 'd', 'externalResourcesRequired', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'pathLength', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'xml:base', 'xml:lang', 'xml:space'],
+      pattern: ['class', 'externalResourcesRequired', 'height', 'id', 'patternContentUnits', 'patternTransform', 'patternUnits', 'preserveAspectRatio', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'viewBox', 'width', 'x', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      polygon: ['class', 'externalResourcesRequired', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'points', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'xml:base', 'xml:lang', 'xml:space'],
+      polyline: ['class', 'externalResourcesRequired', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'points', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'xml:base', 'xml:lang', 'xml:space'],
+      radialGradient: ['class', 'cx', 'cy', 'externalResourcesRequired', 'fx', 'fy', 'gradientTransform', 'gradientUnits', 'id', 'r', 'spreadMethod', 'style', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
+      rect: ['class', 'externalResourcesRequired', 'height', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'rx', 'ry', 'style', 'systemLanguage', 'transform', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      script: ['externalResourcesRequired', 'id', 'type', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
+      set: ['attributeName', 'attributeType', 'begin', 'dur', 'end', 'externalResourcesRequired', 'fill', 'id', 'max', 'min', 'onbegin', 'onend', 'onload', 'onrepeat', 'repeatCount', 'repeatDur', 'requiredExtensions', 'requiredFeatures', 'restart', 'systemLanguage', 'to', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
+      stop: ['class', 'id', 'offset', 'style', 'xml:base', 'xml:lang', 'xml:space'],
+      style: ['id', 'media', 'title', 'type', 'xml:base', 'xml:lang', 'xml:space'],
+      svg: ['baseProfile', 'class', 'contentScriptType', 'contentStyleType', 'externalResourcesRequired', 'height', 'id', 'onabort', 'onactivate', 'onclick', 'onerror', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'onresize', 'onscroll', 'onunload', 'onzoom', 'preserveAspectRatio', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'version', 'viewBox', 'width', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y', 'zoomAndPan'],
+      switch: ['class', 'externalResourcesRequired', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'xml:base', 'xml:lang', 'xml:space'],
+      symbol: ['class', 'externalResourcesRequired', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'preserveAspectRatio', 'style', 'viewBox', 'xml:base', 'xml:lang', 'xml:space'],
+      text: ['class', 'dx', 'dy', 'externalResourcesRequired', 'id', 'lengthAdjust', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'rotate', 'style', 'systemLanguage', 'textLength', 'transform', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      textPath: ['class', 'externalResourcesRequired', 'id', 'lengthAdjust', 'method', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'spacing', 'startOffset', 'style', 'systemLanguage', 'textLength', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space'],
+      title: ['class', 'id', 'style', 'xml:base', 'xml:lang', 'xml:space'],
+      tref: ['class', 'dx', 'dy', 'externalResourcesRequired', 'id', 'lengthAdjust', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'rotate', 'style', 'systemLanguage', 'textLength', 'x', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      tspan: ['class', 'dx', 'dy', 'externalResourcesRequired', 'id', 'lengthAdjust', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'rotate', 'style', 'systemLanguage', 'textLength', 'x', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      use: ['class', 'externalResourcesRequired', 'height', 'id', 'onactivate', 'onclick', 'onfocusin', 'onfocusout', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'requiredExtensions', 'requiredFeatures', 'style', 'systemLanguage', 'transform', 'width', 'x', 'xlink:actuate', 'xlink:arcrole', 'xlink:href', 'xlink:role', 'xlink:show', 'xlink:title', 'xlink:type', 'xml:base', 'xml:lang', 'xml:space', 'y'],
+      view: ['externalResourcesRequired', 'id', 'preserveAspectRatio', 'viewBox', 'viewTarget', 'xml:base', 'xml:lang', 'xml:space', 'zoomAndPan'],
+      vkern: ['g1', 'g2', 'id', 'k', 'u1', 'u2', 'xml:base', 'xml:lang', 'xml:space']
+    };
 
 
-      svgPresentationElements = {
-        'a': true,
-        'altGlyph': true,
-        'animate': true,
-        'animateColor': true,
-        'circle': true,
-        'clipPath': true,
-        'defs': true,
-        'ellipse': true,
-        'feBlend': true,
-        'feColorMatrix': true,
-        'feComponentTransfer': true,
-        'feComposite': true,
-        'feConvolveMatrix': true,
-        'feDiffuseLighting': true,
-        'feDisplacementMap': true,
-        'feFlood': true,
-        'feGaussianBlur': true,
-        'feImage': true,
-        'feMerge': true,
-        'feMorphology': true,
-        'feOffset': true,
-        'feSpecularLighting': true,
-        'feTile': true,
-        'feTurbulence': true,
-        'filter': true,
-        'font': true,
-        'foreignObject': true,
-        'g': true,
-        'glyph': true,
-        'glyphRef': true,
-        'image': true,
-        'line': true,
-        'linearGradient': true,
-        'marker': true,
-        'mask': true,
-        'missing-glyph': true,
-        'path': true,
-        'pattern': true,
-        'polygon': true,
-        'polyline': true,
-        'radialGradient': true,
-        'rect': true,
-        'stop': true,
-        'svg': true,
-        'switch': true,
-        'symbol': true,
-        'text': true,
-        'textPath': true,
-        'tref': true,
-        'tspan': true,
-        'use': true
-      };
+    svgPresentationElements = {
+      'a': true,
+      'altGlyph': true,
+      'animate': true,
+      'animateColor': true,
+      'circle': true,
+      'clipPath': true,
+      'defs': true,
+      'ellipse': true,
+      'feBlend': true,
+      'feColorMatrix': true,
+      'feComponentTransfer': true,
+      'feComposite': true,
+      'feConvolveMatrix': true,
+      'feDiffuseLighting': true,
+      'feDisplacementMap': true,
+      'feFlood': true,
+      'feGaussianBlur': true,
+      'feImage': true,
+      'feMerge': true,
+      'feMorphology': true,
+      'feOffset': true,
+      'feSpecularLighting': true,
+      'feTile': true,
+      'feTurbulence': true,
+      'filter': true,
+      'font': true,
+      'foreignObject': true,
+      'g': true,
+      'glyph': true,
+      'glyphRef': true,
+      'image': true,
+      'line': true,
+      'linearGradient': true,
+      'marker': true,
+      'mask': true,
+      'missing-glyph': true,
+      'path': true,
+      'pattern': true,
+      'polygon': true,
+      'polyline': true,
+      'radialGradient': true,
+      'rect': true,
+      'stop': true,
+      'svg': true,
+      'switch': true,
+      'symbol': true,
+      'text': true,
+      'textPath': true,
+      'tref': true,
+      'tspan': true,
+      'use': true
+    };
 
-      svgPresentationAttributes = {
-        'alignment-baseline': true,
-        'baseline-shift': true,
-        'clip-path': true,
-        'clip-rule': true,
-        'clip': true,
-        'color-interpolation-filters': true,
-        'color-interpolation': true,
-        'color-profile': true,
-        'color-rendering': true,
-        'color': true,
-        'cursor': true,
-        'direction': true,
-        'display': true,
-        'dominant-baseline': true,
-        'enable-background': true,
-        'fill-opacity': true,
-        'fill-rule': true,
-        'fill': true,
-        'filter': true,
-        'flood-color': true,
-        'flood-opacity': true,
-        'font-family': true,
-        'font-size-adjust': true,
-        'font-size': true,
-        'font-stretch': true,
-        'font-style': true,
-        'font-variant': true,
-        'font-weight': true,
-        'glyph-orientation-horizontal': true,
-        'glyph-orientation-vertical': true,
-        'image-rendering': true,
-        'kerning': true,
-        'letter-spacing': true,
-        'lighting-color': true,
-        'marker-end': true,
-        'marker-mid': true,
-        'marker-start': true,
-        'mask': true,
-        'opacity': true,
-        'overflow': true,
-        'pointer-events': true,
-        'shape-rendering': true,
-        'stop-color': true,
-        'stop-opacity': true,
-        'stroke-dasharray': true,
-        'stroke-dashoffset': true,
-        'stroke-linecap': true,
-        'stroke-linejoin': true,
-        'stroke-miterlimit': true,
-        'stroke-opacity': true,
-        'stroke-width': true,
-        'stroke': true,
-        'text-anchor': true,
-        'text-decoration': true,
-        'text-rendering': true,
-        'unicode-bidi': true,
-        'visibility': true,
-        'word-spacing': true,
-        'writing-mode': true
-      };
+    svgPresentationAttributes = {
+      'alignment-baseline': true,
+      'baseline-shift': true,
+      'clip-path': true,
+      'clip-rule': true,
+      'clip': true,
+      'color-interpolation-filters': true,
+      'color-interpolation': true,
+      'color-profile': true,
+      'color-rendering': true,
+      'color': true,
+      'cursor': true,
+      'direction': true,
+      'display': true,
+      'dominant-baseline': true,
+      'enable-background': true,
+      'fill-opacity': true,
+      'fill-rule': true,
+      'fill': true,
+      'filter': true,
+      'flood-color': true,
+      'flood-opacity': true,
+      'font-family': true,
+      'font-size-adjust': true,
+      'font-size': true,
+      'font-stretch': true,
+      'font-style': true,
+      'font-variant': true,
+      'font-weight': true,
+      'glyph-orientation-horizontal': true,
+      'glyph-orientation-vertical': true,
+      'image-rendering': true,
+      'kerning': true,
+      'letter-spacing': true,
+      'lighting-color': true,
+      'marker-end': true,
+      'marker-mid': true,
+      'marker-start': true,
+      'mask': true,
+      'opacity': true,
+      'overflow': true,
+      'pointer-events': true,
+      'shape-rendering': true,
+      'stop-color': true,
+      'stop-opacity': true,
+      'stroke-dasharray': true,
+      'stroke-dashoffset': true,
+      'stroke-linecap': true,
+      'stroke-linejoin': true,
+      'stroke-miterlimit': true,
+      'stroke-opacity': true,
+      'stroke-width': true,
+      'stroke': true,
+      'text-anchor': true,
+      'text-decoration': true,
+      'text-rendering': true,
+      'unicode-bidi': true,
+      'visibility': true,
+      'word-spacing': true,
+      'writing-mode': true
+    };
 
-      var createElement = function createElement(html) {
-        var div = _aureliaPal.DOM.createElement('div');
-        div.innerHTML = html;
-        return div.firstChild;
-      };
+    var createElement = function createElement(html) {
+      var div = _aureliaPal.DOM.createElement('div');
+      div.innerHTML = html;
+      return div.firstChild;
+    };
 
-      svgAnalyzer = function () {
-        function SVGAnalyzer() {
-          
+    svgAnalyzer = function () {
+      function SVGAnalyzer() {
+        
 
-          if (createElement('<svg><altGlyph /></svg>').firstElementChild.nodeName === 'altglyph' && elements.altGlyph) {
-            elements.altglyph = elements.altGlyph;
-            delete elements.altGlyph;
-            elements.altglyphdef = elements.altGlyphDef;
-            delete elements.altGlyphDef;
-            elements.altglyphitem = elements.altGlyphItem;
-            delete elements.altGlyphItem;
-            elements.glyphref = elements.glyphRef;
-            delete elements.glyphRef;
-          }
+        if (createElement('<svg><altGlyph /></svg>').firstElementChild.nodeName === 'altglyph' && elements.altGlyph) {
+          elements.altglyph = elements.altGlyph;
+          delete elements.altGlyph;
+          elements.altglyphdef = elements.altGlyphDef;
+          delete elements.altGlyphDef;
+          elements.altglyphitem = elements.altGlyphItem;
+          delete elements.altGlyphItem;
+          elements.glyphref = elements.glyphRef;
+          delete elements.glyphRef;
         }
+      }
 
-        SVGAnalyzer.prototype.isStandardSvgAttribute = function isStandardSvgAttribute(nodeName, attributeName) {
-          return presentationElements[nodeName] && presentationAttributes[attributeName] || elements[nodeName] && elements[nodeName].indexOf(attributeName) !== -1;
-        };
+      SVGAnalyzer.prototype.isStandardSvgAttribute = function isStandardSvgAttribute(nodeName, attributeName) {
+        return presentationElements[nodeName] && presentationAttributes[attributeName] || elements[nodeName] && elements[nodeName].indexOf(attributeName) !== -1;
+      };
 
-        return SVGAnalyzer;
-      }();
-    })();
+      return SVGAnalyzer;
+    }();
   }
 
   var elements = exports.elements = svgElements;
@@ -10527,6 +10556,7 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
       this.dirtyChecker = dirtyChecker;
       this.svgAnalyzer = svgAnalyzer;
       this.parser = parser;
+
       this.adapters = [];
       this.logger = LogManager.getLogger('observer-locator');
     }
@@ -10576,8 +10606,8 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
     };
 
     ObserverLocator.prototype.getAdapterObserver = function getAdapterObserver(obj, propertyName, descriptor) {
-      for (var _i26 = 0, ii = this.adapters.length; _i26 < ii; _i26++) {
-        var adapter = this.adapters[_i26];
+      for (var _i28 = 0, ii = this.adapters.length; _i28 < ii; _i28++) {
+        var adapter = this.adapters[_i28];
         var observer = adapter.getObserver(obj, propertyName, descriptor);
         if (observer) {
           return observer;
@@ -10883,7 +10913,7 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
     };
 
     Call.prototype.bind = function bind(source) {
-      var _this27 = this;
+      var _this26 = this;
 
       if (this.isBound) {
         if (this.source === source) {
@@ -10898,7 +10928,7 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
         this.sourceExpression.bind(this, source, this.lookupFunctions);
       }
       this.targetProperty.setValue(function ($event) {
-        return _this27.callSource($event);
+        return _this26.callSource($event);
       });
     };
 
@@ -11051,7 +11081,7 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
       if (this.sourceExpression.bind) {
         this.sourceExpression.bind(this, source, this.lookupFunctions);
       }
-      this._disposeListener = this.eventManager.addEventListener(this.target, this.targetEvent, this, this.delegationStrategy);
+      this._handler = this.eventManager.addEventListener(this.target, this.targetEvent, this, this.delegationStrategy, true);
     };
 
     Listener.prototype.unbind = function unbind() {
@@ -11063,8 +11093,8 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
         this.sourceExpression.unbind(this, this.source);
       }
       this.source = null;
-      this._disposeListener();
-      this._disposeListener = null;
+      this._handler.dispose();
+      this._handler = null;
     };
 
     return Listener;
@@ -11177,18 +11207,18 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
     }
 
     BindingEngine.prototype.createBindingExpression = function createBindingExpression(targetProperty, sourceExpression) {
-      var mode = arguments.length <= 2 || arguments[2] === undefined ? bindingMode.toView : arguments[2];
-      var lookupFunctions = arguments.length <= 3 || arguments[3] === undefined ? LookupFunctions : arguments[3];
+      var mode = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : bindingMode.toView;
+      var lookupFunctions = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : LookupFunctions;
 
       return new BindingExpression(this.observerLocator, targetProperty, this.parser.parse(sourceExpression), mode, lookupFunctions);
     };
 
     BindingEngine.prototype.propertyObserver = function propertyObserver(obj, propertyName) {
-      var _this28 = this;
+      var _this27 = this;
 
       return {
         subscribe: function subscribe(callback) {
-          var observer = _this28.observerLocator.getObserver(obj, propertyName);
+          var observer = _this27.observerLocator.getObserver(obj, propertyName);
           observer.subscribe(callback);
           return {
             dispose: function dispose() {
@@ -11200,17 +11230,17 @@ gaRequire.define('aurelia-binding',['exports', 'aurelia-logging', 'aurelia-pal',
     };
 
     BindingEngine.prototype.collectionObserver = function collectionObserver(collection) {
-      var _this29 = this;
+      var _this28 = this;
 
       return {
         subscribe: function subscribe(callback) {
           var observer = void 0;
           if (collection instanceof Array) {
-            observer = _this29.observerLocator.getArrayObserver(collection);
+            observer = _this28.observerLocator.getArrayObserver(collection);
           } else if (collection instanceof Map) {
-            observer = _this29.observerLocator.getMapObserver(collection);
+            observer = _this28.observerLocator.getMapObserver(collection);
           } else if (collection instanceof Set) {
-            observer = _this29.observerLocator.getSetObserver(collection);
+            observer = _this28.observerLocator.getSetObserver(collection);
           } else {
             throw new Error('collection must be an instance of Array, Map or Set.');
           }
@@ -11558,7 +11588,7 @@ gaRequire.define('aurelia-dependency-injection',['exports', 'aurelia-metadata', 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.Container = exports.InvocationHandler = exports._emptyParameters = exports.SingletonRegistration = exports.TransientRegistration = exports.FactoryInvoker = exports.NewInstance = exports.Factory = exports.StrategyResolver = exports.Parent = exports.Optional = exports.All = exports.Lazy = exports.resolver = undefined;
+  exports.Container = exports.InvocationHandler = exports._emptyParameters = exports.SingletonRegistration = exports.TransientRegistration = exports.FactoryInvoker = exports.NewInstance = exports.Factory = exports.Parent = exports.Optional = exports.All = exports.Lazy = exports.StrategyResolver = exports.resolver = undefined;
   exports.getDecoratorDependencies = getDecoratorDependencies;
   exports.lazy = lazy;
   exports.all = all;
@@ -11576,7 +11606,7 @@ gaRequire.define('aurelia-dependency-injection',['exports', 'aurelia-metadata', 
 
   
 
-  var _dec, _class, _dec2, _class3, _dec3, _class5, _dec4, _class7, _dec5, _class9, _dec6, _class11, _dec7, _class13, _classInvokers;
+  var _dec, _class, _dec2, _class2, _dec3, _class3, _dec4, _class4, _dec5, _class5, _dec6, _class6, _dec7, _class7, _classInvokers;
 
   var resolver = exports.resolver = _aureliaMetadata.protocol.create('aurelia:resolver', function (target) {
     if (!(typeof target.get === 'function')) {
@@ -11586,7 +11616,39 @@ gaRequire.define('aurelia-dependency-injection',['exports', 'aurelia-metadata', 
     return true;
   });
 
-  var Lazy = exports.Lazy = (_dec = resolver(), _dec(_class = function () {
+  var StrategyResolver = exports.StrategyResolver = (_dec = resolver(), _dec(_class = function () {
+    function StrategyResolver(strategy, state) {
+      
+
+      this.strategy = strategy;
+      this.state = state;
+    }
+
+    StrategyResolver.prototype.get = function get(container, key) {
+      switch (this.strategy) {
+        case 0:
+          return this.state;
+        case 1:
+          var _singleton = container.invoke(this.state);
+          this.state = _singleton;
+          this.strategy = 0;
+          return _singleton;
+        case 2:
+          return container.invoke(this.state);
+        case 3:
+          return this.state(container, key, this);
+        case 4:
+          return this.state[0].get(container, key);
+        case 5:
+          return container.get(this.state);
+        default:
+          throw new Error('Invalid strategy: ' + this.strategy);
+      }
+    };
+
+    return StrategyResolver;
+  }()) || _class);
+  var Lazy = exports.Lazy = (_dec2 = resolver(), _dec2(_class2 = function () {
     function Lazy(key) {
       
 
@@ -11606,8 +11668,8 @@ gaRequire.define('aurelia-dependency-injection',['exports', 'aurelia-metadata', 
     };
 
     return Lazy;
-  }()) || _class);
-  var All = exports.All = (_dec2 = resolver(), _dec2(_class3 = function () {
+  }()) || _class2);
+  var All = exports.All = (_dec3 = resolver(), _dec3(_class3 = function () {
     function All(key) {
       
 
@@ -11624,9 +11686,9 @@ gaRequire.define('aurelia-dependency-injection',['exports', 'aurelia-metadata', 
 
     return All;
   }()) || _class3);
-  var Optional = exports.Optional = (_dec3 = resolver(), _dec3(_class5 = function () {
+  var Optional = exports.Optional = (_dec4 = resolver(), _dec4(_class4 = function () {
     function Optional(key) {
-      var checkParent = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
+      var checkParent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
       
 
@@ -11643,14 +11705,14 @@ gaRequire.define('aurelia-dependency-injection',['exports', 'aurelia-metadata', 
     };
 
     Optional.of = function of(key) {
-      var checkParent = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
+      var checkParent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
       return new Optional(key, checkParent);
     };
 
     return Optional;
-  }()) || _class5);
-  var Parent = exports.Parent = (_dec4 = resolver(), _dec4(_class7 = function () {
+  }()) || _class4);
+  var Parent = exports.Parent = (_dec5 = resolver(), _dec5(_class5 = function () {
     function Parent(key) {
       
 
@@ -11666,40 +11728,8 @@ gaRequire.define('aurelia-dependency-injection',['exports', 'aurelia-metadata', 
     };
 
     return Parent;
-  }()) || _class7);
-  var StrategyResolver = exports.StrategyResolver = (_dec5 = resolver(), _dec5(_class9 = function () {
-    function StrategyResolver(strategy, state) {
-      
-
-      this.strategy = strategy;
-      this.state = state;
-    }
-
-    StrategyResolver.prototype.get = function get(container, key) {
-      switch (this.strategy) {
-        case 0:
-          return this.state;
-        case 1:
-          var singleton = container.invoke(this.state);
-          this.state = singleton;
-          this.strategy = 0;
-          return singleton;
-        case 2:
-          return container.invoke(this.state);
-        case 3:
-          return this.state(container, key, this);
-        case 4:
-          return this.state[0].get(container, key);
-        case 5:
-          return container.get(this.state);
-        default:
-          throw new Error('Invalid strategy: ' + this.strategy);
-      }
-    };
-
-    return StrategyResolver;
-  }()) || _class9);
-  var Factory = exports.Factory = (_dec6 = resolver(), _dec6(_class11 = function () {
+  }()) || _class5);
+  var Factory = exports.Factory = (_dec6 = resolver(), _dec6(_class6 = function () {
     function Factory(key) {
       
 
@@ -11707,14 +11737,18 @@ gaRequire.define('aurelia-dependency-injection',['exports', 'aurelia-metadata', 
     }
 
     Factory.prototype.get = function get(container) {
-      var _this2 = this;
+      var fn = this._key;
+      var resolver = container.getResolver(fn);
+      if (resolver && resolver.strategy === 3) {
+        fn = resolver.state;
+      }
 
       return function () {
         for (var _len = arguments.length, rest = Array(_len), _key = 0; _key < _len; _key++) {
           rest[_key] = arguments[_key];
         }
 
-        return container.invoke(_this2._key, rest);
+        return container.invoke(fn, rest);
       };
     };
 
@@ -11723,8 +11757,8 @@ gaRequire.define('aurelia-dependency-injection',['exports', 'aurelia-metadata', 
     };
 
     return Factory;
-  }()) || _class11);
-  var NewInstance = exports.NewInstance = (_dec7 = resolver(), _dec7(_class13 = function () {
+  }()) || _class6);
+  var NewInstance = exports.NewInstance = (_dec7 = resolver(), _dec7(_class7 = function () {
     function NewInstance(key) {
       
 
@@ -11742,7 +11776,14 @@ gaRequire.define('aurelia-dependency-injection',['exports', 'aurelia-metadata', 
       var dynamicDependencies = this.dynamicDependencies.length > 0 ? this.dynamicDependencies.map(function (dependency) {
         return dependency['protocol:aurelia:resolver'] ? dependency.get(container) : container.get(dependency);
       }) : undefined;
-      var instance = container.invoke(this.key, dynamicDependencies);
+
+      var fn = this.key;
+      var resolver = container.getResolver(fn);
+      if (resolver && resolver.strategy === 3) {
+        fn = resolver.state;
+      }
+
+      var instance = container.invoke(fn, dynamicDependencies);
       container.registerInstance(this.asKey, instance);
       return instance;
     };
@@ -11761,41 +11802,34 @@ gaRequire.define('aurelia-dependency-injection',['exports', 'aurelia-metadata', 
     };
 
     return NewInstance;
-  }()) || _class13);
-  function getDecoratorDependencies(target, name) {
-    var dependencies = target.inject;
-    if (typeof dependencies === 'function') {
-      throw new Error('Decorator ' + name + ' cannot be used with "inject()".  Please use an array instead.');
-    }
-    if (!dependencies) {
-      dependencies = _aureliaMetadata.metadata.getOwn(_aureliaMetadata.metadata.paramTypes, target).slice();
-      target.inject = dependencies;
-    }
+  }()) || _class7);
+  function getDecoratorDependencies(target) {
+    autoinject(target);
 
-    return dependencies;
+    return target.inject;
   }
 
   function lazy(keyValue) {
     return function (target, key, index) {
-      var params = getDecoratorDependencies(target, 'lazy');
-      params[index] = Lazy.of(keyValue);
+      var inject = getDecoratorDependencies(target);
+      inject[index] = Lazy.of(keyValue);
     };
   }
 
   function all(keyValue) {
     return function (target, key, index) {
-      var params = getDecoratorDependencies(target, 'all');
-      params[index] = All.of(keyValue);
+      var inject = getDecoratorDependencies(target);
+      inject[index] = All.of(keyValue);
     };
   }
 
   function optional() {
-    var checkParentOrTarget = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+    var checkParentOrTarget = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
     var deco = function deco(checkParent) {
       return function (target, key, index) {
-        var params = getDecoratorDependencies(target, 'optional');
-        params[index] = Optional.of(params[index], checkParent);
+        var inject = getDecoratorDependencies(target);
+        inject[index] = Optional.of(inject[index], checkParent);
       };
     };
     if (typeof checkParentOrTarget === 'boolean') {
@@ -11805,15 +11839,14 @@ gaRequire.define('aurelia-dependency-injection',['exports', 'aurelia-metadata', 
   }
 
   function parent(target, key, index) {
-    var params = getDecoratorDependencies(target, 'parent');
-    params[index] = Parent.of(params[index]);
+    var inject = getDecoratorDependencies(target);
+    inject[index] = Parent.of(inject[index]);
   }
 
-  function factory(keyValue, asValue) {
+  function factory(keyValue) {
     return function (target, key, index) {
-      var params = getDecoratorDependencies(target, 'factory');
-      var factory = Factory.of(keyValue);
-      params[index] = asValue ? factory.as(asValue) : factory;
+      var inject = getDecoratorDependencies(target);
+      inject[index] = Factory.of(keyValue);
     };
   }
 
@@ -11824,10 +11857,10 @@ gaRequire.define('aurelia-dependency-injection',['exports', 'aurelia-metadata', 
 
     var deco = function deco(asKey) {
       return function (target, key, index) {
-        var params = getDecoratorDependencies(target, 'newInstance');
-        params[index] = NewInstance.of.apply(NewInstance, [params[index]].concat(dynamicDependencies));
+        var inject = getDecoratorDependencies(target);
+        inject[index] = NewInstance.of.apply(NewInstance, [inject[index]].concat(dynamicDependencies));
         if (!!asKey) {
-          params[index].as(asKey);
+          inject[index].as(asKey);
         }
       };
     };
@@ -11898,7 +11931,7 @@ gaRequire.define('aurelia-dependency-injection',['exports', 'aurelia-metadata', 
   }
 
   function singleton(keyOrRegisterInChild) {
-    var registerInChild = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+    var registerInChild = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
     return registration(new SingletonRegistration(keyOrRegisterInChild, registerInChild));
   }
@@ -11920,7 +11953,7 @@ gaRequire.define('aurelia-dependency-injection',['exports', 'aurelia-metadata', 
 
   var SingletonRegistration = exports.SingletonRegistration = function () {
     function SingletonRegistration(keyOrRegisterInChild) {
-      var registerInChild = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+      var registerInChild = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
       
 
@@ -12135,7 +12168,7 @@ gaRequire.define('aurelia-dependency-injection',['exports', 'aurelia-metadata', 
     };
 
     Container.prototype.hasResolver = function hasResolver(key) {
-      var checkParent = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+      var checkParent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
       validateKey(key);
 
@@ -12267,23 +12300,8 @@ gaRequire.define('aurelia-dependency-injection',['exports', 'aurelia-metadata', 
 
   function autoinject(potentialTarget) {
     var deco = function deco(target) {
-      var previousInject = target.inject ? target.inject.slice() : null;
-      var autoInject = _aureliaMetadata.metadata.getOwn(_aureliaMetadata.metadata.paramTypes, target) || _emptyParameters;
-      if (!previousInject) {
-        target.inject = autoInject;
-      } else {
-        for (var i = 0; i < autoInject.length; i++) {
-          if (previousInject[i] && previousInject[i] !== autoInject[i]) {
-            var prevIndex = previousInject.indexOf(autoInject[i]);
-            if (prevIndex > -1) {
-              previousInject.splice(prevIndex, 1);
-            }
-            previousInject.splice(prevIndex > -1 && prevIndex < i ? i - 1 : i, 0, autoInject[i]);
-          } else if (!previousInject[i]) {
-            previousInject[i] = autoInject[i];
-          }
-        }
-        target.inject = previousInject;
+      if (!target.hasOwnProperty('inject')) {
+        target.inject = (_aureliaMetadata.metadata.getOwn(_aureliaMetadata.metadata.paramTypes, target) || _emptyParameters).slice();
       }
     };
 
@@ -12296,16 +12314,11 @@ gaRequire.define('aurelia-dependency-injection',['exports', 'aurelia-metadata', 
     }
 
     return function (target, key, descriptor) {
-      if (typeof descriptor === 'number' && rest.length === 1) {
-        var params = target.inject;
-        if (typeof params === 'function') {
-          throw new Error('Decorator inject cannot be used with "inject()".  Please use an array instead.');
+      if (typeof descriptor === 'number') {
+        autoinject(target);
+        if (rest.length === 1) {
+          target.inject[descriptor] = rest[0];
         }
-        if (!params) {
-          params = _aureliaMetadata.metadata.getOwn(_aureliaMetadata.metadata.paramTypes, target).slice();
-          target.inject = params;
-        }
-        params[descriptor] = rest[0];
         return;
       }
 
@@ -12638,8 +12651,8 @@ gaRequire.define('aurelia-framework',['exports', 'aurelia-dependency-injection',
     Aurelia.prototype.enhance = function enhance() {
       var _this2 = this;
 
-      var bindingContext = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-      var applicationHost = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+      var bindingContext = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      var applicationHost = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
       this._configureHost(applicationHost || _aureliaPal.DOM.querySelectorAll('body')[0]);
 
@@ -12655,8 +12668,8 @@ gaRequire.define('aurelia-framework',['exports', 'aurelia-dependency-injection',
     Aurelia.prototype.setRoot = function setRoot() {
       var _this3 = this;
 
-      var root = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
-      var applicationHost = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+      var root = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var applicationHost = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
       var instruction = {};
 
@@ -12885,7 +12898,7 @@ gaRequire.define('aurelia-framework',['exports', 'aurelia-dependency-injection',
     };
 
     FrameworkConfiguration.prototype.feature = function feature(plugin) {
-      var config = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+      var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       var hasIndex = /\/index$/i.test(plugin);
       var moduleId = hasIndex || getExt(plugin) ? plugin : plugin + '/index';
@@ -12981,14 +12994,20 @@ gaRequire.define('aurelia-framework',['exports', 'aurelia-dependency-injection',
       return this.basicConfiguration().history().router();
     };
 
-    FrameworkConfiguration.prototype.developmentLogging = function developmentLogging() {
+    FrameworkConfiguration.prototype.developmentLogging = function developmentLogging(level) {
       var _this6 = this;
+
+      var logLevel = level ? TheLogManager.logLevel[level] : undefined;
+
+      if (logLevel === undefined) {
+        logLevel = TheLogManager.logLevel.debug;
+      }
 
       this.preTask(function () {
         return _this6.aurelia.loader.normalize('aurelia-logging-console', _this6.bootstrapperName).then(function (name) {
           return _this6.aurelia.loader.loadModule(name).then(function (m) {
             TheLogManager.addAppender(new m.ConsoleAppender());
-            TheLogManager.setLevel(TheLogManager.logLevel.debug);
+            TheLogManager.setLevel(logLevel);
           });
         });
       });
@@ -13141,11 +13160,9 @@ gaRequire.define('aurelia-history-browser',['exports', 'aurelia-pal', 'aurelia-h
       var _this = _possibleConstructorReturn(this, _LinkHandler.call(this));
 
       _this.handler = function (e) {
-        var _DefaultLinkHandler$g = DefaultLinkHandler.getEventInfo(e);
-
-        var shouldHandleEvent = _DefaultLinkHandler$g.shouldHandleEvent;
-        var href = _DefaultLinkHandler$g.href;
-
+        var _DefaultLinkHandler$g = DefaultLinkHandler.getEventInfo(e),
+            shouldHandleEvent = _DefaultLinkHandler$g.shouldHandleEvent,
+            href = _DefaultLinkHandler$g.href;
 
         if (shouldHandleEvent) {
           e.preventDefault();
@@ -13178,6 +13195,10 @@ gaRequire.define('aurelia-history-browser',['exports', 'aurelia-pal', 'aurelia-h
         return info;
       }
 
+      if (target.hasAttribute('download') || target.hasAttribute('router-ignore')) {
+        return info;
+      }
+
       if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
         return info;
       }
@@ -13207,7 +13228,7 @@ gaRequire.define('aurelia-history-browser',['exports', 'aurelia-pal', 'aurelia-h
       var targetWindow = target.getAttribute('target');
       var win = _aureliaPal.PLATFORM.global;
 
-      return !targetWindow || targetWindow === win.name || targetWindow === '_self' || targetWindow === 'top' && win === win.top;
+      return !targetWindow || targetWindow === win.name || targetWindow === '_self';
     };
 
     return DefaultLinkHandler;
@@ -13269,9 +13290,9 @@ gaRequire.define('aurelia-history-browser',['exports', 'aurelia-pal', 'aurelia-h
 
           return true;
         } else if (this._hasPushState && atRoot && loc.hash) {
-            this.fragment = this._getHash().replace(routeStripper, '');
-            this.history.replaceState({}, _aureliaPal.DOM.title, this.root + this.fragment + loc.search);
-          }
+          this.fragment = this._getHash().replace(routeStripper, '');
+          this.history.replaceState({}, _aureliaPal.DOM.title, this.root + this.fragment + loc.search);
+        }
       }
 
       if (!this.fragment) {
@@ -13298,12 +13319,11 @@ gaRequire.define('aurelia-history-browser',['exports', 'aurelia-pal', 'aurelia-h
     };
 
     BrowserHistory.prototype.navigate = function navigate(fragment) {
-      var _ref = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-      var _ref$trigger = _ref.trigger;
-      var trigger = _ref$trigger === undefined ? true : _ref$trigger;
-      var _ref$replace = _ref.replace;
-      var replace = _ref$replace === undefined ? false : _ref$replace;
+      var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref$trigger = _ref.trigger,
+          trigger = _ref$trigger === undefined ? true : _ref$trigger,
+          _ref$replace = _ref.replace,
+          replace = _ref$replace === undefined ? false : _ref$replace;
 
       if (fragment && absoluteUrl.test(fragment)) {
         this.location.href = fragment;
@@ -13334,12 +13354,14 @@ gaRequire.define('aurelia-history-browser',['exports', 'aurelia-pal', 'aurelia-h
       } else if (this._wantsHashChange) {
         updateHash(this.location, fragment, replace);
       } else {
-        return this.location.assign(url);
+        this.location.assign(url);
       }
 
       if (trigger) {
         return this._loadUrl(fragment);
       }
+
+      return true;
     };
 
     BrowserHistory.prototype.navigateBack = function navigateBack() {
@@ -13352,10 +13374,10 @@ gaRequire.define('aurelia-history-browser',['exports', 'aurelia-pal', 'aurelia-h
 
     BrowserHistory.prototype.setState = function setState(key, value) {
       var state = Object.assign({}, this.history.state);
-      var _location = this.location;
-      var pathname = _location.pathname;
-      var search = _location.search;
-      var hash = _location.hash;
+      var _location = this.location,
+          pathname = _location.pathname,
+          search = _location.search,
+          hash = _location.hash;
 
       state[key] = value;
       this.history.replaceState(state, null, '' + pathname + search + hash);
@@ -13724,7 +13746,7 @@ gaRequire.define('aurelia-loader-default',['exports', 'aurelia-loader', 'aurelia
 
     DefaultLoader.prototype._import = function (moduleId) {
       return new Promise(function (resolve, reject) {
-        require([moduleId], resolve, reject);
+        _aureliaPal.PLATFORM.global.require([moduleId], resolve, reject);
       });
     };
 
@@ -13737,7 +13759,7 @@ gaRequire.define('aurelia-loader-default',['exports', 'aurelia-loader', 'aurelia
       }
 
       return new Promise(function (resolve, reject) {
-        require([id], function (m) {
+        _aureliaPal.PLATFORM.global.require([id], function (m) {
           _this2.moduleRegistry[id] = m;
           resolve(ensureOriginOnExports(m, id));
         }, reject);
@@ -14042,6 +14064,10 @@ gaRequire.define('aurelia-logging',['exports'], function (exports) {
       this.level = level;
     };
 
+    Logger.prototype.isDebugEnabled = function isDebugEnabled() {
+      return this.level === logLevel.debug;
+    };
+
     return Logger;
   }();
 });
@@ -14134,7 +14160,7 @@ gaRequire.define('aurelia-metadata',['exports', 'aurelia-pal'], function (export
   var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
     return typeof obj;
   } : function (obj) {
-    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
   };
 
   function isObject(val) {
@@ -14192,11 +14218,13 @@ gaRequire.define('aurelia-metadata',['exports', 'aurelia-pal'], function (export
         _aureliaPal.PLATFORM.eachModule(function (key, value) {
           if ((typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object') {
             for (var name in value) {
-              var exp = value[name];
-              if (exp === fn) {
-                originStorage.set(fn, origin = new Origin(key, name));
-                return true;
-              }
+              try {
+                var exp = value[name];
+                if (exp === fn) {
+                  originStorage.set(fn, origin = new Origin(key, name));
+                  return true;
+                }
+              } catch (e) {}
             }
           }
 
@@ -14537,128 +14565,126 @@ gaRequire.define('aurelia-pal-browser',['exports', 'aurelia-pal'], function (exp
 
   if (typeof FEATURE_NO_IE === 'undefined') {
     if (!('classList' in document.createElement('_')) || document.createElementNS && !('classList' in document.createElementNS('http://www.w3.org/2000/svg', 'g'))) {
-      (function () {
-        var protoProp = 'prototype';
-        var strTrim = String.prototype.trim;
-        var arrIndexOf = Array.prototype.indexOf;
-        var emptyArray = [];
+      var protoProp = 'prototype';
+      var strTrim = String.prototype.trim;
+      var arrIndexOf = Array.prototype.indexOf;
+      var emptyArray = [];
 
-        var DOMEx = function DOMEx(type, message) {
-          this.name = type;
-          this.code = DOMException[type];
-          this.message = message;
+      var DOMEx = function DOMEx(type, message) {
+        this.name = type;
+        this.code = DOMException[type];
+        this.message = message;
+      };
+
+      var checkTokenAndGetIndex = function checkTokenAndGetIndex(classList, token) {
+        if (token === '') {
+          throw new DOMEx('SYNTAX_ERR', 'An invalid or illegal string was specified');
+        }
+
+        if (/\s/.test(token)) {
+          throw new DOMEx('INVALID_CHARACTER_ERR', 'String contains an invalid character');
+        }
+
+        return arrIndexOf.call(classList, token);
+      };
+
+      var ClassList = function ClassList(elem) {
+        var trimmedClasses = strTrim.call(elem.getAttribute('class') || '');
+        var classes = trimmedClasses ? trimmedClasses.split(/\s+/) : emptyArray;
+
+        for (var i = 0, ii = classes.length; i < ii; ++i) {
+          this.push(classes[i]);
+        }
+
+        this._updateClassName = function () {
+          elem.setAttribute('class', this.toString());
         };
+      };
 
-        var checkTokenAndGetIndex = function checkTokenAndGetIndex(classList, token) {
-          if (token === '') {
-            throw new DOMEx('SYNTAX_ERR', 'An invalid or illegal string was specified');
+      var classListProto = ClassList[protoProp] = [];
+
+      DOMEx[protoProp] = Error[protoProp];
+
+      classListProto.item = function (i) {
+        return this[i] || null;
+      };
+
+      classListProto.contains = function (token) {
+        token += '';
+        return checkTokenAndGetIndex(this, token) !== -1;
+      };
+
+      classListProto.add = function () {
+        var tokens = arguments;
+        var i = 0;
+        var ii = tokens.length;
+        var token = void 0;
+        var updated = false;
+
+        do {
+          token = tokens[i] + '';
+          if (checkTokenAndGetIndex(this, token) === -1) {
+            this.push(token);
+            updated = true;
           }
+        } while (++i < ii);
 
-          if (/\s/.test(token)) {
-            throw new DOMEx('INVALID_CHARACTER_ERR', 'String contains an invalid character');
-          }
+        if (updated) {
+          this._updateClassName();
+        }
+      };
 
-          return arrIndexOf.call(classList, token);
-        };
+      classListProto.remove = function () {
+        var tokens = arguments;
+        var i = 0;
+        var ii = tokens.length;
+        var token = void 0;
+        var updated = false;
+        var index = void 0;
 
-        var ClassList = function ClassList(elem) {
-          var trimmedClasses = strTrim.call(elem.getAttribute('class') || '');
-          var classes = trimmedClasses ? trimmedClasses.split(/\s+/) : emptyArray;
-
-          for (var i = 0, ii = classes.length; i < ii; ++i) {
-            this.push(classes[i]);
-          }
-
-          this._updateClassName = function () {
-            elem.setAttribute('class', this.toString());
-          };
-        };
-
-        var classListProto = ClassList[protoProp] = [];
-
-        DOMEx[protoProp] = Error[protoProp];
-
-        classListProto.item = function (i) {
-          return this[i] || null;
-        };
-
-        classListProto.contains = function (token) {
-          token += '';
-          return checkTokenAndGetIndex(this, token) !== -1;
-        };
-
-        classListProto.add = function () {
-          var tokens = arguments;
-          var i = 0;
-          var ii = tokens.length;
-          var token = void 0;
-          var updated = false;
-
-          do {
-            token = tokens[i] + '';
-            if (checkTokenAndGetIndex(this, token) === -1) {
-              this.push(token);
-              updated = true;
-            }
-          } while (++i < ii);
-
-          if (updated) {
-            this._updateClassName();
-          }
-        };
-
-        classListProto.remove = function () {
-          var tokens = arguments;
-          var i = 0;
-          var ii = tokens.length;
-          var token = void 0;
-          var updated = false;
-          var index = void 0;
-
-          do {
-            token = tokens[i] + '';
+        do {
+          token = tokens[i] + '';
+          index = checkTokenAndGetIndex(this, token);
+          while (index !== -1) {
+            this.splice(index, 1);
+            updated = true;
             index = checkTokenAndGetIndex(this, token);
-            while (index !== -1) {
-              this.splice(index, 1);
-              updated = true;
-              index = checkTokenAndGetIndex(this, token);
-            }
-          } while (++i < ii);
-
-          if (updated) {
-            this._updateClassName();
           }
-        };
+        } while (++i < ii);
 
-        classListProto.toggle = function (token, force) {
-          token += '';
+        if (updated) {
+          this._updateClassName();
+        }
+      };
 
-          var result = this.contains(token);
-          var method = result ? force !== true && 'remove' : force !== false && 'add';
+      classListProto.toggle = function (token, force) {
+        token += '';
 
-          if (method) {
-            this[method](token);
-          }
+        var result = this.contains(token);
+        var method = result ? force !== true && 'remove' : force !== false && 'add';
 
-          if (force === true || force === false) {
-            return force;
-          }
+        if (method) {
+          this[method](token);
+        }
 
-          return !result;
-        };
+        if (force === true || force === false) {
+          return force;
+        }
 
-        classListProto.toString = function () {
-          return this.join(' ');
-        };
+        return !result;
+      };
 
-        Object.defineProperty(Element.prototype, 'classList', {
-          get: function get() {
-            return new ClassList(this);
-          },
-          enumerable: true,
-          configurable: true
-        });
-      })();
+      classListProto.toString = function () {
+        return this.join(' ');
+      };
+
+      Object.defineProperty(Element.prototype, 'classList', {
+        get: function get() {
+          return new ClassList(this);
+        },
+        enumerable: true,
+        configurable: true
+      });
     } else {
       var testElement = document.createElement('_');
       testElement.classList.add('c1', 'c2');
@@ -14682,17 +14708,15 @@ gaRequire.define('aurelia-pal-browser',['exports', 'aurelia-pal'], function (exp
       testElement.classList.toggle('c3', false);
 
       if (testElement.classList.contains('c3')) {
-        (function () {
-          var _toggle = DOMTokenList.prototype.toggle;
+        var _toggle = DOMTokenList.prototype.toggle;
 
-          DOMTokenList.prototype.toggle = function (token, force) {
-            if (1 in arguments && !this.contains(token) === !force) {
-              return force;
-            }
+        DOMTokenList.prototype.toggle = function (token, force) {
+          if (1 in arguments && !this.contains(token) === !force) {
+            return force;
+          }
 
-            return _toggle.call(this, token);
-          };
-        })();
+          return _toggle.call(this, token);
+        };
       }
 
       testElement = null;
@@ -14700,127 +14724,121 @@ gaRequire.define('aurelia-pal-browser',['exports', 'aurelia-pal'], function (exp
   }
 
   if (typeof FEATURE_NO_IE === 'undefined') {
-    (function () {
-      var _filterEntries = function _filterEntries(key, value) {
-        var i = 0,
-            n = _entries.length,
-            result = [];
-        for (; i < n; i++) {
-          if (_entries[i][key] == value) {
-            result.push(_entries[i]);
-          }
+    var _filterEntries = function _filterEntries(key, value) {
+      var i = 0,
+          n = _entries.length,
+          result = [];
+      for (; i < n; i++) {
+        if (_entries[i][key] == value) {
+          result.push(_entries[i]);
         }
-        return result;
-      };
+      }
+      return result;
+    };
 
-      var _clearEntries = function _clearEntries(type, name) {
-        var i = _entries.length,
-            entry;
-        while (i--) {
-          entry = _entries[i];
-          if (entry.entryType == type && (name === void 0 || entry.name == name)) {
-            _entries.splice(i, 1);
-          }
+    var _clearEntries = function _clearEntries(type, name) {
+      var i = _entries.length,
+          entry;
+      while (i--) {
+        entry = _entries[i];
+        if (entry.entryType == type && (name === void 0 || entry.name == name)) {
+          _entries.splice(i, 1);
         }
+      }
+    };
+
+    // @license http://opensource.org/licenses/MIT
+    if ('performance' in window === false) {
+      window.performance = {};
+    }
+
+    if ('now' in window.performance === false) {
+      var nowOffset = Date.now();
+
+      if (performance.timing && performance.timing.navigationStart) {
+        nowOffset = performance.timing.navigationStart;
+      }
+
+      window.performance.now = function now() {
+        return Date.now() - nowOffset;
       };
+    }
 
-      // @license http://opensource.org/licenses/MIT
-      if ('performance' in window === false) {
-        window.performance = {};
-      }
+    var startOffset = Date.now ? Date.now() : +new Date();
+    var _entries = [];
+    var _marksIndex = {};
 
-      if ('now' in window.performance === false) {
-        (function () {
-          var nowOffset = Date.now();
+    ;
 
-          if (performance.timing && performance.timing.navigationStart) {
-            nowOffset = performance.timing.navigationStart;
-          }
-
-          window.performance.now = function now() {
-            return Date.now() - nowOffset;
-          };
-        })();
-      }
-
-      var startOffset = Date.now ? Date.now() : +new Date();
-      var _entries = [];
-      var _marksIndex = {};
-
-      ;
-
-      if (!window.performance.mark) {
-        window.performance.mark = window.performance.webkitMark || function (name) {
-          var mark = {
-            name: name,
-            entryType: "mark",
-            startTime: window.performance.now(),
-            duration: 0
-          };
-
-          _entries.push(mark);
-          _marksIndex[name] = mark;
+    if (!window.performance.mark) {
+      window.performance.mark = window.performance.webkitMark || function (name) {
+        var mark = {
+          name: name,
+          entryType: "mark",
+          startTime: window.performance.now(),
+          duration: 0
         };
-      }
 
-      if (!window.performance.measure) {
-        window.performance.measure = window.performance.webkitMeasure || function (name, startMark, endMark) {
-          startMark = _marksIndex[startMark].startTime;
-          endMark = _marksIndex[endMark].startTime;
+        _entries.push(mark);
+        _marksIndex[name] = mark;
+      };
+    }
 
-          _entries.push({
-            name: name,
-            entryType: "measure",
-            startTime: startMark,
-            duration: endMark - startMark
-          });
-        };
-      }
+    if (!window.performance.measure) {
+      window.performance.measure = window.performance.webkitMeasure || function (name, startMark, endMark) {
+        startMark = _marksIndex[startMark].startTime;
+        endMark = _marksIndex[endMark].startTime;
 
-      if (!window.performance.getEntriesByType) {
-        window.performance.getEntriesByType = window.performance.webkitGetEntriesByType || function (type) {
-          return _filterEntries("entryType", type);
-        };
-      }
+        _entries.push({
+          name: name,
+          entryType: "measure",
+          startTime: startMark,
+          duration: endMark - startMark
+        });
+      };
+    }
 
-      if (!window.performance.getEntriesByName) {
-        window.performance.getEntriesByName = window.performance.webkitGetEntriesByName || function (name) {
-          return _filterEntries("name", name);
-        };
-      }
+    if (!window.performance.getEntriesByType) {
+      window.performance.getEntriesByType = window.performance.webkitGetEntriesByType || function (type) {
+        return _filterEntries("entryType", type);
+      };
+    }
 
-      if (!window.performance.clearMarks) {
-        window.performance.clearMarks = window.performance.webkitClearMarks || function (name) {
-          _clearEntries("mark", name);
-        };
-      }
+    if (!window.performance.getEntriesByName) {
+      window.performance.getEntriesByName = window.performance.webkitGetEntriesByName || function (name) {
+        return _filterEntries("name", name);
+      };
+    }
 
-      if (!window.performance.clearMeasures) {
-        window.performance.clearMeasures = window.performance.webkitClearMeasures || function (name) {
-          _clearEntries("measure", name);
-        };
-      }
+    if (!window.performance.clearMarks) {
+      window.performance.clearMarks = window.performance.webkitClearMarks || function (name) {
+        _clearEntries("mark", name);
+      };
+    }
 
-      _PLATFORM.performance = window.performance;
-    })();
+    if (!window.performance.clearMeasures) {
+      window.performance.clearMeasures = window.performance.webkitClearMeasures || function (name) {
+        _clearEntries("measure", name);
+      };
+    }
+
+    _PLATFORM.performance = window.performance;
   }
 
   if (typeof FEATURE_NO_IE === 'undefined') {
-    (function () {
-      var con = window.console = window.console || {};
-      var nop = function nop() {};
+    var con = window.console = window.console || {};
+    var nop = function nop() {};
 
-      if (!con.memory) con.memory = {};
-      ('assert,clear,count,debug,dir,dirxml,error,exception,group,' + 'groupCollapsed,groupEnd,info,log,markTimeline,profile,profiles,profileEnd,' + 'show,table,time,timeEnd,timeline,timelineEnd,timeStamp,trace,warn').split(',').forEach(function (m) {
-        if (!con[m]) con[m] = nop;
-      });
+    if (!con.memory) con.memory = {};
+    ('assert,clear,count,debug,dir,dirxml,error,exception,group,' + 'groupCollapsed,groupEnd,info,log,markTimeline,profile,profiles,profileEnd,' + 'show,table,time,timeEnd,timeline,timelineEnd,timeStamp,trace,warn').split(',').forEach(function (m) {
+      if (!con[m]) con[m] = nop;
+    });
 
-      if (_typeof(con.log) === 'object') {
-        'log,info,warn,error,assert,dir,clear,profile,profileEnd'.split(',').forEach(function (method) {
-          console[method] = this.bind(console[method], console);
-        }, Function.prototype.call);
-      }
-    })();
+    if (_typeof(con.log) === 'object') {
+      'log,info,warn,error,assert,dir,clear,profile,profileEnd'.split(',').forEach(function (method) {
+        console[method] = this.bind(console[method], console);
+      }, Function.prototype.call);
+    }
   }
 
   if (typeof FEATURE_NO_IE === 'undefined') {
@@ -14862,62 +14880,60 @@ gaRequire.define('aurelia-pal-browser',['exports', 'aurelia-pal'], function (exp
   };
 
   if (typeof FEATURE_NO_IE === 'undefined') {
-    (function () {
-      var isSVGTemplate = function isSVGTemplate(el) {
-        return el.tagName === 'template' && el.namespaceURI === 'http://www.w3.org/2000/svg';
-      };
+    var isSVGTemplate = function isSVGTemplate(el) {
+      return el.tagName === 'template' && el.namespaceURI === 'http://www.w3.org/2000/svg';
+    };
 
-      var fixSVGTemplateElement = function fixSVGTemplateElement(el) {
-        var template = el.ownerDocument.createElement('template');
-        var attrs = el.attributes;
-        var length = attrs.length;
-        var attr = void 0;
+    var fixSVGTemplateElement = function fixSVGTemplateElement(el) {
+      var template = el.ownerDocument.createElement('template');
+      var attrs = el.attributes;
+      var length = attrs.length;
+      var attr = void 0;
 
-        el.parentNode.insertBefore(template, el);
+      el.parentNode.insertBefore(template, el);
 
-        while (length-- > 0) {
-          attr = attrs[length];
-          template.setAttribute(attr.name, attr.value);
-          el.removeAttribute(attr.name);
-        }
-
-        el.parentNode.removeChild(el);
-
-        return fixHTMLTemplateElement(template);
-      };
-
-      var fixHTMLTemplateElement = function fixHTMLTemplateElement(template) {
-        var content = template.content = document.createDocumentFragment();
-        var child = void 0;
-
-        while (child = template.firstChild) {
-          content.appendChild(child);
-        }
-
-        return template;
-      };
-
-      var fixHTMLTemplateElementRoot = function fixHTMLTemplateElementRoot(template) {
-        var content = fixHTMLTemplateElement(template).content;
-        var childTemplates = content.querySelectorAll('template');
-
-        for (var i = 0, ii = childTemplates.length; i < ii; ++i) {
-          var child = childTemplates[i];
-
-          if (isSVGTemplate(child)) {
-            fixSVGTemplateElement(child);
-          } else {
-            fixHTMLTemplateElement(child);
-          }
-        }
-
-        return template;
-      };
-
-      if (!_FEATURE.htmlTemplateElement) {
-        _FEATURE.ensureHTMLTemplateElement = fixHTMLTemplateElementRoot;
+      while (length-- > 0) {
+        attr = attrs[length];
+        template.setAttribute(attr.name, attr.value);
+        el.removeAttribute(attr.name);
       }
-    })();
+
+      el.parentNode.removeChild(el);
+
+      return fixHTMLTemplateElement(template);
+    };
+
+    var fixHTMLTemplateElement = function fixHTMLTemplateElement(template) {
+      var content = template.content = document.createDocumentFragment();
+      var child = void 0;
+
+      while (child = template.firstChild) {
+        content.appendChild(child);
+      }
+
+      return template;
+    };
+
+    var fixHTMLTemplateElementRoot = function fixHTMLTemplateElementRoot(template) {
+      var content = fixHTMLTemplateElement(template).content;
+      var childTemplates = content.querySelectorAll('template');
+
+      for (var i = 0, ii = childTemplates.length; i < ii; ++i) {
+        var child = childTemplates[i];
+
+        if (isSVGTemplate(child)) {
+          fixSVGTemplateElement(child);
+        } else {
+          fixHTMLTemplateElement(child);
+        }
+      }
+
+      return template;
+    };
+
+    if (!_FEATURE.htmlTemplateElement) {
+      _FEATURE.ensureHTMLTemplateElement = fixHTMLTemplateElementRoot;
+    }
   }
 
   var shadowPoly = window.ShadowDOMPolyfill || null;
@@ -14934,7 +14950,7 @@ gaRequire.define('aurelia-pal-browser',['exports', 'aurelia-pal'], function (exp
       document.removeEventListener(eventName, callback, capture);
     },
     adoptNode: function adoptNode(node) {
-      return document.adoptNode(node, true);
+      return document.adoptNode(node);
     },
     createAttribute: function createAttribute(name) {
       return document.createAttribute(name);
@@ -14969,6 +14985,9 @@ gaRequire.define('aurelia-pal-browser',['exports', 'aurelia-pal'], function (exp
     },
     getElementById: function getElementById(id) {
       return document.getElementById(id);
+    },
+    querySelector: function querySelector(query) {
+      return document.querySelector(query);
     },
     querySelectorAll: function querySelectorAll(query) {
       return document.querySelectorAll(query);
@@ -16286,7 +16305,7 @@ gaRequire.define('aurelia-route-recognizer',['exports', 'aurelia-path'], functio
     };
 
     DynamicSegment.prototype.regex = function regex() {
-      return this.optional ? '([^/]+)?' : '([^/]+)';
+      return '([^/]+)';
     };
 
     DynamicSegment.prototype.generate = function generate(params, consumed) {
@@ -16357,12 +16376,12 @@ gaRequire.define('aurelia-route-recognizer',['exports', 'aurelia-path'], functio
       }
 
       var currentState = this.rootState;
+      var skippableStates = [];
       var regex = '^';
       var types = { statics: 0, dynamics: 0, stars: 0 };
       var names = [];
       var routeName = route.handler.name;
       var isEmpty = true;
-      var isAllOptional = true;
       var segments = parse(route.path, names, types, route.caseSensitive);
 
       for (var i = 0, ii = segments.length; i < ii; i++) {
@@ -16371,23 +16390,28 @@ gaRequire.define('aurelia-route-recognizer',['exports', 'aurelia-path'], functio
           continue;
         }
 
-        isEmpty = false;
-        isAllOptional = isAllOptional && segment.optional;
+        var _addSegment = addSegment(currentState, segment),
+            firstState = _addSegment[0],
+            nextState = _addSegment[1];
 
-        currentState = addSegment(currentState, segment);
-        regex += segment.optional ? '/?' : '/';
-        regex += segment.regex();
+        for (var j = 0, jj = skippableStates.length; j < jj; j++) {
+          skippableStates[j].nextStates.push(firstState);
+        }
+
+        if (segment.optional) {
+          skippableStates.push(nextState);
+          regex += '(?:/' + segment.regex() + ')?';
+        } else {
+          currentState = nextState;
+          regex += '/' + segment.regex();
+          skippableStates.length = 0;
+          isEmpty = false;
+        }
       }
 
-      if (isAllOptional) {
-        if (isEmpty) {
-          currentState = currentState.put({ validChars: '/' });
-          regex += '/';
-        } else {
-          var finalState = this.rootState.put({ validChars: '/' });
-          currentState.epsilon = [finalState];
-          currentState = finalState;
-        }
+      if (isEmpty) {
+        currentState = currentState.put({ validChars: '/' });
+        regex += '/?';
       }
 
       var handlers = [{ handler: route.handler, names: names }];
@@ -16400,6 +16424,13 @@ gaRequire.define('aurelia-route-recognizer',['exports', 'aurelia-path'], functio
             handlers: handlers
           };
         }
+      }
+
+      for (var _i3 = 0; _i3 < skippableStates.length; _i3++) {
+        var state = skippableStates[_i3];
+        state.handlers = handlers;
+        state.regex = new RegExp(regex + '$', route.caseSensitive ? '' : 'i');
+        state.types = types;
       }
 
       currentState.handlers = handlers;
@@ -16503,9 +16534,9 @@ gaRequire.define('aurelia-route-recognizer',['exports', 'aurelia-path'], functio
       }
 
       var solutions = [];
-      for (var _i3 = 0, _l = states.length; _i3 < _l; _i3++) {
-        if (states[_i3].handlers) {
-          solutions.push(states[_i3]);
+      for (var _i4 = 0, _l = states.length; _i4 < _l; _i4++) {
+        if (states[_i4].handlers) {
+          solutions.push(states[_i4]);
         }
       }
 
@@ -16612,25 +16643,6 @@ gaRequire.define('aurelia-route-recognizer',['exports', 'aurelia-path'], functio
       nextStates.push.apply(nextStates, state.match(ch));
     }
 
-    var skippableStates = nextStates.filter(function (s) {
-      return s.epsilon;
-    });
-
-    var _loop = function _loop() {
-      var newStates = [];
-      skippableStates.forEach(function (s) {
-        nextStates.push.apply(nextStates, s.epsilon);
-        newStates.push.apply(newStates, s.epsilon);
-      });
-      skippableStates = newStates.filter(function (s) {
-        return s.epsilon;
-      });
-    };
-
-    while (skippableStates.length > 0) {
-      _loop();
-    }
-
     return nextStates;
   }
 
@@ -16657,17 +16669,13 @@ gaRequire.define('aurelia-route-recognizer',['exports', 'aurelia-path'], functio
   }
 
   function addSegment(currentState, segment) {
-    var state = currentState.put({ validChars: '/' });
+    var firstState = currentState.put({ validChars: '/' });
+    var nextState = firstState;
     segment.eachChar(function (ch) {
-      state = state.put(ch);
+      nextState = nextState.put(ch);
     });
 
-    if (segment.optional) {
-      currentState.epsilon = currentState.epsilon || [];
-      currentState.epsilon.push(state);
-    }
-
-    return state;
+    return [firstState, nextState];
   }
 });
 gaRequire.define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-recognizer', 'aurelia-dependency-injection', 'aurelia-history', 'aurelia-event-aggregator'], function (exports, _aureliaLogging, _aureliaRouteRecognizer, _aureliaDependencyInjection, _aureliaHistory, _aureliaEventAggregator) {
@@ -16676,10 +16684,11 @@ gaRequire.define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.AppRouter = exports.PipelineProvider = exports.LoadRouteStep = exports.RouteLoader = exports.ActivateNextStep = exports.DeactivatePreviousStep = exports.CanActivateNextStep = exports.CanDeactivatePreviousStep = exports.Router = exports.BuildNavigationPlanStep = exports.activationStrategy = exports.RouterConfiguration = exports.RedirectToRoute = exports.Redirect = exports.NavModel = exports.NavigationInstruction = exports.CommitChangesStep = exports.Pipeline = exports.pipelineStatus = undefined;
+  exports.AppRouter = exports.PipelineProvider = exports.LoadRouteStep = exports.RouteLoader = exports.ActivateNextStep = exports.DeactivatePreviousStep = exports.CanActivateNextStep = exports.CanDeactivatePreviousStep = exports.Router = exports.BuildNavigationPlanStep = exports.activationStrategy = exports.RouterConfiguration = exports.Pipeline = exports.pipelineStatus = exports.RedirectToRoute = exports.Redirect = exports.NavModel = exports.NavigationInstruction = exports.CommitChangesStep = undefined;
   exports._normalizeAbsolutePath = _normalizeAbsolutePath;
   exports._createRootedPath = _createRootedPath;
   exports._resolveUrl = _resolveUrl;
+  exports._ensureArrayWithSingleRoutePerConfig = _ensureArrayWithSingleRoutePerConfig;
   exports.isNavigationCommand = isNavigationCommand;
   exports._buildNavigationPlan = _buildNavigationPlan;
 
@@ -16798,79 +16807,24 @@ gaRequire.define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-
     return _createRootedPath(fragment, baseUrl, hasPushState);
   }
 
-  var isRootedPath = /^#?\//;
-  var isAbsoluteUrl = /^([a-z][a-z0-9+\-.]*:)?\/\//i;
+  function _ensureArrayWithSingleRoutePerConfig(config) {
+    var routeConfigs = [];
 
-  var pipelineStatus = exports.pipelineStatus = {
-    completed: 'completed',
-    canceled: 'canceled',
-    rejected: 'rejected',
-    running: 'running'
-  };
-
-  var Pipeline = exports.Pipeline = function () {
-    function Pipeline() {
-      
-
-      this.steps = [];
+    if (Array.isArray(config.route)) {
+      for (var i = 0, ii = config.route.length; i < ii; ++i) {
+        var current = Object.assign({}, config);
+        current.route = config.route[i];
+        routeConfigs.push(current);
+      }
+    } else {
+      routeConfigs.push(Object.assign({}, config));
     }
 
-    Pipeline.prototype.addStep = function addStep(step) {
-      var run = void 0;
-
-      if (typeof step === 'function') {
-        run = step;
-      } else if (typeof step.getSteps === 'function') {
-        var steps = step.getSteps();
-        for (var i = 0, l = steps.length; i < l; i++) {
-          this.addStep(steps[i]);
-        }
-
-        return this;
-      } else {
-        run = step.run.bind(step);
-      }
-
-      this.steps.push(run);
-
-      return this;
-    };
-
-    Pipeline.prototype.run = function run(instruction) {
-      var index = -1;
-      var steps = this.steps;
-
-      function next() {
-        index++;
-
-        if (index < steps.length) {
-          var currentStep = steps[index];
-
-          try {
-            return currentStep(instruction, next);
-          } catch (e) {
-            return next.reject(e);
-          }
-        } else {
-          return next.complete();
-        }
-      }
-
-      next.complete = createCompletionHandler(next, pipelineStatus.completed);
-      next.cancel = createCompletionHandler(next, pipelineStatus.canceled);
-      next.reject = createCompletionHandler(next, pipelineStatus.rejected);
-
-      return next();
-    };
-
-    return Pipeline;
-  }();
-
-  function createCompletionHandler(next, status) {
-    return function (output) {
-      return Promise.resolve({ status: status, output: output, completed: status === pipelineStatus.completed });
-    };
+    return routeConfigs;
   }
+
+  var isRootedPath = /^#?\//;
+  var isAbsoluteUrl = /^([a-z][a-z0-9+\-.]*:)?\/\//i;
 
   var CommitChangesStep = exports.CommitChangesStep = function () {
     function CommitChangesStep() {
@@ -16917,8 +16871,8 @@ gaRequire.define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-
 
     NavigationInstruction.prototype.getAllInstructions = function getAllInstructions() {
       var instructions = [this];
-      for (var key in this.viewPortInstructions) {
-        var childInstruction = this.viewPortInstructions[key].childNavigationInstruction;
+      for (var _key in this.viewPortInstructions) {
+        var childInstruction = this.viewPortInstructions[_key].childNavigationInstruction;
         if (childInstruction) {
           instructions.push.apply(instructions, childInstruction.getAllInstructions());
         }
@@ -17054,7 +17008,7 @@ gaRequire.define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-
     };
 
     NavigationInstruction.prototype._updateTitle = function _updateTitle() {
-      var title = this._buildTitle();
+      var title = this._buildTitle(this.router.titleSeparator);
       if (title) {
         this.router.history.setTitle(title);
       }
@@ -17178,6 +17132,77 @@ gaRequire.define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-
     return RedirectToRoute;
   }();
 
+  var pipelineStatus = exports.pipelineStatus = {
+    completed: 'completed',
+    canceled: 'canceled',
+    rejected: 'rejected',
+    running: 'running'
+  };
+
+  var Pipeline = exports.Pipeline = function () {
+    function Pipeline() {
+      
+
+      this.steps = [];
+    }
+
+    Pipeline.prototype.addStep = function addStep(step) {
+      var run = void 0;
+
+      if (typeof step === 'function') {
+        run = step;
+      } else if (typeof step.getSteps === 'function') {
+        var steps = step.getSteps();
+        for (var i = 0, l = steps.length; i < l; i++) {
+          this.addStep(steps[i]);
+        }
+
+        return this;
+      } else {
+        run = step.run.bind(step);
+      }
+
+      this.steps.push(run);
+
+      return this;
+    };
+
+    Pipeline.prototype.run = function run(instruction) {
+      var index = -1;
+      var steps = this.steps;
+
+      function next() {
+        index++;
+
+        if (index < steps.length) {
+          var currentStep = steps[index];
+
+          try {
+            return currentStep(instruction, next);
+          } catch (e) {
+            return next.reject(e);
+          }
+        } else {
+          return next.complete();
+        }
+      }
+
+      next.complete = createCompletionHandler(next, pipelineStatus.completed);
+      next.cancel = createCompletionHandler(next, pipelineStatus.canceled);
+      next.reject = createCompletionHandler(next, pipelineStatus.rejected);
+
+      return next();
+    };
+
+    return Pipeline;
+  }();
+
+  function createCompletionHandler(next, status) {
+    return function (output) {
+      return Promise.resolve({ status: status, output: output, completed: status === pipelineStatus.completed });
+    };
+  }
+
   var RouterConfiguration = exports.RouterConfiguration = function () {
     function RouterConfiguration() {
       
@@ -17188,6 +17213,9 @@ gaRequire.define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-
     }
 
     RouterConfiguration.prototype.addPipelineStep = function addPipelineStep(name, step) {
+      if (step === null || step === undefined) {
+        throw new Error('Pipeline step cannot be null or undefined.');
+      }
       this.pipelineSteps.push({ name: name, step: step });
       return this;
     };
@@ -17229,21 +17257,11 @@ gaRequire.define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-
 
     RouterConfiguration.prototype.mapRoute = function mapRoute(config) {
       this.instructions.push(function (router) {
-        var routeConfigs = [];
-
-        if (Array.isArray(config.route)) {
-          for (var i = 0, ii = config.route.length; i < ii; ++i) {
-            var _current = Object.assign({}, config);
-            _current.route = config.route[i];
-            routeConfigs.push(_current);
-          }
-        } else {
-          routeConfigs.push(Object.assign({}, config));
-        }
+        var routeConfigs = _ensureArrayWithSingleRoutePerConfig(config);
 
         var navModel = void 0;
-        for (var _i = 0, _ii = routeConfigs.length; _i < _ii; ++_i) {
-          var _routeConfig = routeConfigs[_i];
+        for (var i = 0, ii = routeConfigs.length; i < ii; ++i) {
+          var _routeConfig = routeConfigs[i];
           _routeConfig.settings = _routeConfig.settings || {};
           if (!navModel) {
             navModel = router.createNavModel(_routeConfig);
@@ -17271,6 +17289,10 @@ gaRequire.define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-
         router.title = this.title;
       }
 
+      if (this.titleSeparator) {
+        router.titleSeparator = this.titleSeparator;
+      }
+
       if (this.unknownRouteConfig) {
         router.handleUnknownRoutes(this.unknownRouteConfig);
       }
@@ -17283,7 +17305,7 @@ gaRequire.define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-
         router.useViewPortDefaults(this.viewPortDefaults);
       }
 
-      router.options = this.options;
+      Object.assign(router.options, this.options);
 
       var pipelineSteps = this.pipelineSteps;
       if (pipelineSteps.length) {
@@ -17292,12 +17314,12 @@ gaRequire.define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-
         }
 
         var pipelineProvider = router.pipelineProvider;
-        for (var _i2 = 0, _ii2 = pipelineSteps.length; _i2 < _ii2; ++_i2) {
-          var _pipelineSteps$_i = pipelineSteps[_i2],
+        for (var _i = 0, _ii = pipelineSteps.length; _i < _ii; ++_i) {
+          var _pipelineSteps$_i = pipelineSteps[_i],
               _name = _pipelineSteps$_i.name,
-              step = _pipelineSteps$_i.step;
+              _step = _pipelineSteps$_i.step;
 
-          pipelineProvider.addStep(_name, step);
+          pipelineProvider.addStep(_name, _step);
         }
       }
     };
@@ -17318,6 +17340,9 @@ gaRequire.define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-
 
     BuildNavigationPlanStep.prototype.run = function run(navigationInstruction, next) {
       return _buildNavigationPlan(navigationInstruction).then(function (plan) {
+        if (plan instanceof Redirect) {
+          return next.cancel(plan);
+        }
         navigationInstruction.plan = plan;
         return next();
       }).catch(next.cancel);
@@ -17330,12 +17355,17 @@ gaRequire.define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-
     var config = instruction.config;
 
     if ('redirect' in config) {
-      var redirectLocation = _resolveUrl(config.redirect, getInstructionBaseUrl(instruction));
-      if (instruction.queryString) {
-        redirectLocation += '?' + instruction.queryString;
-      }
+      var _router = instruction.router;
+      return _router._createNavigationInstruction(config.redirect).then(function (newInstruction) {
+        var params = Object.keys(newInstruction.params).length ? instruction.params : {};
+        var redirectLocation = _router.generate(newInstruction.config.name, params, instruction.options);
 
-      return Promise.reject(new Redirect(redirectLocation));
+        if (instruction.queryString) {
+          redirectLocation += '?' + instruction.queryString;
+        }
+
+        return Promise.resolve(new Redirect(redirectLocation));
+      });
     }
 
     var prev = instruction.previousInstruction;
@@ -17380,6 +17410,9 @@ gaRequire.define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-
             viewPortPlan.childNavigationInstruction = childInstruction;
 
             return _buildNavigationPlan(childInstruction, viewPortPlan.strategy === activationStrategy.invokeLifecycle).then(function (childPlan) {
+              if (childPlan instanceof Redirect) {
+                return Promise.reject(childPlan);
+              }
               childInstruction.plan = childPlan;
             });
           });
@@ -17417,22 +17450,22 @@ gaRequire.define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-
     var nextParams = next.params;
     var nextWildCardName = next.config.hasChildRouter ? next.getWildCardName() : null;
 
-    for (var key in nextParams) {
-      if (key === nextWildCardName) {
+    for (var _key2 in nextParams) {
+      if (_key2 === nextWildCardName) {
         continue;
       }
 
-      if (prevParams[key] !== nextParams[key]) {
+      if (prevParams[_key2] !== nextParams[_key2]) {
         return true;
       }
     }
 
-    for (var _key in prevParams) {
-      if (_key === nextWildCardName) {
+    for (var _key3 in prevParams) {
+      if (_key3 === nextWildCardName) {
         continue;
       }
 
-      if (prevParams[_key] !== nextParams[_key]) {
+      if (prevParams[_key3] !== nextParams[_key3]) {
         return true;
       }
     }
@@ -17443,32 +17476,19 @@ gaRequire.define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-
 
     var prevQueryParams = prev.queryParams;
     var nextQueryParams = next.queryParams;
-    for (var _key2 in nextQueryParams) {
-      if (prevQueryParams[_key2] !== nextQueryParams[_key2]) {
+    for (var _key4 in nextQueryParams) {
+      if (prevQueryParams[_key4] !== nextQueryParams[_key4]) {
         return true;
       }
     }
 
-    for (var _key3 in prevQueryParams) {
-      if (prevQueryParams[_key3] !== nextQueryParams[_key3]) {
+    for (var _key5 in prevQueryParams) {
+      if (prevQueryParams[_key5] !== nextQueryParams[_key5]) {
         return true;
       }
     }
 
     return false;
-  }
-
-  function getInstructionBaseUrl(instruction) {
-    var instructionBaseUrlParts = [];
-    instruction = instruction.parentInstruction;
-
-    while (instruction) {
-      instructionBaseUrlParts.unshift(instruction.getBaseUrl());
-      instruction = instruction.parentInstruction;
-    }
-
-    instructionBaseUrlParts.unshift('/');
-    return instructionBaseUrlParts.join('');
   }
 
   var Router = exports.Router = function () {
@@ -17605,6 +17625,12 @@ gaRequire.define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-
     };
 
     Router.prototype.addRoute = function addRoute(config, navModel) {
+      if (Array.isArray(config.route)) {
+        var routeConfigs = _ensureArrayWithSingleRoutePerConfig(config);
+        routeConfigs.forEach(this.addRoute.bind(this));
+        return;
+      }
+
       validateRouteConfig(config, this.routes);
 
       if (!('viewPorts' in config) && !config.navigationStrategy) {
@@ -17703,11 +17729,11 @@ gaRequire.define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-
       var nav = this.navigation;
 
       for (var i = 0, length = nav.length; i < length; i++) {
-        var _current2 = nav[i];
-        if (!_current2.config.href) {
-          _current2.href = _createRootedPath(_current2.relativeHref, this.baseUrl, this.history._hasPushState);
+        var _current = nav[i];
+        if (!_current.config.href) {
+          _current.href = _createRootedPath(_current.relativeHref, this.baseUrl, this.history._hasPushState);
         } else {
-          _current2.href = _normalizeAbsolutePath(_current2.config.href, this.history._hasPushState);
+          _current.href = _normalizeAbsolutePath(_current.config.href, this.history._hasPushState);
         }
       }
     };
@@ -17781,20 +17807,20 @@ gaRequire.define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-
 
         return evaluateNavigationStrategy(_instruction2, this.catchAllHandler);
       } else if (this.parent) {
-        var _router = this._parentCatchAllHandler(this.parent);
+        var _router2 = this._parentCatchAllHandler(this.parent);
 
-        if (_router) {
-          var newParentInstruction = this._findParentInstructionFromRouter(_router, parentInstruction);
+        if (_router2) {
+          var newParentInstruction = this._findParentInstructionFromRouter(_router2, parentInstruction);
 
           var _instruction3 = new NavigationInstruction(Object.assign({}, instructionInit, {
             params: { path: fragment },
             queryParams: results ? results.queryParams : {},
-            router: _router,
+            router: _router2,
             parentInstruction: newParentInstruction,
             parentCatchHandler: true,
             config: null }));
 
-          return evaluateNavigationStrategy(_instruction3, _router.catchAllHandler);
+          return evaluateNavigationStrategy(_instruction3, _router2.catchAllHandler);
         }
       }
 
@@ -18025,12 +18051,12 @@ gaRequire.define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-
 
       if (i < length) {
         try {
-          var _current3$viewModel;
+          var _current2$viewModel;
 
-          var _current3 = infos[i];
-          var _result2 = (_current3$viewModel = _current3.viewModel)[callbackName].apply(_current3$viewModel, _current3.lifecycleArgs);
+          var _current2 = infos[i];
+          var _result2 = (_current2$viewModel = _current2.viewModel)[callbackName].apply(_current2$viewModel, _current2.lifecycleArgs);
           return processPotential(_result2, function (val) {
-            return inspect(val, _current3.router);
+            return inspect(val, _current2.router);
           }, next.cancel);
         } catch (error) {
           return next.cancel(error);
@@ -18234,6 +18260,9 @@ gaRequire.define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-
           viewPortPlan.childNavigationInstruction = childInstruction;
 
           return _buildNavigationPlan(childInstruction).then(function (childPlan) {
+            if (childPlan instanceof Redirect) {
+              return Promise.reject(childPlan);
+            }
             childInstruction.plan = childPlan;
             viewPortInstruction.childNavigationInstruction = childInstruction;
 
@@ -18549,8 +18578,9 @@ gaRequire.define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-
     }
 
     var finalResult = null;
+    var navigationCommandResult = null;
     if (isNavigationCommand(result.output)) {
-      result.output.navigate(router);
+      navigationCommandResult = result.output.navigate(router);
     } else {
       finalResult = result;
 
@@ -18563,7 +18593,9 @@ gaRequire.define('aurelia-router',['exports', 'aurelia-logging', 'aurelia-route-
       }
     }
 
-    return router._dequeueInstruction(instructionCount + 1).then(function (innerResult) {
+    return Promise.resolve(navigationCommandResult).then(function (_) {
+      return router._dequeueInstruction(instructionCount + 1);
+    }).then(function (innerResult) {
       return finalResult || innerResult || result;
     });
   }
@@ -18627,21 +18659,22 @@ gaRequire.define('aurelia-task-queue',['exports', 'aurelia-pal'], function (expo
   var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
     return typeof obj;
   } : function (obj) {
-    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
   };
 
-  var hasSetImmediate = typeof setImmediate === 'function';
   var stackSeparator = '\nEnqueued in TaskQueue by:\n';
   var microStackSeparator = '\nEnqueued in MicroTaskQueue by:\n';
 
   function makeRequestFlushFromMutationObserver(flush) {
-    var toggle = 1;
     var observer = _aureliaPal.DOM.createMutationObserver(flush);
-    var node = _aureliaPal.DOM.createTextNode('');
+    var val = 'a';
+    var node = _aureliaPal.DOM.createTextNode('a');
+    var values = Object.create(null);
+    values.a = 'b';
+    values.b = 'a';
     observer.observe(node, { characterData: true });
     return function requestFlush() {
-      toggle = -toggle;
-      node.data = toggle;
+      node.data = val = values[val];
     };
   }
 
@@ -18665,10 +18698,6 @@ gaRequire.define('aurelia-task-queue',['exports', 'aurelia-pal'], function (expo
 
     if ('onError' in task) {
       task.onError(error);
-    } else if (hasSetImmediate) {
-      setImmediate(function () {
-        throw error;
-      });
     } else {
       setTimeout(function () {
         throw error;
@@ -58520,7 +58549,7 @@ gaRequire.define('aurelia-templating-resources/analyze-view-factory',['exports']
     value: true
   });
   exports.viewsRequireLifecycle = viewsRequireLifecycle;
-  var lifecycleOptionalBehaviors = exports.lifecycleOptionalBehaviors = ['focus', 'if', 'repeat', 'show', 'with'];
+  var lifecycleOptionalBehaviors = exports.lifecycleOptionalBehaviors = ['focus', 'if', 'else', 'repeat', 'show', 'hide', 'with'];
 
   function behaviorRequiresLifecycle(instruction) {
     var t = instruction.type;
@@ -59174,18 +59203,35 @@ gaRequire.define('aurelia-templating-resources/debounce-binding-behavior',['expo
 
   
 
-  function debounce(newValue) {
+  var unset = {};
+
+  function debounceCallSource(event) {
     var _this = this;
 
     var state = this.debounceState;
-    if (state.immediate) {
-      state.immediate = false;
-      this.debouncedMethod(newValue);
-      return;
-    }
     clearTimeout(state.timeoutId);
     state.timeoutId = setTimeout(function () {
-      return _this.debouncedMethod(newValue);
+      return _this.debouncedMethod(event);
+    }, state.delay);
+  }
+
+  function debounceCall(context, newValue, oldValue) {
+    var _this2 = this;
+
+    var state = this.debounceState;
+    clearTimeout(state.timeoutId);
+    if (context !== state.callContextToDebounce) {
+      state.oldValue = unset;
+      this.debouncedMethod(context, newValue, oldValue);
+      return;
+    }
+    if (state.oldValue === unset) {
+      state.oldValue = oldValue;
+    }
+    state.timeoutId = setTimeout(function () {
+      var ov = state.oldValue;
+      state.oldValue = unset;
+      _this2.debouncedMethod(context, newValue, ov);
     }, state.delay);
   }
 
@@ -59197,22 +59243,23 @@ gaRequire.define('aurelia-templating-resources/debounce-binding-behavior',['expo
     DebounceBindingBehavior.prototype.bind = function bind(binding, source) {
       var delay = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 200;
 
-      var methodToDebounce = 'updateTarget';
-      if (binding.callSource) {
-        methodToDebounce = 'callSource';
-      } else if (binding.updateSource && binding.mode === _aureliaBinding.bindingMode.twoWay) {
-        methodToDebounce = 'updateSource';
-      }
+      var isCallSource = binding.callSource !== undefined;
+      var methodToDebounce = isCallSource ? 'callSource' : 'call';
+      var debouncer = isCallSource ? debounceCallSource : debounceCall;
+      var mode = binding.mode;
+      var callContextToDebounce = mode === _aureliaBinding.bindingMode.twoWay || mode === _aureliaBinding.bindingMode.fromView ? _aureliaBinding.targetContext : _aureliaBinding.sourceContext;
 
       binding.debouncedMethod = binding[methodToDebounce];
       binding.debouncedMethod.originalName = methodToDebounce;
 
-      binding[methodToDebounce] = debounce;
+      binding[methodToDebounce] = debouncer;
 
       binding.debounceState = {
+        callContextToDebounce: callContextToDebounce,
         delay: delay,
-        timeoutId: null,
-        immediate: methodToDebounce === 'updateTarget' };
+        timeoutId: 0,
+        oldValue: unset
+      };
     };
 
     DebounceBindingBehavior.prototype.unbind = function unbind(binding, source) {
@@ -59369,16 +59416,12 @@ gaRequire.define('aurelia-templating-resources/update-trigger-binding-behavior',
 
   
 
-  var _class, _temp;
-
   var eventNamesRequired = 'The updateTrigger binding behavior requires at least one event name argument: eg <input value.bind="firstName & updateTrigger:\'blur\'">';
-  var notApplicableMessage = 'The updateTrigger binding behavior can only be applied to two-way bindings on input/select elements.';
+  var notApplicableMessage = 'The updateTrigger binding behavior can only be applied to two-way/ from-view bindings on input/select elements.';
 
-  var UpdateTriggerBindingBehavior = exports.UpdateTriggerBindingBehavior = (_temp = _class = function () {
-    function UpdateTriggerBindingBehavior(eventManager) {
+  var UpdateTriggerBindingBehavior = exports.UpdateTriggerBindingBehavior = function () {
+    function UpdateTriggerBindingBehavior() {
       
-
-      this.eventManager = eventManager;
     }
 
     UpdateTriggerBindingBehavior.prototype.bind = function bind(binding, source) {
@@ -59389,7 +59432,7 @@ gaRequire.define('aurelia-templating-resources/update-trigger-binding-behavior',
       if (events.length === 0) {
         throw new Error(eventNamesRequired);
       }
-      if (binding.mode !== _aureliaBinding.bindingMode.twoWay) {
+      if (binding.mode !== _aureliaBinding.bindingMode.twoWay && binding.mode !== _aureliaBinding.bindingMode.fromView) {
         throw new Error(notApplicableMessage);
       }
 
@@ -59401,17 +59444,18 @@ gaRequire.define('aurelia-templating-resources/update-trigger-binding-behavior',
 
       targetObserver.originalHandler = binding.targetObserver.handler;
 
-      var handler = this.eventManager.createElementHandler(events);
+      var handler = new _aureliaBinding.EventSubscriber(events);
       targetObserver.handler = handler;
     };
 
     UpdateTriggerBindingBehavior.prototype.unbind = function unbind(binding, source) {
+      binding.targetObserver.handler.dispose();
       binding.targetObserver.handler = binding.targetObserver.originalHandler;
       binding.targetObserver.originalHandler = null;
     };
 
     return UpdateTriggerBindingBehavior;
-  }(), _class.inject = [_aureliaBinding.EventManager], _temp);
+  }();
 });
 gaRequire.define('aurelia-templating-resources/html-resource-plugin',['exports', 'aurelia-templating', './dynamic-element'], function (exports, _aureliaTemplating, _dynamicElement) {
   'use strict';

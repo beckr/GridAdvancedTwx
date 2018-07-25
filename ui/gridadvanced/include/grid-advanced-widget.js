@@ -19,13 +19,12 @@ gaRequire.define('tw-grid-advanced/grid-advanced/grid-advanced-wrapper',['export
 //# sourceMappingURL=../maps/grid-advanced/grid-advanced-wrapper.js.map
 ;gaRequire.define('tw-grid-advanced', ['tw-grid-advanced/grid-advanced/grid-advanced-wrapper'], function (main) { return main; });
 
-gaRequire.define('tw-grid-advanced/grid-advanced/cell-editor',['exports', './logger'], function (exports, _logger) {
+gaRequire.define('tw-grid-advanced/grid-advanced/cell-editor',['exports'], function (exports) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
         value: true
     });
-    exports.CellEditor = undefined;
 
     function _classCallCheck(instance, Constructor) {
         if (!(instance instanceof Constructor)) {
@@ -62,57 +61,24 @@ gaRequire.define('tw-grid-advanced/grid-advanced/cell-editor',['exports', './log
     var COLUMN_TYPE_HTML = 'html';
     var COLUMN_TYPE_DATETIME = 'datetime';
 
-    var CELL_EDITOR_TYPE_NUMBER = 'number';
-    var CELL_EDITOR_TYPE_DATE = 'date';
-    var CELL_EDITOR_TYPE_LIST = 'list';
-    var CELL_EDITOR_TYPE_CHECKBOX = 'checkbox';
-    var CELL_EDITOR_TYPE_STRING = 'string';
-    var CELL_EDITOR_TYPE_TEXT = 'text';
-
     var CellEditor = exports.CellEditor = function () {
-        function CellEditor(columnFormatterType, isEnabled, cellEditorType, cellValidator) {
+        function CellEditor() {
+            var columnFormatterType = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'string';
+            var isEnabled = arguments[1];
+            var cellValidator = arguments[2];
+
             _classCallCheck(this, CellEditor);
 
             this._columnFormatterType = columnFormatterType;
             this._isEnabled = isEnabled;
-            this._cellEditorType = this._validateEditorType(cellEditorType);
             this._cellValidator = cellValidator;
-
-            this._editorColType = this._createDhtmlxEditorColType();
         }
 
-        CellEditor.prototype._validateEditorType = function _validateEditorType(cellEditorType) {
-            var type = CELL_EDITOR_TYPE_STRING;
+        CellEditor.prototype.getColumnType = function getColumnType() {
+            var editMode = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
-            if (this._columnFormatterType === COLUMN_TYPE_LOCATION) {
-                type = cellEditorType === CELL_EDITOR_TYPE_LIST ? cellEditorType : CELL_EDITOR_TYPE_STRING;
-            } else if (this._columnFormatterType === COLUMN_TYPE_STRING) {
-                type = cellEditorType === CELL_EDITOR_TYPE_LIST ? cellEditorType : CELL_EDITOR_TYPE_STRING;
-            } else if (this._columnFormatterType === COLUMN_TYPE_DATETIME) {
-                type = cellEditorType === CELL_EDITOR_TYPE_DATE ? cellEditorType : CELL_EDITOR_TYPE_STRING;
-            } else if (this._columnFormatterType === COLUMN_TYPE_NUMBER) {
-                type = cellEditorType === CELL_EDITOR_TYPE_LIST || cellEditorType === CELL_EDITOR_TYPE_NUMBER ? cellEditorType : CELL_EDITOR_TYPE_NUMBER;
-            } else if (this._columnFormatterType === COLUMN_TYPE_INTEGER) {
-                type = cellEditorType === CELL_EDITOR_TYPE_LIST || cellEditorType === CELL_EDITOR_TYPE_NUMBER ? cellEditorType : CELL_EDITOR_TYPE_NUMBER;
-            } else if (this._columnFormatterType === COLUMN_TYPE_LONG) {
-                type = cellEditorType === CELL_EDITOR_TYPE_LIST || cellEditorType === CELL_EDITOR_TYPE_NUMBER ? cellEditorType : CELL_EDITOR_TYPE_NUMBER;
-            } else if (this._columnFormatterType === COLUMN_TYPE_BOOLEAN) {
-                type = cellEditorType === CELL_EDITOR_TYPE_LIST || cellEditorType === CELL_EDITOR_TYPE_CHECKBOX ? cellEditorType : CELL_EDITOR_TYPE_STRING;
-            } else if (this._columnFormatterType === COLUMN_TYPE_IMAGELINK) {
-                type = '';
-            } else if (this._columnFormatterType === COLUMN_TYPE_HYPERLINK) {
-                type = cellEditorType === CELL_EDITOR_TYPE_LIST ? cellEditorType : CELL_EDITOR_TYPE_STRING;
-            } else if (this._columnFormatterType === COLUMN_TYPE_HTML) {
-                type = cellEditorType === CELL_EDITOR_TYPE_TEXT ? cellEditorType : CELL_EDITOR_TYPE_TEXT;
-            } else {
-                _logger.Logger.warn('Unsupported column formatter type: "' + this._columnFormatterType + '"');
-            }
-            return type;
-        };
-
-        CellEditor.prototype._createDhtmlxEditorColType = function _createDhtmlxEditorColType() {
             var type = void 0;
-            if (!this._isEnabled) {
+            if (editMode === false) {
                 if (this._columnFormatterType === COLUMN_TYPE_NUMBER) {
                     type = 'ron';
                 } else if (this._columnFormatterType === COLUMN_TYPE_INTEGER) {
@@ -123,9 +89,25 @@ gaRequire.define('tw-grid-advanced/grid-advanced/cell-editor',['exports', './log
                     type = 'ro';
                 }
             } else if (this._columnFormatterType === COLUMN_TYPE_BOOLEAN) {
-                if (this._cellEditorType === CELL_EDITOR_TYPE_CHECKBOX) {
-                    type = 'ch';
-                }
+                type = 'ch';
+            } else if (this._columnFormatterType === COLUMN_TYPE_LOCATION) {
+                type = 'edtxt';
+            } else if (this._columnFormatterType === COLUMN_TYPE_DATETIME) {
+                type = 'dhxCalendar';
+            } else if (this._columnFormatterType === COLUMN_TYPE_NUMBER) {
+                type = 'edn';
+            } else if (this._columnFormatterType === COLUMN_TYPE_INTEGER) {
+                type = 'edn';
+            } else if (this._columnFormatterType === COLUMN_TYPE_LONG) {
+                type = 'edn';
+            } else if (this._columnFormatterType === COLUMN_TYPE_IMAGELINK) {
+                type = 'edtxt';
+            } else if (this._columnFormatterType === COLUMN_TYPE_HYPERLINK) {
+                type = 'edtxt';
+            } else if (this._columnFormatterType === COLUMN_TYPE_HTML) {
+                type = 'ed';
+            } else if (this._columnFormatterType === COLUMN_TYPE_STRING) {
+                type = 'edtxt';
             } else {
                 type = 'ro';
             }
@@ -143,19 +125,9 @@ gaRequire.define('tw-grid-advanced/grid-advanced/cell-editor',['exports', './log
                 return this._isEnabled;
             }
         }, {
-            key: 'type',
-            get: function get() {
-                return this._cellEditorType;
-            }
-        }, {
             key: 'cellValidator',
             get: function get() {
                 return this._cellValidator;
-            }
-        }, {
-            key: 'editorColumnType',
-            get: function get() {
-                return this._editorColType;
             }
         }]);
 
@@ -266,8 +238,6 @@ gaRequire.define('tw-grid-advanced/grid-advanced/child-grid-handler',['exports',
         }
     }
 
-    var _SPINNER_ICON = '../Common/extensions/grid-advanced_ExtensionPackage/ui/gridadvanced/imgs/spinner.gif';
-
     var ChildGridHandler = exports.ChildGridHandler = function () {
         function ChildGridHandler(gridId, gridAdvanced, dhtmlxTableData, serviceInvoker, parameters, configuration) {
             var callback = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : null;
@@ -311,9 +281,9 @@ gaRequire.define('tw-grid-advanced/grid-advanced/child-grid-handler',['exports',
                         _logger.Logger.error(message);
                     });
                 }
-            } else {
-                this._gridAdvanced.openItem(rowId);
+            } else if (!gridRow.isExpanded) {
                 gridRow.isExpanded = true;
+                this._gridAdvanced.openItem(rowId);
             }
         };
 
@@ -321,11 +291,22 @@ gaRequire.define('tw-grid-advanced/grid-advanced/child-grid-handler',['exports',
             var _this2 = this;
 
             if (rowId && rowId.trim().length > 0) {
+                var lastParentId = void 0;
+                if (this._cfg.includeRowExpansionParents) {
+                    lastParentId = this._dhtmlxTableData.findLastLoadedParentId(rowId);
+                    rowId = this._dhtmlxTableData.getLeafId(rowId);
+                }
                 if (this._dhtmlxTableData.getRowById(rowId) !== undefined) {
+                    var parentId = void 0;
                     if (isRowSelection) {
-                        rowId = this._gridAdvanced.getParentId(this._getRowId(rowId));
+                        parentId = this._gridAdvanced.getParentId(this._getRowId(rowId));
                     }
-                    this._gridAdvanced.openItem(rowId);
+                    this._gridAdvanced.openItem(parentId);
+                    var gridRow = this._dhtmlxTableData.getRowById(rowId);
+                    if (gridRow) {
+                        gridRow.isExpanded = true;
+                        this._autoScrollToRow(rowId);
+                    }
                 } else if (this._serviceInvoker) {
                     var state = this._gridAdvanced.getStateOfView();
                     var topRowId = this._gridAdvanced.getRowId(state[0]);
@@ -334,7 +315,9 @@ gaRequire.define('tw-grid-advanced/grid-advanced/child-grid-handler',['exports',
                         maxLevels: 25,
                         leafId: rowId
                     };
-
+                    if (this._cfg.includeRowExpansionParents) {
+                        params[this._cfg.idFieldName] = lastParentId;
+                    }
                     this._serviceInvoker.parameters = _jquery2.default.extend({}, this._defaultParams, params);
                     this._serviceInvoker.invokeService(function (invoker) {
                         if (invoker && invoker.result) {
@@ -440,8 +423,8 @@ gaRequire.define('tw-grid-advanced/grid-advanced/child-grid-handler',['exports',
 
         ChildGridHandler.prototype._getRowId = function _getRowId(rowId) {
             var id = rowId;
-            if (rowId.indexOf(':;') > -1) {
-                var ids = rowId.split(':;');
+            if (rowId.indexOf(this._cfg.idPathSeparator) > -1) {
+                var ids = rowId.split(this._cfg.idPathSeparator);
                 id = ids[ids.length - 1];
             }
             return id;
@@ -462,12 +445,13 @@ gaRequire.define('tw-grid-advanced/grid-advanced/child-grid-handler',['exports',
 });
 //# sourceMappingURL=../maps/grid-advanced/child-grid-handler.js.map
 
-gaRequire.define('tw-grid-advanced/grid-advanced/column-definition',['exports'], function (exports) {
+gaRequire.define('tw-grid-advanced/grid-advanced/column-definition',['exports', './components/definitions/footer-definition'], function (exports, _footerDefinition) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
         value: true
     });
+    exports.ColumnDefinition = undefined;
 
     function _classCallCheck(instance, Constructor) {
         if (!(instance instanceof Constructor)) {
@@ -513,11 +497,17 @@ gaRequire.define('tw-grid-advanced/grid-advanced/column-definition',['exports'],
             this._inLayout = true;
         }
 
-        ColumnDefinition.prototype.render = function render(data, stateData) {
+        ColumnDefinition.prototype.render = function render(rawValue, stateData, editMode) {
+            var renderCell = { value: rawValue };
             if (this._columnFormatter) {
-                return this._columnFormatter.formatValue(data, stateData);
+                renderCell.value = this._columnFormatter.formatValue(rawValue, stateData, editMode);
+                renderCell.columnType = this._columnFormatter.cellEditor.getColumnType(editMode);
             }
-            return data;
+            return renderCell;
+        };
+
+        ColumnDefinition.prototype.isCheckboxFormatter = function isCheckboxFormatter() {
+            return this._columnFormatter && this._columnFormatter.valueConverter && this._columnFormatter.valueConverter.type === 'boolean' && this._columnFormatter.valueConverter.valueFormat === 'checkbox';
         };
 
         _createClass(ColumnDefinition, [{
@@ -629,6 +619,14 @@ gaRequire.define('tw-grid-advanced/grid-advanced/column-definition',['exports'],
             },
             set: function set(description) {
                 this._description = description;
+            }
+        }, {
+            key: 'footerDefinition',
+            get: function get() {
+                return this._footerDefinition;
+            },
+            set: function set(footerDefinition) {
+                this._footerDefinition = footerDefinition;
             }
         }, {
             key: 'allowsTooltips',
@@ -747,13 +745,14 @@ gaRequire.define('tw-grid-advanced/grid-advanced/column-formatter',['exports'], 
 
         ColumnFormatter.prototype.getColumnStyles = function getColumnStyles(value) {
             var styles = '';
-            if (this._stateDefinition) {
-                var state = this._stateDefinition.type === 'fixed' ? this._stateDefinition.states[0] : this._stateDefinition.findStateByValue(value);
-                if (state && state.styleDefinition) {
-
-                    styles += state.styleDefinition.getBackgroundStyle();
-                    styles += state.styleDefinition.getBorderStyle();
-                    styles += state.styleDefinition.getFontStyle();
+            if (value !== undefined) {
+                if (this._stateDefinition) {
+                    var state = this._stateDefinition.type === 'fixed' ? this._stateDefinition.states[0] : this._stateDefinition.findStateByValue(value);
+                    if (state && state.styleDefinition) {
+                        styles += state.styleDefinition.getBackgroundStyle();
+                        styles += state.styleDefinition.getBorderStyle();
+                        styles += state.styleDefinition.getFontStyle();
+                    }
                 }
             }
             return styles;
@@ -761,20 +760,19 @@ gaRequire.define('tw-grid-advanced/grid-advanced/column-formatter',['exports'], 
 
         ColumnFormatter.prototype._getImageLink = function _getImageLink(value) {
             var imgLink = void 0;
-            if (this._stateDefinition) {
-                var state = this._stateDefinition.type === 'fixed' ? this._stateDefinition.states[0] : this._stateDefinition.findStateByValue(value);
-                if (state && state.styleDefinition) {
-                    imgLink = state.styleDefinition.image;
+            if (value !== undefined) {
+                if (this._stateDefinition) {
+                    var state = this._stateDefinition.type === 'fixed' ? this._stateDefinition.states[0] : this._stateDefinition.findStateByValue(value);
+                    if (state && state.styleDefinition) {
+                        imgLink = state.styleDefinition.image;
+                    }
                 }
             }
             return imgLink;
         };
 
-        ColumnFormatter.prototype.formatValue = function formatValue(data, stateData) {
-            if (this._cellEditor && this._cellEditor.isEnabled) {
-                return undefined;
-            }
-            return this._valueConverter ? this._valueConverter.toView(data, this._getImageLink(stateData)) : data;
+        ColumnFormatter.prototype.formatValue = function formatValue(rawValue, stateData, editMode) {
+            return this._valueConverter ? this._valueConverter.toView(rawValue, editMode, this._getImageLink(stateData)) : rawValue;
         };
 
         _createClass(ColumnFormatter, [{
@@ -1261,6 +1259,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/dhtmlx-table-data',['exports', 
             this._localizationUtil = localizationUtil;
             this._columns = [];
             this._allColumns = [];
+            this._footers = [];
             this._allColumnsMap = new Map();
             this._headers = '';
             this._cfg = cfg;
@@ -1268,66 +1267,92 @@ gaRequire.define('tw-grid-advanced/grid-advanced/dhtmlx-table-data',['exports', 
             this._editedRowMap = new Map();
             this._data = this.orderData(rows);
             this._filterCacheTimestamp = 0;
+            this._treeColumnEditable = false;
         }
+
+        DhtmlxTableData.prototype.createIdPath = function createIdPath(rowId) {
+            var idPath = rowId;
+            var gridRow = this.getRowById(rowId);
+            return this._appendParentId(idPath, gridRow);
+        };
+
+        DhtmlxTableData.prototype.getLeafId = function getLeafId(pathId) {
+            var id = pathId;
+            if (pathId !== undefined && pathId.indexOf(this._cfg.idPathSeparator) > -1) {
+                var ids = pathId.split(this._cfg.idPathSeparator);
+                id = ids[ids.length - 1];
+            }
+            return id;
+        };
+
+        DhtmlxTableData.prototype.findLastLoadedParentId = function findLastLoadedParentId(pathId) {
+            var _this = this;
+
+            var lastParentId = pathId;
+            if (pathId !== undefined && pathId.indexOf(this._cfg.idPathSeparator) > -1) {
+                var ids = pathId.split(this._cfg.idPathSeparator);
+                ids.forEach(function (id) {
+                    if (_this._rowIdMap.has(id)) {
+                        lastParentId = id;
+                    }
+                });
+            }
+            return lastParentId;
+        };
+
+        DhtmlxTableData.prototype._appendParentId = function _appendParentId(idPath, gridRow) {
+            idPath = gridRow.parent !== undefined ? gridRow.parent + this._cfg.idPathSeparator + idPath : idPath;
+            var parentRow = this.getRowById(gridRow.parent);
+            if (parentRow !== undefined) {
+                idPath = this._appendParentId(idPath, parentRow);
+            }
+            return idPath;
+        };
 
         DhtmlxTableData.prototype.cacheEditedRow = function cacheEditedRow(rowId, columnName, newValue) {
             var gridRow = this.getRowById(rowId);
             var rawDataCellIndex = this._allColumnsMap.get(columnName);
             var oldValue = gridRow.rawData[rawDataCellIndex];
-            newValue = this._applyDataConversions(columnName, newValue, oldValue);
-
-            if (newValue !== undefined && oldValue !== newValue) {
+            var columnDef = this._cfg.findColumnDefinition(columnName);
+            if (columnDef.columnFormatter && columnDef.columnFormatter.valueConverter) {
+                newValue = columnDef.columnFormatter.valueConverter.parseValue(oldValue, newValue);
+            }
+            if (newValue !== undefined && _lodashAmd2.default.isEqual(oldValue, newValue) === false) {
                 gridRow.rawData[rawDataCellIndex] = newValue;
                 this._editedRowMap.set(rowId, gridRow);
-                gridRow.isEdited = true;
                 return true;
             }
             return false;
         };
 
-        DhtmlxTableData.prototype._applyDataConversions = function _applyDataConversions(columnName, newValue, oldValue) {
-            var columnDef = this._cfg.findColumnDefinition(columnName);
-            if (newValue && columnDef.columnFormatter && columnDef.columnFormatter.valueConverter && columnDef.columnFormatter.valueConverter.type) {
-                var type = columnDef.columnFormatter.valueConverter.type;
-                if (type === 'boolean') {
-                    newValue = this._convertBooleanValue(newValue);
-                } else if (type === 'datetime') {
-                    newValue = _lodashAmd2.default.isDate(newValue) ? newValue.getTime() : undefined;
-                } else if (typeof oldValue === 'number' && typeof newValue !== 'number') {
-                    if (type === 'integer') {
-                        newValue = parseInt(newValue, 10);
-                    } else {
-                        newValue = parseFloat(newValue);
-                    }
-                } else if (typeof oldValue === 'string' && typeof newValue !== 'string') {
-                    newValue = newValue.toString();
-                }
-            }
-            return newValue;
-        };
-
-        DhtmlxTableData.prototype._convertBooleanValue = function _convertBooleanValue(value) {
-            var convertedValue = void 0;
-            if (typeof value === 'string' && value === '0' || typeof value === 'number' && value === 0) {
-                convertedValue = false;
-            } else if (typeof value === 'string' && value === '1' || typeof value === 'number' && value === 1) {
-                convertedValue = true;
-            }
-            return convertedValue;
-        };
-
-        DhtmlxTableData.prototype.createEditedInfoTableRows = function createEditedInfoTableRows() {
-            var _this = this;
+        DhtmlxTableData.prototype.updateEditedInfoTableRows = function updateEditedInfoTableRows() {
+            var _this2 = this;
 
             var rows = [];
             this._editedRowMap.forEach(function (gridRow) {
                 var row = {};
-                _this._allColumns.forEach(function (column, index) {
+                _this2._allColumns.forEach(function (column, index) {
                     row[column] = gridRow.rawData[index];
                 });
                 rows.push(row);
             });
             return rows;
+        };
+
+        DhtmlxTableData.prototype.clearEditedInfoTableRows = function clearEditedInfoTableRows() {
+            this._editedRowMap.clear();
+        };
+
+        DhtmlxTableData.prototype.findColumnIndex = function findColumnIndex(columnName) {
+            return _lodashAmd2.default.findIndex(this._allColumns, function (name) {
+                return name === columnName;
+            });
+        };
+
+        DhtmlxTableData.prototype.resetFormatted = function resetFormatted() {
+            this._rowIdMap.forEach(function (gridRow, id) {
+                gridRow.isFormatted = false;
+            });
         };
 
         DhtmlxTableData.prototype._createPrivateFieldNameMap = function _createPrivateFieldNameMap() {
@@ -1353,7 +1378,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/dhtmlx-table-data',['exports', 
         };
 
         DhtmlxTableData.prototype._removePrivateColumns = function _removePrivateColumns(object) {
-            var _this2 = this;
+            var _this3 = this;
 
             var updated = object;
             this._createPrivateFieldNameMap();
@@ -1366,8 +1391,8 @@ gaRequire.define('tw-grid-advanced/grid-advanced/dhtmlx-table-data',['exports', 
             if (this._cfg && this._cfg.columnDefinitions && this._cfg.columnDefinitions.length > 0) {
                 var keys = _lodashAmd2.default.keys(object);
                 keys.forEach(function (key) {
-                    if (_this2._cfg) {
-                        if (!_this2._cfg.hasColumnDefinition(key)) {
+                    if (_this3._cfg) {
+                        if (!_this3._cfg.hasColumnDefinition(key)) {
                             updated = _lodashAmd2.default.omit(updated, key);
                         }
                     }
@@ -1377,7 +1402,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/dhtmlx-table-data',['exports', 
         };
 
         DhtmlxTableData.prototype.orderData = function orderData(data, parentId) {
-            var _this3 = this;
+            var _this4 = this;
 
             var expandRows = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
@@ -1388,26 +1413,26 @@ gaRequire.define('tw-grid-advanced/grid-advanced/dhtmlx-table-data',['exports', 
             var cacheTimestamp = new Date().getTime();
 
             data.forEach(function (row, index) {
-                var rowId = _this3._createRowId(parentId, row, index);
-                var myParentId = _lodashAmd2.default.get(row, _this3._cfg.parentIdFieldName);
-                var hasChildren = _this3._hasChildren(row);
+                var rowId = _this4._createRowId(parentId, row, index);
+                var myParentId = _lodashAmd2.default.get(row, _this4._cfg.parentIdFieldName);
+                var hasChildren = _this4._hasChildren(row);
 
-                row = _this3._removePrivateColumns(row);
+                row = _this4._removePrivateColumns(row);
                 var rawValues = _lodashAmd2.default.values(row);
-                var values = _this3._removeNotInLayoutColumns(_this3._cfg, row);
+                var values = _this4._removeNotInLayoutColumns(_this4._cfg, row);
                 if (index === 0) {
-                    _this3._createHeaders(_lodashAmd2.default.keys(row));
-                    orderedColumns = _this3._determineColumnOrder();
+                    _this4._createHeaders(_lodashAmd2.default.keys(row));
+                    orderedColumns = _this4._determineColumnOrder();
                 }
-                if (_this3._cfg.expandAllLoadedLevels === true && hasChildren) {
+                if (_this4._cfg.expandAllLoadedLevels === true && hasChildren) {
                     expandRows = true;
                 }
-                _this3._setNodeIcon(orderedColumns[0], values, hasChildren);
+                _this4._setNodeIcon(orderedColumns[0], values, hasChildren);
 
                 var gridRow = new _gridRow.GridRow(rowId, myParentId, values, rawValues, hasChildren, expandRows, cacheTimestamp, index);
                 tree[rowId] = gridRow;
                 newData[index] = gridRow;
-                _this3._rowIdMap.set(gridRow.id, gridRow);
+                _this4._rowIdMap.set(gridRow.id, gridRow);
             });
             if (data && data.length === 0 && this._cfg) {
                 this._createHeaders(this._cfg.orderColumnFieldNames());
@@ -1433,6 +1458,56 @@ gaRequire.define('tw-grid-advanced/grid-advanced/dhtmlx-table-data',['exports', 
             };
         };
 
+        DhtmlxTableData.prototype.orderFooterData = function orderFooterData(data) {
+            var _this5 = this;
+
+            var footerValues = [];
+            var footerColumns = [];
+            data.forEach(function (row, index) {
+                footerValues[index] = _lodashAmd2.default.values(row);
+                footerColumns[index] = _lodashAmd2.default.keys(row);
+            });
+            if (footerValues && footerValues.length > 0) {
+                footerValues.forEach(function (values, fIndex) {
+                    var settings = '';
+                    var alignments = [];
+                    if (_this5._cfg && _this5._cfg.columnDefinitions) {
+                        _this5._columns.forEach(function (column, index) {
+                            var cIndex = _lodashAmd2.default.findIndex(footerColumns[fIndex], function (fColumn) {
+                                return column === fColumn;
+                            });
+                            var footer = values[cIndex];
+                            var commaIndex = -1;
+                            var leftAlignment = 'text-align:left;';
+                            var alignment = leftAlignment;
+                            if (footer !== undefined && (commaIndex = footer.indexOf(',')) > -1) {
+                                var parts = footer.split(',');
+                                if (parts.length > 0) {
+                                    footer = parts[0].trim();
+                                }
+                                alignment = parts.length === 2 ? parts[1].trim() : leftAlignment;
+                                if (alignment !== 'text-align:left;' && alignment !== 'text-align:right;') {
+                                    _logger.Logger.warn('Invalid footer alignment value: ' + alignment + '. Valid values are "text-align:left;" or "text-align:right;".');
+                                    alignment = leftAlignment;
+                                }
+                            }
+                            var match = void 0;
+                            if (footer !== undefined && (match = footer.match(/\[\[\w*\]\]/g)) !== null) {
+                                match.forEach(function (token) {
+                                    var l8n = _this5._localizationUtil(token);
+                                    l8n = l8n === ',' ? '&#44;' : l8n;
+                                    footer = footer.replace(token, l8n);
+                                });
+                            }
+                            alignments[index] = alignment;
+                            settings += footer !== undefined && footer.length > 0 ? footer + ',' : ',';
+                        });
+                    }
+                    _this5._footers[fIndex] = { settings: settings, alignments: alignments };
+                });
+            }
+        };
+
         DhtmlxTableData.prototype._hasChildren = function _hasChildren(row) {
             var value = _lodashAmd2.default.get(row, this._cfg.hasChildrenFieldName);
             return value && value != '0' && value != '0.0' && value != 'undefined' && value !== '' && value != 'false';
@@ -1441,11 +1516,13 @@ gaRequire.define('tw-grid-advanced/grid-advanced/dhtmlx-table-data',['exports', 
         DhtmlxTableData.prototype._createRowId = function _createRowId(parentId, row, index) {
             var rowId = _lodashAmd2.default.get(row, this._cfg.idFieldName);
             if (!rowId) {
-                rowId = index + 1 + '';
+                rowId = index + 1;
                 if (parentId) {
                     rowId = parentId + '_' + rowId;
                 }
             }
+
+            rowId += '';
             if (rowId === '0') {
                 _logger.Logger.error('Cannot have an id of zero');
             }
@@ -1453,27 +1530,27 @@ gaRequire.define('tw-grid-advanced/grid-advanced/dhtmlx-table-data',['exports', 
         };
 
         DhtmlxTableData.prototype._createHeaders = function _createHeaders(keys) {
-            var _this4 = this;
+            var _this6 = this;
 
             this._headers = '';
             this._allColumns = [];
             this._columns = [];
             keys.forEach(function (column, index) {
-                if (_this4._cfg) {
-                    if (!_this4._cfg.hasColumnDefinition(column)) {
-                        _this4._cfg.addColumnDefinition(column, column, undefined, false);
+                if (_this6._cfg) {
+                    if (!_this6._cfg.hasColumnDefinition(column)) {
+                        _this6._cfg.addColumnDefinition(column, column, undefined, false);
                     }
-                    var columnDef = _this4._cfg.findColumnDefinition(column);
-                    _this4._allColumns.push(column);
-                    _this4._allColumnsMap.set(column, index);
+                    var columnDef = _this6._cfg.findColumnDefinition(column);
+                    _this6._allColumns.push(column);
+                    _this6._allColumnsMap.set(column, index);
                     if (columnDef && columnDef.inLayout) {
-                        _this4._columns.push(column);
+                        _this6._columns.push(column);
                         var title = columnDef.title ? columnDef.title : column;
-                        title = _this4._cfg.headerDefinition ? _this4._cfg.headerDefinition.formatTitle(title) : title;
-                        if (_this4._localizationUtil) {
-                            title = _this4._localizationUtil(title);
+                        title = _this6._cfg.headerDefinition ? _this6._cfg.headerDefinition.formatTitle(title) : title;
+                        if (_this6._localizationUtil) {
+                            title = _this6._localizationUtil(title);
                         }
-                        _this4._headers += _this4._headers.length === 0 ? title : ',' + title;
+                        _this6._headers += _this6._headers.length === 0 ? title : ',' + title;
                     }
                 }
             });
@@ -1528,20 +1605,26 @@ gaRequire.define('tw-grid-advanced/grid-advanced/dhtmlx-table-data',['exports', 
             return rowExpired;
         };
 
+        DhtmlxTableData.prototype.findColumnIndex = function findColumnIndex(columnName) {
+            return _lodashAmd2.default.findIndex(this._allColumns, function (column) {
+                return column === columnName;
+            });
+        };
+
         DhtmlxTableData.prototype._determineColumnOrder = function _determineColumnOrder(cookieConfig) {
-            var _this5 = this;
+            var _this7 = this;
 
             var myColumns = _lodashAmd2.default.cloneDeep(this._columns);
 
             if (cookieConfig) {
                 cookieConfig.columnOrder.forEach(function (columnIndex, toIndex) {
-                    var columnId = _this5._columns[columnIndex];
-                    _this5._moveColumns(columnId, toIndex, myColumns);
+                    var columnId = _this7._columns[columnIndex];
+                    _this7._moveColumns(columnId, toIndex, myColumns);
                 });
             } else if (this._cfg && this._cfg.columnDefinitions) {
                 this._cfg.columnDefinitions.forEach(function (columnDef) {
                     if (columnDef.inLayout) {
-                        _this5._moveColumns(columnDef.fieldName, columnDef.columnIndex, myColumns);
+                        _this7._moveColumns(columnDef.fieldName, columnDef.columnIndex, myColumns);
                     }
                 });
             }
@@ -1563,25 +1646,51 @@ gaRequire.define('tw-grid-advanced/grid-advanced/dhtmlx-table-data',['exports', 
             }
         };
 
-        DhtmlxTableData.prototype.createColumnTypes = function createColumnTypes(isTreeGrid) {
-            var _this6 = this;
+        DhtmlxTableData.prototype.createColumnTypes = function createColumnTypes(isTreeGrid, editingEnabled) {
+            var _this8 = this;
 
             var types = '';
             var columns = this._determineColumnOrder();
             if (this._cfg && this._cfg.columnDefinitions) {
                 this.columns.forEach(function (column, index) {
-                    var columnDef = _this6._cfg.findColumnDefinition(column);
-                    if (column === columns[0] && isTreeGrid) {
-                        types += types.length === 0 ? 'tree' : ',tree';
-                    } else if (columnDef.columnFormatter && columnDef.columnFormatter.cellEditor) {
+                    var columnDef = _this8._cfg.findColumnDefinition(column);
+                    if (columnDef.columnFormatter && columnDef.columnFormatter.cellEditor) {
                         var cellEditor = columnDef.columnFormatter.cellEditor;
-                        types += types.length === 0 ? cellEditor.editorColumnType : ',' + cellEditor.editorColumnType;
+                        if (column === columns[0] && isTreeGrid) {
+                            _this8._treeColumnEditable = cellEditor.isEnabled;
+                            types += types.length === 0 ? 'tree' : ',tree';
+                        } else {
+                            var editable = false;
+                            if (columnDef.columnFormatter.valueConverter.type === 'boolean' && columnDef.columnFormatter.valueConverter.valueFormat === 'checkbox') {
+                                editable = editingEnabled && cellEditor.isEnabled;
+                            }
+                            var columnType = cellEditor.getColumnType(editable);
+                            types += types.length === 0 ? columnType : ',' + columnType;
+                        }
                     } else {
                         types += types.length === 0 ? 'ro' : ',ro';
                     }
                 });
             }
             return types;
+        };
+
+        DhtmlxTableData.prototype.createColumnMoveSettings = function createColumnMoveSettings(isTreeGrid) {
+            var _this9 = this;
+
+            var settings = '';
+            var columns = this._determineColumnOrder();
+            if (this._cfg && this._cfg.columnDefinitions) {
+                this.columns.forEach(function (column, index) {
+                    var columnDef = _this9._cfg.findColumnDefinition(column);
+                    if (column === columns[0] && isTreeGrid) {
+                        settings += settings.length === 0 ? 'false' : ',false';
+                    } else {
+                        settings += settings.length === 0 ? 'true' : ',true';
+                    }
+                });
+            }
+            return settings;
         };
 
         DhtmlxTableData.prototype._setNodeIcon = function _setNodeIcon(treeColumn, values, hasChildren) {
@@ -1611,6 +1720,11 @@ gaRequire.define('tw-grid-advanced/grid-advanced/dhtmlx-table-data',['exports', 
                 return this._allColumns;
             }
         }, {
+            key: 'footers',
+            get: function get() {
+                return this._footers;
+            }
+        }, {
             key: 'columnIds',
             get: function get() {
                 var columnIds = '';
@@ -1627,6 +1741,11 @@ gaRequire.define('tw-grid-advanced/grid-advanced/dhtmlx-table-data',['exports', 
                 return this._data;
             }
         }, {
+            key: 'treeColumnEditable',
+            get: function get() {
+                return this._treeColumnEditable;
+            }
+        }, {
             key: 'cacheTimestamp',
             get: function get() {
                 return this._filterCacheTimestamp;
@@ -1640,6 +1759,121 @@ gaRequire.define('tw-grid-advanced/grid-advanced/dhtmlx-table-data',['exports', 
     }();
 });
 //# sourceMappingURL=../maps/grid-advanced/dhtmlx-table-data.js.map
+
+gaRequire.define('tw-grid-advanced/grid-advanced/footer-definition',['exports', 'html-css-sanitizer'], function (exports, _htmlCssSanitizer) {
+    'use strict';
+
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
+    exports.FooterDefinition = undefined;
+
+    var _htmlCssSanitizer2 = _interopRequireDefault(_htmlCssSanitizer);
+
+    function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : {
+            default: obj
+        };
+    }
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    var _createClass = function () {
+        function defineProperties(target, props) {
+            for (var i = 0; i < props.length; i++) {
+                var descriptor = props[i];
+                descriptor.enumerable = descriptor.enumerable || false;
+                descriptor.configurable = true;
+                if ("value" in descriptor) descriptor.writable = true;
+                Object.defineProperty(target, descriptor.key, descriptor);
+            }
+        }
+
+        return function (Constructor, protoProps, staticProps) {
+            if (protoProps) defineProperties(Constructor.prototype, protoProps);
+            if (staticProps) defineProperties(Constructor, staticProps);
+            return Constructor;
+        };
+    }();
+
+    var FooterDefinition = exports.FooterDefinition = function () {
+        function FooterDefinition(footerFunction, text, alignment) {
+            _classCallCheck(this, FooterDefinition);
+
+            this.TOTAL = 'total';
+            this.AVERAGE = 'average';
+            this.MINIMUM = 'minimum';
+            this.MAXIMUM = 'maximum';
+            this.COUNT = 'count';
+            this.CSPAN = 'column-span';
+            this.RSPAN = 'row-span';
+            this.TOTAL_FUNCTION = '{#stat_total}';
+            this.AVG_FUNCTION = '{#stat_average}';
+            this.MIN_FUNCTION = '{#stat_min}';
+            this.MAX_FUNCTION = '{#stat_max}';
+            this.COUNT_FUNCTION = '{#stat_count}';
+            this.CSPAN_FUNCTION = '#cspan';
+            this.RSPAN_FUNCTION = '#rspan';
+
+            this._footerFunction = footerFunction;
+            this._footerText = text;
+            this._footerAlignment = alignment;
+        }
+
+        _createClass(FooterDefinition, [{
+            key: 'footerFunction',
+            get: function get() {
+                return this._footerFunction;
+            }
+        }, {
+            key: 'footerText',
+            get: function get() {
+                return this._footerText;
+            }
+        }, {
+            key: 'footerAlignment',
+            get: function get() {
+                return this._footerAlignment;
+            }
+        }, {
+            key: 'footer',
+            get: function get() {
+                var func = '';
+                switch (this._footerFunction) {
+                    case this.TOTAL:
+                        func = this.TOTAL_FUNCTION;
+                        break;
+                    case this.AVERAGE:
+                        func = this.AVG_FUNCTION;
+                        break;
+                    case this.MINIMUM:
+                        func = this.MIN_FUNCTION;
+                        break;
+                    case this.MAXIMUM:
+                        func = this.MAX_FUNCTION;
+                        break;
+                    case this.COUNT:
+                        func = this.COUNT_FUNCTION;
+                        break;
+                    case this.CSPAN:
+                        func = this.CSPAN_FUNCTION;
+                        break;
+                    case this.RSPAN:
+                        func = this.RSPAN_FUNCTION;
+                        break;
+                }
+                return this._footerText !== undefined && this._footerText.length > 0 ? _htmlCssSanitizer2.default.sanitize(this._footerText) + ' ' + func : func;
+            }
+        }]);
+
+        return FooterDefinition;
+    }();
+});
+//# sourceMappingURL=../maps/grid-advanced/footer-definition.js.map
 
 gaRequire.define('tw-grid-advanced/grid-advanced/grid-advanced-configuration',['exports', './logger', './column-definition'], function (exports, _logger, _columnDefinition) {
     'use strict';
@@ -1680,6 +1914,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/grid-advanced-configuration',['
             this.TABLE_WRAPPER_STYLE = 'tableWrapperStyle';
             this.TABLE_FOCUS_STYLE = 'tableFocusStyle';
             this.TABLE_HEADER_STYLE = 'tableHeaderStyle';
+            this.TABLE_FOOTER_STYLE = 'tableFooterStyle';
             this.TABLE_SORTING_STYLE = 'tableSortingStyle';
             this.ROW_BORDER_STYLE = 'rowBorderStyle';
             this.ROW_BACKGROUND_STYLE = 'rowBackgroundStyle';
@@ -1703,7 +1938,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/grid-advanced-configuration',['
             this._maxRowCacheSize = 10000;
             this._enableColumnSorting = false;
             this._cellEditingEnabled = false;
-            this._orderedStyleNames = [this.TABLE_WRAPPER_STYLE, this.TABLE_FOCUS_STYLE, this.TABLE_HEADER_STYLE, this.TABLE_SORTING_STYLE, this.ROW_BORDER_STYLE, this.PAGINATION_BUTTON_STYLE, this.CELL_BORDER_STYLE, this.ROW_BACKGROUND_STYLE, this.ROW_ALTERNATE_BACKGROUND_STYLE, this.ROW_SELECTED_STYLE, this.ROW_HOVER_STYLE, this.PAGINATION_SELECTED_STYLE, this.PAGINATION_HOVER_STYLE, this.TOOLTIP_STYLE, this.TOOLBAR_STYLE, this.SORT_ASCENDING_STYLE, this.SORT_DESCENDING_STYLE, this.ROW_ICON_STYLE, this.ROW_EXPANSION_ICON_STYLE, this.ROW_COLLAPSE_ICON_STYLE];
+            this._orderedStyleNames = [this.TABLE_WRAPPER_STYLE, this.TABLE_FOCUS_STYLE, this.TABLE_HEADER_STYLE, this.TABLE_SORTING_STYLE, this.ROW_BORDER_STYLE, this.PAGINATION_BUTTON_STYLE, this.CELL_BORDER_STYLE, this.ROW_BACKGROUND_STYLE, this.ROW_ALTERNATE_BACKGROUND_STYLE, this.ROW_SELECTED_STYLE, this.ROW_HOVER_STYLE, this.PAGINATION_SELECTED_STYLE, this.PAGINATION_HOVER_STYLE, this.TOOLTIP_STYLE, this.TOOLBAR_STYLE, this.TABLE_FOOTER_STYLE, this.SORT_ASCENDING_STYLE, this.SORT_DESCENDING_STYLE, this.ROW_ICON_STYLE, this.ROW_EXPANSION_ICON_STYLE, this.ROW_COLLAPSE_ICON_STYLE];
         }
 
         GridAdvancedConfiguration.prototype.findColumnDefinition = function findColumnDefinition(fieldName) {
@@ -1850,6 +2085,14 @@ gaRequire.define('tw-grid-advanced/grid-advanced/grid-advanced-configuration',['
                 return this._headerDefinition;
             }
         }, {
+            key: 'enableFooter',
+            set: function set(enableFooter) {
+                this._enableFooter = enableFooter;
+            },
+            get: function get() {
+                return this._enableFooter;
+            }
+        }, {
             key: 'fixedColumnDefinition',
             set: function set(fixedColumnDefinition) {
                 this._fixedColumnDefinition = fixedColumnDefinition;
@@ -1946,6 +2189,14 @@ gaRequire.define('tw-grid-advanced/grid-advanced/grid-advanced-configuration',['
                 return this._idFieldName;
             }
         }, {
+            key: 'idPathSeparator',
+            set: function set(idPathSeparator) {
+                this._idPathSeparator = idPathSeparator;
+            },
+            get: function get() {
+                return this._idPathSeparator;
+            }
+        }, {
             key: 'hasChildrenFieldName',
             set: function set(hasChildrenFieldName) {
                 this._hasChildrenFieldName = hasChildrenFieldName;
@@ -1992,6 +2243,14 @@ gaRequire.define('tw-grid-advanced/grid-advanced/grid-advanced-configuration',['
             },
             get: function get() {
                 return this._cellEditingEnabled;
+            }
+        }, {
+            key: 'editButtons',
+            set: function set(enabled) {
+                this._editButtons = enabled;
+            },
+            get: function get() {
+                return this._editButtons;
             }
         }, {
             key: 'allColumnsHidden',
@@ -2081,9 +2340,10 @@ gaRequire.define('tw-grid-advanced/grid-advanced/grid-row',['exports', './compon
 
             _classCallCheck(this, GridRow);
 
-            this._id = rowId + '';
+            this._id = rowId;
             this._parent = parentId;
             this._rawData = rawValues;
+            this._editedData = [rawValues.length];
             this._data = values.map(function (value) {
                 if (_lodashAmd2.default.isString(value)) {
                     value = _htmlRenderer.HtmlRenderer.sanitize(value);
@@ -2093,7 +2353,6 @@ gaRequire.define('tw-grid-advanced/grid-advanced/grid-row',['exports', './compon
             this._hasChildren = hasChildren;
             this._xmlkids = hasChildren ? '1' : '';
 
-            this._isEdited = false;
             this._isFormatted = false;
             this._childrenLoaded = false;
             this._isExpanded = false;
@@ -2163,6 +2422,11 @@ gaRequire.define('tw-grid-advanced/grid-advanced/grid-row',['exports', './compon
                 return this._rawData;
             }
         }, {
+            key: 'editedData',
+            get: function get() {
+                return this._editedData;
+            }
+        }, {
             key: 'isExpanded',
             get: function get() {
                 return this._isExpanded;
@@ -2177,14 +2441,6 @@ gaRequire.define('tw-grid-advanced/grid-advanced/grid-row',['exports', './compon
             },
             set: function set(createdAt) {}
         }, {
-            key: 'isEdited',
-            get: function get() {
-                return this._isEdited;
-            },
-            set: function set(isEdited) {
-                this._isEdited = isEdited;
-            }
-        }, {
             key: 'dataIndex',
             get: function get() {
                 return this._dataIndex;
@@ -2196,7 +2452,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/grid-row',['exports', './compon
 });
 //# sourceMappingURL=../maps/grid-advanced/grid-row.js.map
 
-gaRequire.define('tw-grid-advanced/grid-advanced/grid-style-handler',['exports', 'jquery', 'lodash-amd', './components/definitions/style-definition'], function (exports, _jquery, _lodashAmd, _styleDefinition) {
+gaRequire.define('tw-grid-advanced/grid-advanced/grid-style-handler',['exports', 'jquery', 'lodash-amd'], function (exports, _jquery, _lodashAmd) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
@@ -2221,33 +2477,36 @@ gaRequire.define('tw-grid-advanced/grid-advanced/grid-style-handler',['exports',
     }
 
     var GridStyleHandler = exports.GridStyleHandler = function () {
-        function GridStyleHandler(gridAdvanced, configuration, gridId) {
+        function GridStyleHandler(gridAdvanced, configuration, gridId, initialWordWrap) {
             _classCallCheck(this, GridStyleHandler);
 
             this._gridAdvanced = gridAdvanced;
             this._cfg = configuration;
             this._gridId = gridId;
+            this._initialWordWrap = initialWordWrap;
         }
 
-        GridStyleHandler.prototype.updateStyles = function updateStyles() {
+        GridStyleHandler.prototype.updateStyles = function updateStyles(cellClassNames) {
             (0, _jquery2.default)(this._gridAdvanced.entBox).siblings('style').remove();
-            var styleBlock = this._generateStyleBlock();
+            var styleBlock = this._generateStyleBlock(cellClassNames);
             var idSelector = '#' + this._gridId;
             var containerId = (0, _jquery2.default)(idSelector).parent('.widget-content').prop('id');
             (0, _jquery2.default)(idSelector).parent().prepend(styleBlock);
             (0, _jquery2.default)("#" + containerId).attr('tabindex', '-1');
         };
 
-        GridStyleHandler.prototype._generateStyleBlock = function _generateStyleBlock() {
+        GridStyleHandler.prototype._generateStyleBlock = function _generateStyleBlock(cellClassNames) {
             var _this = this;
 
             var styleRules = '';
             var idSelector = '#' + this._gridId;
             var containerId = (0, _jquery2.default)(idSelector).parent('.widget-content').prop('id');
+            var footerWidth = (0, _jquery2.default)(this._gridAdvanced.entBox).width();
             var sideBorderWidth = 0;
             var sideBorderStyle = '';
             this._iconStyles = '';
             this.styleMap = new Map();
+
             _lodashAmd2.default.forEach(this._cfg.styleDefinitions, function (styleDef) {
                 _this.styleMap.set(styleDef.displayName, styleDef);
             });
@@ -2256,9 +2515,10 @@ gaRequire.define('tw-grid-advanced/grid-advanced/grid-style-handler',['exports',
                 if (styleDef) {
                     var backgroundStyle = styleDef.getBackgroundStyle();
                     var borderStyle = styleDef.getBorderStyle();
+                    var borderWidth = styleDef.getBorderWidth();
                     var fontStyle = styleDef.getFontStyle();
                     var iconStyle = '';
-                    var cellBorderStyle = '';
+                    var cellBorderStyle = 'border-left-style: none; border-right-style: none;';
                     if (!styleDef.borderWidth || styleDef.borderWidth.length === 0 || !styleDef.borderStyle || styleDef.borderStyle.length === 0) {
                         cellBorderStyle = '';
                     }
@@ -2299,10 +2559,15 @@ gaRequire.define('tw-grid-advanced/grid-advanced/grid-style-handler',['exports',
                             break;
                         case _this._cfg.ROW_ALTERNATE_BACKGROUND_STYLE:
                             styleRules += idSelector + ' .objbox table tbody tr.ev_material td {' + backgroundStyle + fontStyle + '}';
+                            if (cellClassNames && cellClassNames.size > 0) {
+                                cellClassNames.forEach(function (className, styles) {
+                                    styleRules += idSelector + ' .objbox table tbody tr td.' + className + ' {' + styles + '}';
+                                });
+                            }
                             break;
                         case _this._cfg.ROW_HOVER_STYLE:
-                            backgroundStyle = styleDef.getBackgroundStyle(false);
-                            fontStyle = styleDef.getFontStyle(false);
+                            backgroundStyle = styleDef.getBackgroundStyle();
+                            fontStyle = styleDef.getFontStyle();
                             if (!styleDef.borderWidth || styleDef.borderWidth.length === 0 || !styleDef.borderStyle || styleDef.borderStyle.length === 0) {
                                 cellBorderStyle = '';
                             }
@@ -2310,21 +2575,29 @@ gaRequire.define('tw-grid-advanced/grid-advanced/grid-style-handler',['exports',
                             styleDef.borderStyle = styleDef.borderStyle === 'solid' & sideBorderWidth === 1 ? 'double' : styleDef.borderStyle;
                             borderStyle = 'border-top-color: ' + styleDef.borderColor + '; border-top-width: ' + styleDef.borderWidth + '; border-top-style: ' + styleDef.borderStyle + '; border-bottom-color: ' + styleDef.borderColor + '; border-bottom-width: ' + styleDef.borderWidth + '; border-bottom-style: ' + styleDef.borderStyle + '; ' + cellBorderStyle;
                             sideBorderStyle = 'border-left-color: ' + styleDef.borderColor + '; border-left-width: ' + sideBorderWidth * 2 + 'px; border-left-style: ' + styleDef.borderStyle + ';' + 'border-right-color: ' + styleDef.borderColor + '; border-right-width: ' + sideBorderWidth * 2 + 'px; ' + 'border-right-style: ' + styleDef.borderStyle + ';' + 'border-top-color: ' + styleDef.borderColor + '; ' + 'border-top-width: ' + sideBorderWidth + 'px; ' + 'border-top-style: ' + styleDef.borderStyle + ';' + 'border-bottom-color: ' + styleDef.borderColor + '; border-bottom-width: ' + sideBorderWidth + 'px; ' + 'border-bottom-style: ' + styleDef.borderStyle + ';';
-                            styleRules += idSelector + ' .objbox table tbody tr.ev_material td.grid_hover[style] {' + borderStyle + backgroundStyle + fontStyle + '}';
-                            styleRules += idSelector + ' .objbox table tbody tr.odd_material td.grid_hover[style] {' + borderStyle + backgroundStyle + fontStyle + '}';
+                            styleRules += idSelector + ' .objbox table tbody tr.ev_material td.grid_hover {' + borderStyle + backgroundStyle + fontStyle + '}';
+                            styleRules += idSelector + ' .objbox table tbody tr.odd_material td.grid_hover {' + borderStyle + backgroundStyle + fontStyle + '}';
                             styleRules += idSelector + ' .objbox table tbody tr.ev_material:hover { ' + sideBorderStyle + ' }';
                             styleRules += idSelector + ' .objbox table tbody tr.odd_material:hover { ' + sideBorderStyle + ' }';
                             break;
                         case _this._cfg.ROW_SELECTED_STYLE:
-                            backgroundStyle = styleDef.getBackgroundStyle(false);
-                            fontStyle = styleDef.getFontStyle(false);
-                            borderStyle = 'border-top-color: ' + styleDef.borderColor + '; border-top-width: ' + styleDef.borderWidth + '; border-top-style: ' + styleDef.borderStyle + '; border-bottom-color: ' + styleDef.borderColor + '; border-bottom-width: ' + styleDef.borderWidth + '; border-bottom-style: ' + styleDef.borderStyle + '; ' + cellBorderStyle;
-                            sideBorderWidth = parseInt(styleDef.borderWidth, 10);
+                            backgroundStyle = styleDef.getBackgroundStyle();
+                            fontStyle = styleDef.getFontStyle();
+                            borderWidth = styleDef.borderColor !== undefined && styleDef.borderColor.length > 0 ? borderWidth : 0;
+
+                            if (borderWidth > 0) {
+                                borderStyle = 'border-top-color: ' + styleDef.borderColor + '; border-top-width: ' + borderWidth + 'px; border-top-style: ' + styleDef.borderStyle + '; border-bottom-color: ' + styleDef.borderColor + '; border-bottom-width: ' + borderWidth + 'px; border-bottom-style: ' + styleDef.borderStyle + '; ' + cellBorderStyle;
+                            } else {
+                                borderStyle = '; border-top-width: ' + borderWidth + 'px; border-top-style: ' + styleDef.borderStyle + '; border-bottom-width: ' + borderWidth + 'px; border-bottom-style: ' + styleDef.borderStyle + '; ' + cellBorderStyle;
+                            }
+                            sideBorderWidth = parseInt(borderWidth, 10);
+                            var paddingLeft = 10 - sideBorderWidth;
                             sideBorderStyle = 'border-left-color: ' + styleDef.borderColor + '; border-left-width: ' + sideBorderWidth * 2 + 'px; border-left-style: ' + styleDef.borderStyle + ';' + 'border-right-color: ' + styleDef.borderColor + '; border-right-width: ' + sideBorderWidth * 2 + 'px; ' + 'border-right-style: ' + styleDef.borderStyle + ';';
-                            styleRules += idSelector + ' .objbox table tbody tr.odd_material.rowselected td[style] {' + backgroundStyle + fontStyle + borderStyle + '}';
-                            styleRules += idSelector + ' .objbox table tbody tr.ev_material.rowselected td[style] {' + backgroundStyle + fontStyle + borderStyle + '}';
+                            styleRules += idSelector + ' .objbox table tbody tr.odd_material.rowselected td {' + backgroundStyle + fontStyle + borderStyle + '}';
+                            styleRules += idSelector + ' .objbox table tbody tr.ev_material.rowselected td {' + backgroundStyle + fontStyle + borderStyle + '}';
                             styleRules += idSelector + ' .objbox table tbody tr.ev_material.rowselected { ' + sideBorderStyle + ' }';
                             styleRules += idSelector + ' .objbox table tbody tr.odd_material.rowselected { ' + sideBorderStyle + ' }';
+                            styleRules += idSelector + ' .objbox table tbody tr.rowselected td:first-child {padding-left: ' + paddingLeft + 'px;}';
                             break;
                         case _this._cfg.PAGINATION_BUTTON_STYLE:
                             styleRules += idSelector + '-paging-container .dhx_toolbar_btn {' + backgroundStyle + borderStyle + fontStyle + '}';
@@ -2348,6 +2621,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/grid-style-handler',['exports',
                         case _this._cfg.TOOLBAR_STYLE:
                             var resetLocation = '';
                             var searchLocation = '';
+                            var editButtonsLocation = '';
 
                             if (_this._cfg.resetButton && _this._cfg.resetButton.enabled) {
                                 resetLocation = _this._cfg.resetButton.location;
@@ -2355,17 +2629,28 @@ gaRequire.define('tw-grid-advanced/grid-advanced/grid-style-handler',['exports',
                             if (_this._cfg.searchSettings && _this._cfg.searchSettings.enabled) {
                                 searchLocation = _this._cfg.searchSettings.location;
                             }
+                            if (_this._cfg.editButtons && _this._cfg.editButtons.enabled) {
+                                editButtonsLocation = _this._cfg.editButtons.location;
+                            }
 
-                            if (resetLocation.indexOf('top') >= 0 || searchLocation.indexOf('top') >= 0) {
+                            if (resetLocation.indexOf('top') >= 0 || searchLocation.indexOf('top') >= 0 || editButtonsLocation.indexOf('top') >= 0) {
                                 styleRules += idSelector + '-top-container {' + backgroundStyle + borderStyle + fontStyle + '}';
                             } else {
                                 styleRules += idSelector + '-top-container { display: none; }';
                             }
 
-                            if (resetLocation.indexOf('bottom') >= 0 || searchLocation.indexOf('bottom') >= 0) {
+                            if (resetLocation.indexOf('bottom') >= 0 || searchLocation.indexOf('bottom') >= 0 || editButtonsLocation.indexOf('bottom') >= 0) {
                                 styleRules += idSelector + '-bottom-container {' + backgroundStyle + borderStyle + fontStyle + '}';
                             } else {
                                 styleRules += idSelector + '-bottom-container { display: none; }';
+                            }
+                            break;
+                        case _this._cfg.TABLE_FOOTER_STYLE:
+                            styleRules += idSelector + ' div.ftr td {' + backgroundStyle + fontStyle + '}';
+                            styleRules += idSelector + ' div.ftr {' + backgroundStyle + borderStyle + '}';
+                            if (footerWidth > 0 && borderWidth > 0) {
+                                footerWidth -= 2 * borderWidth;
+                                styleRules += idSelector + ' div.ftr { width: ' + footerWidth + 'px;}';
                             }
                             break;
                         case _this._cfg.SORT_ASCENDING_STYLE:
@@ -2392,8 +2677,9 @@ gaRequire.define('tw-grid-advanced/grid-advanced/grid-style-handler',['exports',
                     }
                 }
             });
-            styleRules += idSelector + '-paging-container .dhx_toolbar_text { width: auto !important; }';
+            styleRules += idSelector + '-paging-container .dhx_toolbar_text { width: auto; }';
             styleRules += idSelector + ' table.obj tr td { padding-top: 0px; padding-bottom: 0px; }';
+            styleRules += idSelector + ' .objbox table tbody tr td { ' + this._initialWordWrap + '}';
             var styleBlock = '<style>' + styleRules + '</style>';
             return styleBlock;
         };
@@ -2627,7 +2913,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/header-definition',['exports'],
 });
 //# sourceMappingURL=../maps/grid-advanced/header-definition.js.map
 
-gaRequire.define('tw-grid-advanced/grid-advanced/json-configuration-parser',['exports', 'lodash-amd', './column-definition', './header-definition', './column-formatter-factory', './components/definitions/state-definition', './row-formatter', './row-definition', './pagination-settings', './search-settings', './configuration-parser', './cell-editor', './cell-validator', './logger'], function (exports, _lodashAmd, _columnDefinition, _headerDefinition, _columnFormatterFactory, _stateDefinition, _rowFormatter, _rowDefinition, _paginationSettings, _searchSettings, _configurationParser, _cellEditor, _cellValidator, _logger) {
+gaRequire.define('tw-grid-advanced/grid-advanced/json-configuration-parser',['exports', 'lodash-amd', './column-definition', './header-definition', './column-formatter-factory', './components/definitions/state-definition', './row-formatter', './row-definition', './pagination-settings', './search-settings', './configuration-parser', './cell-editor', './cell-validator', './logger', './footer-definition'], function (exports, _lodashAmd, _columnDefinition, _headerDefinition, _columnFormatterFactory, _stateDefinition, _rowFormatter, _rowDefinition, _paginationSettings, _searchSettings, _configurationParser, _cellEditor, _cellValidator, _logger, _footerDefinition) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
@@ -2708,10 +2994,10 @@ gaRequire.define('tw-grid-advanced/grid-advanced/json-configuration-parser',['ex
             _this._gridAdvancedConfiguration.paginationSettings = _this._createPaginationSettings(configuration);
             _this._gridAdvancedConfiguration.rowFormatter = _this._createRowFormatter(configuration);
             _this._gridAdvancedConfiguration.rowDefinition = _this._createRowDefinition(configuration);
-
             _this._gridAdvancedConfiguration.splitColumnIndex = -1;
             _this._gridAdvancedConfiguration.searchSettings = _this._createSearchSettings(configuration);
             _this._gridAdvancedConfiguration.resetButton = configuration.resetButton;
+            _this._gridAdvancedConfiguration.editButtons = configuration.editButtons;
             _this._createMultiColumnSortOrder(configuration);
             _this._gridAdvancedConfiguration.maxRowCacheSize = _this._createMaxRowCacheSize(configuration);
             _this._gridAdvancedConfiguration.parentIdFieldName = _this._createParentIdFieldName(configuration);
@@ -2723,6 +3009,13 @@ gaRequire.define('tw-grid-advanced/grid-advanced/json-configuration-parser',['ex
             _this._gridAdvancedConfiguration.expandRowOnDoubleClick = _this._expandRowOnDoubleClick(configuration);
             _this._gridAdvancedConfiguration.cellEditingEnabled = _this._cellEditingEnabled(configuration);
             _this._gridAdvancedConfiguration.enableContextMenu = _this._enableContextMenu(configuration);
+            _this._gridAdvancedConfiguration.idPathSeparator = _this._createIdPathSeparator(configuration);
+            _this._gridAdvancedConfiguration.clientSideSorting = configuration.clientSideSorting;
+            _this._gridAdvancedConfiguration.enableBlockSelection = configuration.enableBlockSelection;
+			_this._gridAdvancedConfiguration.enableTextFiltering = configuration.enableFiltering;
+
+			_this._gridAdvancedConfiguration.textFilteringType = configuration.filteringType || "text_filter";
+            _this._gridAdvancedConfiguration.enableFooter = _this._enableFooter(configuration);
             return _this;
         }
 
@@ -2777,9 +3070,10 @@ gaRequire.define('tw-grid-advanced/grid-advanced/json-configuration-parser',['ex
         };
 
         JsonConfigurationParser.prototype._createRowDefinition = function _createRowDefinition(config) {
-            var rowDefinition = void 0;
+            var rowDefinition = new _rowDefinition.RowDefinition();
             if (config && config.rows) {
-                rowDefinition = new _rowDefinition.RowDefinition(config.rows.stateFormatter, config.rows.childRowDetails);
+                rowDefinition.stateFormatter = config.rows.stateFormatter;
+                rowDefinition.childRowDetails = config.rows.childRowDetails;
                 rowDefinition.selection = config.rows.selection;
                 rowDefinition.defaultSelectedRows = config.rows.defaultSelectedRows;
                 rowDefinition.defaultSelectedRowExpanded = config.rows.defaultSelectedRowExpanded;
@@ -2787,7 +3081,6 @@ gaRequire.define('tw-grid-advanced/grid-advanced/json-configuration-parser',['ex
                 rowDefinition.childRowsEnabled = config.rows.childRowsEnabled;
                 rowDefinition.defaultSelectedRows = this._createDefaultSelectedRows(config);
                 rowDefinition.minRowHeight = config.rows.minHeight;
-                rowDefinition.sizeImageToRow = config.rows.sizeImageToRow;
                 rowDefinition.autoScroll = config.rows.autoScroll;
             }
             return rowDefinition;
@@ -2805,18 +3098,17 @@ gaRequire.define('tw-grid-advanced/grid-advanced/json-configuration-parser',['ex
                 columnDefinition.hidden = columnDef.hidden;
                 columnDefinition.inLayout = columnDef.inLayout;
                 columnDefinition.sortOrder = columnDef.sortOrder;
+                columnDefinition.headerFilter = columnDef.headerFilter;
                 columnDefinition.description = columnDef.description;
+                columnDefinition.footerDefinition = this._createFooterDefinition(columnDef);
             }
             return columnDefinition;
         };
 
         JsonConfigurationParser.prototype._createColumnFormatter = function _createColumnFormatter(formatterDef, textAlignment) {
             var columnFormatter = void 0;
+            var cellEditor = this._createCellEditor(formatterDef);
             if (formatterDef) {
-                var cellEditor = void 0;
-                if (this._gridAdvancedConfiguration.cellEditingEnabled) {
-                    cellEditor = this._createCellEditor(formatterDef.type, formatterDef.cellEditor);
-                }
                 var params = formatterDef.params ? formatterDef.params : {};
                 if (textAlignment) {
                     params['textAlignment'] = textAlignment;
@@ -2826,7 +3118,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/json-configuration-parser',['ex
                     columnFormatter.stateDefinition = this._createStateDefinition(formatterDef.stateDefinition);
                 }
             } else {
-                columnFormatter = _columnFormatterFactory.ColumnFormatterFactory.getFormatter('default', '', null);
+                columnFormatter = _columnFormatterFactory.ColumnFormatterFactory.getFormatter('default', '', null, cellEditor);
             }
             return columnFormatter;
         };
@@ -2858,6 +3150,14 @@ gaRequire.define('tw-grid-advanced/grid-advanced/json-configuration-parser',['ex
                 headerDefinition.maxHeight = config.columns.header.maxHeight;
             }
             return headerDefinition;
+        };
+
+        JsonConfigurationParser.prototype._createFooterDefinition = function _createFooterDefinition(columnDef) {
+            var footerDefinition = void 0;
+            if (columnDef && columnDef.footer) {
+                footerDefinition = new _footerDefinition.FooterDefinition(columnDef.footer.function, columnDef.footer.text);
+            }
+            return footerDefinition;
         };
 
         JsonConfigurationParser.prototype._createRowFormatter = function _createRowFormatter(config) {
@@ -2965,10 +3265,28 @@ gaRequire.define('tw-grid-advanced/grid-advanced/json-configuration-parser',['ex
             return enableContextMenu;
         };
 
-        JsonConfigurationParser.prototype._createCellEditor = function _createCellEditor(formatterType, config) {
-            var cellEditor = new _cellEditor.CellEditor(formatterType, false, undefined, undefined);
-            if (config) {
+        JsonConfigurationParser.prototype._createIdPathSeparator = function _createIdPathSeparator(config) {
+            var idPathSeparator = ':;';
+            if (config && config.treeSettings && config.treeSettings.idPathSeparator !== undefined) {
+                idPathSeparator = config.treeSettings.idPathSeparator;
+            }
+            return idPathSeparator;
+        };
+
+        JsonConfigurationParser.prototype._enableFooter = function _enableFooter(config) {
+            var enableFooter = false;
+            if (config && config.enableFooter === true) {
+                enableFooter = config.enableFooter;
+            }
+            return enableFooter;
+        };
+
+        JsonConfigurationParser.prototype._createCellEditor = function _createCellEditor(formatterDef) {
+            var type = formatterDef !== undefined ? formatterDef.type : undefined;
+            var cellEditor = new _cellEditor.CellEditor(type, false, undefined);
+            if (formatterDef && formatterDef.cellEditor) {
                 var validator = void 0;
+                var config = formatterDef.cellEditor;
                 if (config.validator) {
                     var vCfg = config.validator;
                     var liveValidation = vCfg.liveValidation ? vCfg.liveValidation : false;
@@ -2997,7 +3315,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/json-configuration-parser',['ex
                     }
                     validator = new _cellValidator.CellValidator(liveValidation, types, successMsg, errorMsg, successStyle, errorStyle);
                 }
-                cellEditor = new _cellEditor.CellEditor(formatterType, config.enabled, config.type, validator);
+                cellEditor = new _cellEditor.CellEditor(type, config.enabled, validator);
             }
             return cellEditor;
         };
@@ -3061,6 +3379,8 @@ gaRequire.define('tw-grid-advanced/grid-advanced/logger',['exports'], function (
         }
     }
 
+    var LOG_LEVEL = 'error';
+
     var Logger = exports.Logger = function () {
         function Logger(defaultLogLevel) {
             _classCallCheck(this, Logger);
@@ -3069,25 +3389,25 @@ gaRequire.define('tw-grid-advanced/grid-advanced/logger',['exports'], function (
         }
 
         Logger.debug = function debug(message) {
-            if (console) {
+            if (console && LOG_LEVEL === 'debug') {
                 console.debug(message);
             }
         };
 
         Logger.warn = function warn(message) {
-            if (console) {
+            if (console && LOG_LEVEL === 'warn') {
                 console.warn(message);
             }
         };
 
         Logger.info = function info(message) {
-            if (console) {
+            if (console && LOG_LEVEL === 'info') {
                 console.info(message);
             }
         };
 
         Logger.error = function error(message) {
-            if (console) {
+            if (console && LOG_LEVEL === 'error') {
                 console.error(message);
             }
         };
@@ -3180,7 +3500,6 @@ gaRequire.define('tw-grid-advanced/grid-advanced/mashup-builder-configuration-pa
             _this._gridAdvancedConfiguration.rowDefinition = _this._convertRowDefinition(configuration);
             _this._gridAdvancedConfiguration.rowDefinition.defaultSelectedRows = _configurationParser.ConfigurationParser.convertDefaultSelectedRows(configuration.getProperty('DefaultSelectedRows'));
             _this._gridAdvancedConfiguration.styleDefinitions = _this._convertStyleDefinitions(configuration);
-
             _this._gridAdvancedConfiguration.splitColumnIndex = -1;
             _this._gridAdvancedConfiguration.resetButton = _this._convertResetButtonConfig(configuration);
             _this._gridAdvancedConfiguration.multiColumnSortOrder = _this._convertMultiColumnSortOrder(configuration.getProperty('MultiColumnSortOrder'));
@@ -3190,22 +3509,23 @@ gaRequire.define('tw-grid-advanced/grid-advanced/mashup-builder-configuration-pa
             _this._gridAdvancedConfiguration.idFieldName = configuration.getProperty('IDFieldName');
             _this._gridAdvancedConfiguration.hasChildrenFieldName = configuration.getProperty('HasChildrenFieldName');
             _this._gridAdvancedConfiguration.enableColumnSorting = configuration.getProperty('EnableSorting');
-            _this._gridAdvancedConfiguration.clientSideSorting = configuration.getProperty('ClientSideSorting');
             _this._gridAdvancedConfiguration.selectedRow = configuration.getProperty('SelectedRow');
             _this._gridAdvancedConfiguration.expandAllLoadedLevels = configuration.getProperty('ExpandLoadedRows');
             _this._gridAdvancedConfiguration.includeRowExpansionParents = configuration.getProperty('IncludeRowExpansionParents');
             _this._gridAdvancedConfiguration.preserveRowExpansion = configuration.getProperty('PreserveRowExpansion');
             _this._gridAdvancedConfiguration.expandRowOnDoubleClick = configuration.getProperty('ExpandRowOnDoubleClick');
             _this._gridAdvancedConfiguration.enableContextMenu = configuration.getProperty('EnableContextMenu');
+            _this._gridAdvancedConfiguration.editButtons = _this._convertEditButtonsConfig(configuration);
+            _this._gridAdvancedConfiguration.idPathSeparator = configuration.getProperty('IDPathSeparator');
+            _this._gridAdvancedConfiguration.enableFooter = configuration.getProperty('EnableFooter');
+            _this._gridAdvancedConfiguration.clientSideSorting = configuration.getProperty('ClientSideSorting');
             _this._gridAdvancedConfiguration.enableBlockSelection = configuration.getProperty('EnableBlockSelection');
-            _this._gridAdvancedConfiguration.showTotalRow = configuration.getProperty('ShowTotalRowCount');
 			if(configuration.getProperty('EnableFiltering') == undefined) {
 				_this._gridAdvancedConfiguration.enableTextFiltering = true;
 			} else {
 				_this._gridAdvancedConfiguration.enableTextFiltering = configuration.getProperty('EnableFiltering');
 			}
-			_this._gridAdvancedConfiguration.textFilteringType = configuration.getProperty('FilteringType') || "text_filter";  
-           
+			_this._gridAdvancedConfiguration.textFilteringType = configuration.getProperty('FilteringType') || "text_filter";
             return _this;
         }
 
@@ -3232,6 +3552,13 @@ gaRequire.define('tw-grid-advanced/grid-advanced/mashup-builder-configuration-pa
             resetConfig.enabled = configuration.getProperty('EnableGridReset');
             resetConfig.location = configuration.getProperty('GridResetButtonLocation');
             return resetConfig;
+        };
+
+        MashupBuilderConfigurationParser.prototype._convertEditButtonsConfig = function _convertEditButtonsConfig(configuration) {
+            var editButtonsConfig = {};
+            editButtonsConfig.enabled = configuration.getProperty('EnableEditButtons');
+            editButtonsConfig.location = configuration.getProperty('EditButtonsLocation');
+            return editButtonsConfig;
         };
 
         MashupBuilderConfigurationParser.prototype._convertRowDefinition = function _convertRowDefinition(configuration) {
@@ -3278,6 +3605,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/mashup-builder-configuration-pa
             styles.paginationSelectedStyle = this._styleResolver(configuration.getProperty('PaginationSelectedStyle', 'DefaultPaginationSelectedStyle'));
             styles.tooltipStyle = this._styleResolver(configuration.getProperty('TooltipStyle', 'DefaultTooltipStyle'));
             styles.toolbarStyle = this._styleResolver(configuration.getProperty('ToolbarStyle', 'DefaultToolbarStyle'));
+            styles.tableFooterStyle = this._styleResolver(configuration.getProperty('TableFooterStyle', 'DefaultGridAdvancedFooterStyle'));
             styles.sortAscendingStyle = this._styleResolver(configuration.getProperty('SortAscendingStyle', 'DefaultSortAscendingStyle'));
             styles.sortDescendingStyle = this._styleResolver(configuration.getProperty('SortDescendingStyle', 'DefaultSortDescendingStyle'));
             styles.rowIconStyle = this._styleResolver(configuration.getProperty('RowIconStyle', 'DefaultRowIconStyle'));
@@ -3310,36 +3638,20 @@ gaRequire.define('tw-grid-advanced/grid-advanced/mashup-builder-configuration-pa
                 var columnIndex = -1;
                 inputColumnDefs.formatInfo.forEach(function (inputColumnDef, index) {
                     var cellEditor = void 0;
-                    if (_this3._gridAdvancedConfiguration.cellEditingEnabled && inputColumnDef.AllowEdit) {
-                        var formatterType = void 0;
-                        var editorConfig = void 0;
-                        var rendererType = void 0;
-                        var validatorTypes = void 0;
-                        switch (inputColumnDef.FormatOptions.renderer) {
-                            case 'BOOLEAN':
-                                formatterType = 'boolean';
-                                rendererType = 'checkbox';
-                                validatorTypes = ['Empty', 'NonEmpty', 'ValidBoolean'];
-                                break;
-                            default:
-                                formatterType = 'default';
-                                rendererType = 'string';
-                                validatorTypes = ['Empty', 'NonEmpty', 'ValidAlphaNumeric'];
+                    var formatterType = inputColumnDef.FormatOptions.renderer.toLowerCase();
+                    var validatorType = inputColumnDef.Validator;
+                    var editorConfig = {
+                        enabled: inputColumnDef.AllowEdit,
+                        validator: {
+                            type: validatorType,
+                            liveValidation: false,
+                            successMessage: '',
+                            errorMessage: inputColumnDef.ValidationMessage,
+                            successStyle: 'DefaultGridAdvancedValidationSuccessStyle',
+                            errorStyle: 'DefaultGridAdvancedValidationErrorStyle'
                         }
-                        editorConfig = {
-                            enabled: inputColumnDef.AllowEdit,
-                            type: rendererType,
-                            validator: {
-                                types: validatorTypes,
-                                liveValidation: false,
-                                successMessage: '',
-                                errorMessage: inputColumnDef.ValidationMessage,
-                                successStyle: 'DefaultGridAdvancedValidationSuccessStyle',
-                                errorStyle: 'DefaultGridAdvancedValidationErrorStyle'
-                            }
-                        };
-                        cellEditor = _this3._createCellEditor(formatterType, editorConfig);
-                    }
+                    };
+                    cellEditor = _this3._createCellEditor(formatterType, editorConfig);
                     var roundingEnabled = inputColumnDef.FormatOptions.roundingEnabled !== undefined ? inputColumnDef.FormatOptions.roundingEnabled : true;
                     var params = {
                         textFormat: inputColumnDef.FormatOptions.formatText,
@@ -3376,6 +3688,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/mashup-builder-configuration-pa
                         }
                     }
                     columnDefinition.textAlignment = inputColumnDef.Align.toLowerCase();
+                    columnDefinition.headerFilter = inputColumnDef.HeaderFilter;
                     columnDefinition.headerTextAlignment = inputColumnDef.headerTextAlignment;
                     columnDefinitions.push(columnDefinition);
                 });
@@ -3384,7 +3697,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/mashup-builder-configuration-pa
         };
 
         MashupBuilderConfigurationParser.prototype._createCellEditor = function _createCellEditor(formatterType, config) {
-            var cellEditor = new _cellEditor.CellEditor(formatterType, false, undefined, undefined);
+            var cellEditor = new _cellEditor.CellEditor(formatterType, false, undefined);
             if (config) {
                 var validator = void 0;
                 if (config.validator) {
@@ -3415,7 +3728,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/mashup-builder-configuration-pa
                     }
                     validator = new _cellValidator.CellValidator(liveValidation, types, successMsg, errorMsg, successStyle, errorStyle);
                 }
-                cellEditor = new _cellEditor.CellEditor(formatterType, config.enabled, config.type, validator);
+                cellEditor = new _cellEditor.CellEditor(formatterType, config.enabled, validator);
             }
             return cellEditor;
         };
@@ -3783,16 +4096,14 @@ gaRequire.define('tw-grid-advanced/grid-advanced/row-definition',['exports'], fu
     }();
 
     var RowDefinition = exports.RowDefinition = function () {
-        function RowDefinition(stateFormatter, childRowDetails) {
+        function RowDefinition() {
             _classCallCheck(this, RowDefinition);
 
             this._selection = 'single';
-            this._defaultSelectedRows = '';
+            this._defaultSelectedRows = [];
             this._defaultSelectedRowExpanded = false;
             this._batchEditMode = 'selected';
-            this._stateFormatter = stateFormatter;
             this._childRowsEnabled = false;
-            this._childRowDetails = childRowDetails;
             this._minRowHeight = 30;
             this._autoScroll = false;
         }
@@ -4151,7 +4462,11 @@ gaRequire.define('tw-grid-advanced/grid-advanced/selection-handler',['exports', 
             if (selections.length > 0) {
                 this._triggerSelectionEvent = false;
                 selections.forEach(function (id) {
-                    _this._gridAdvanced.selectRowById(id, _this._selectionType === 'multi', false);
+                    var leafId = id;
+                    if (_this._cfg.includeRowExpansionParents) {
+                        leafId = _this._dhtmlxTableData.getLeafId(id);
+                    }
+                    _this._gridAdvanced.selectRowById(leafId, _this._selectionType === 'multi', false);
 
                     if (_this._isTreeGrid && _this._expandRowCallback) {
                         _this._expandRowCallback(id, true);
@@ -4236,8 +4551,21 @@ gaRequire.define('tw-grid-advanced/grid-advanced/selection-handler',['exports', 
                 selectionData = this.selectedRows.map(function (id) {
                     var combinedData = null;
                     var rowData = _this4._dhtmlxTableData.getRowById(id);
-                    if (rowData) {
-                        combinedData = _lodashAmd2.default.zipObject(_this4._dhtmlxTableData.allColumns, rowData.rawData);
+                    var idPath = id;
+                    var rawData = rowData ? rowData.rawData : undefined;
+                    if (_this4._cfg.includeRowExpansionParents) {
+                        idPath = _this4._dhtmlxTableData.createIdPath(id);
+                        var idIndex = _this4._dhtmlxTableData.findColumnIndex(_this4._cfg.idFieldName);
+                        if (rowData) {
+                            var clonedData = _lodashAmd2.default.clone(rowData);
+                            clonedData.rawData[idIndex] = idPath;
+                            if (clonedData.rawData) {
+                                rawData = clonedData.rawData;
+                            }
+                        }
+                    }
+                    if (rawData) {
+                        combinedData = _lodashAmd2.default.zipObject(_this4._dhtmlxTableData.allColumns, rawData);
                     }
                     return combinedData;
                 }).filter(function (row) {
@@ -4271,6 +4599,11 @@ gaRequire.define('tw-grid-advanced/grid-advanced/selection-handler',['exports', 
             key: 'dhtmlxTableData',
             set: function set(dhtmlxTableData) {
                 this._dhtmlxTableData = dhtmlxTableData;
+            }
+        }, {
+            key: 'configuration',
+            set: function set(cfg) {
+                this._cfg = cfg;
             }
         }, {
             key: 'selectedRows',
@@ -4380,6 +4713,12 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
         };
     }
 
+    var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+        return typeof obj;
+    } : function (obj) {
+        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+    };
+
     function _classCallCheck(instance, Constructor) {
         if (!(instance instanceof Constructor)) {
             throw new TypeError("Cannot call a class as a function");
@@ -4405,6 +4744,8 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
     }();
 
     var _dec, _dec2, _class;
+
+    var MIN_COLUMN_AUTO_WIDTH = 50;
 
     var TwGridAdvanced = exports.TwGridAdvanced = (_dec = (0, _registerEvent.RegisterEvent)('onRowDblClicked'), _dec2 = (0, _registerEvent.RegisterEvent)('onRowExpanded'), _dec(_class = _dec2(_class = function () {
         function TwGridAdvanced(gridId, rowSelectionCallBack) {
@@ -4439,8 +4780,11 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
             this._isTreeGrid = isTreeGrid;
             this._hiddenColumns = [];
             this._iconStyles = '';
-            this._splitIndex = -1;
+            this._editMode = false;
             this._l8nTokens = {
+                edit: 'Edit',
+                save: 'Save',
+                cancel: 'Cancel',
                 search: 'Search',
                 reset: 'Reset',
                 results: 'Results',
@@ -4458,17 +4802,23 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                 maxRowsWarning1: 'The maximum grid cache size of ',
                 maxRowsWarning2: ' rows has been reached.',
                 maxRowsWarning3: 'Please refresh your browser or close some nodes to free up memory.',
-                freeMemoryWarning: 'Please wait while we clear the row cache to free up memory, this may take a minute...',
-                splitGrid: 'Split Columns',
-                unSplitGrid: 'Unsplit Columns'
+                freeMemoryWarning: 'Please wait while we clear the row cache to free up memory, this may take a minute...'
             };
             this._searchValue = '';
+            this._cellClassNames = new Map();
+            this._cellClassMap = new Map();
+
+            this._gridEntBoxParentElement = (0, _jquery2.default)(this._gridAdvanced.entBox).parent();
+            this._gridEntBoxElement = (0, _jquery2.default)(this._gridAdvanced.entBox);
+            this._gridObjBoxElement = (0, _jquery2.default)(this._gridAdvanced.obj);
+            this._gridHdrBoxElement = (0, _jquery2.default)(this._gridAdvanced.hdrBox);
         }
 
         TwGridAdvanced.prototype._configureTable = function _configureTable() {
             if (this._cfg) {
                 try {
                     this._performanceMonitor.startTime('_configureTable');
+                    this._selectionHandler.configuration = this._cfg;
                     this._gridAdvanced.setImagePath(this._imagePath);
                     this._gridAdvanced.setHeader(this._dhtmlxTableData.headers, null, this._createHeaderStyles());
                     this._gridAdvanced.setColumnIds(this._dhtmlxTableData.columnIds);
@@ -4485,19 +4835,26 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                         });
                     }
                     this._configureLayout();
-                    this._gridAdvanced.enableColumnMove(true);
+                    this._gridAdvanced.enableColumnMove(true, this._dhtmlxTableData.createColumnMoveSettings(this._isTreeGrid));
                     this._gridAdvanced.enableColumnAutoSize(true);
                     this._createPaginationControls();
                     this._createSearchControls();
+                    this._createEditButtons();
                     this._createResetButton();
                     this._gridAdvanced.setInitWidths(this._createColumnWidths());
                     this._gridAdvanced.setColAlign(this._createColumnAlignments());
-                    this._gridAdvanced.setColTypes(this._dhtmlxTableData.createColumnTypes(this._isTreeGrid));
+                    this._gridAdvanced.setColTypes(this._dhtmlxTableData.createColumnTypes(this._isTreeGrid, this._cfg.cellEditingEnabled));
                     this._gridAdvanced.enableContextMenu(this._menu);
                     this._gridAdvanced.enableMultiline(true);
-                    this._enableTreeCellEdit(false);
+                    this._enableTreeCellEdit();
+                    this._createFooter();
                     this._columnSortHandler.setColumnSortDataTypes(this._dhtmlxTableData.columns);
+                    this._gridAdvanced.setEditable(this._editMode);
+                    this._gridAdvanced.enableEditEvents(true, this._editMode, true);
+                    this._gridAdvanced.enableMarkedCells(this._editMode);
+                    this._gridAdvanced.setDateFormat("%Y-%m-%d %H:%i:%s");
                     this._gridAdvanced.init();
+                    this._gridAdvanced.setRowTextStyle(this._createCellTextWrapStyle('clipped'));
                     this._gridAdvanced.kidsXmlFile = '-';
                     this._enableSmartRendering(1);
                     this._performanceMonitor.startTime('parse');
@@ -4507,17 +4864,13 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                     this._setupRowSelectionBindings();
                     this._columnSortHandler.setColumnSort();
                     this._expandLoadedRows();
-                    this._readColumnSettingPersistence();
-
+                    this._readUserGridSettings();
                     this._enableColumnSettingPersistence();
                     this._formatRowsInView();
-
                     this._generatePaginationAndSearchControls();
                     this._attachEvents();
                     this._toggleDefaultTooltips();
-                    this._resetTableSizing();
                     this._resizePaginationControls();
-                    this._adjustSpacing();
                     this._selectionHandler.refreshSelections(this._executeSelectedRowCallback);
                     this._selectedRows = this._selectionHandler.selectedRows;
                     this._setDefaultRowSelections();
@@ -4529,7 +4882,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                     }
 
 					if(this._cfg.enableTextFiltering && this._dhtmlxTableData.data.rows.length != 0) {
-                        
+
 						var globalFilterType = this._cfg.textFilteringType;
                         var filters = this._cfg._columnDefinitions.map(function (t) {
                             var result = " ";
@@ -4550,7 +4903,8 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                         for(var i = 0;i<this._cfg._columnDefinitions.length;i++) {
                             filtersOrdered[this._gridAdvanced.getColIndexById(this._cfg._columnDefinitions[i]._fieldName)] = filters[i];
                         }
-                        this._gridAdvanced.attachHeader(filtersOrdered.join(","));         
+                        this._gridAdvanced.attachHeader(filtersOrdered.join(","));
+                        /*
                         this._gridAdvanced.filterByAll = function() {
                             var d = [];
                             var c = [];
@@ -4591,37 +4945,37 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                             if (this._f_rowsBuffer && this.rowsBuffer.length == this._f_rowsBuffer.length) {
                                 this._f_rowsBuffer = null
                             }
-                        }              
+                        }*/
                         var gridInstance = this._gridAdvanced;
-						this._cfg._columnDefinitions.forEach(function(column, i) {	
-                            if(gridInstance.getFilterElement(i) && gridInstance.getFilterElement(i).tagName == "INPUT") {
-                                gridInstance.getFilterElement(i)._filter = function () {
-                                    var input = this.value; // gets the text of the filter input and we transform it into regex
-                                    var inputEscaped = input.replace(/[\-\[\]\/\{\}\(\)\+\?\.\\\^\$\|]/g, "\\$&"); // escape the regex text in the input other that start wildcard
-                                    var inputRegex = new RegExp("^" + this.value.replace(/\*/gi, "(.*)") + "(.*)", 'i');
-                                    var currentRow = i;
-                                    return function(value, id){
-                                        var textValue;
-                                        if(!value) {
-                                            textValue = "";
-                                        } else if(value.match("^<.*>$")) {
-                                            textValue = $(value).text();
-                                        } else {
-                                            textValue = value.toString();
-                                        }
-                                        // checks if the value of a cell has the text from the filter 
-                                        if (textValue.match(inputRegex)){ 
-                                            return true;
-                                        } else {
-                                            return false; 
-                                        }
-                                    }
-	    					    }
-                            }
-							
-						});
+						// this._cfg._columnDefinitions.forEach(function(column, i) {
+                        //     if(gridInstance.getFilterElement(i) && gridInstance.getFilterElement(i).tagName == "INPUT") {
+                        //         gridInstance.getFilterElement(i)._filter = function () {
+                        //             var input = this.value; // gets the text of the filter input and we transform it into regex
+                        //             var inputEscaped = input.replace(/[\-\[\]\/\{\}\(\)\+\?\.\\\^\$\|]/g, "\\$&"); // escape the regex text in the input other that start wildcard
+                        //             var inputRegex = new RegExp("^" + this.value.replace(/\*/gi, "(.*)") + "(.*)", 'i');
+                        //             var currentRow = i;
+                        //             return function(value, id){
+                        //                 var textValue;
+                        //                 if(!value) {
+                        //                     textValue = "";
+                        //                 } else if(value.match("^<.*>$")) {
+                        //                     textValue = $(value).text();
+                        //                 } else {
+                        //                     textValue = value.toString();
+                        //                 }
+                        //                 // checks if the value of a cell has the text from the filter 
+                        //                 if (textValue.match(inputRegex)){ 
+                        //                     return true;
+                        //                 } else {
+                        //                     return false; 
+                        //                 }
+                        //             }
+	    				// 	    }
+                        //     }
+
+						// });
                     }
-                    this._resetTableSizing();
+
                     this._performanceMonitor.endTime('_configureTable');
                 } catch (e) {
                     _logger.Logger.error('DHTMLX Grid loading error: ' + e.stack);
@@ -4659,6 +5013,13 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                     this._updateQueryData = value !== undefined;
                     this._updatedQueryFilter = value;
                     break;
+                case 'IsEditable':
+                    this.updateEditMode(value, value === true);
+                    break;
+                case 'FooterData':
+                    this._updateFooterData = true;
+                    this._updatedFooterData = value;
+                    break;
                 default:
                     break;
             }
@@ -4666,25 +5027,34 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
         };
 
         TwGridAdvanced.prototype.refresh = function refresh() {
+            var loadData = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
             this._performanceMonitor.startTime('refresh');
             this._currentPage = 1;
             if (this._updatedCfg) {
                 this._cfg = this._updatedCfg;
 
                 this._cfg.paginationSettings.enabled = this._mockMode ? this._cfg.paginationSettings.enabled : false;
+                this._editMode = this._cfg.cellEditingEnabled;
                 this._updatedCfg = undefined;
                 this._updateData = this._updatedData !== undefined;
-                this._updateStyles();
                 this._resetColumnSort();
                 if (this._enableFilterEventOnConfigChange) {
                     this._queryData();
                 }
             }
             if (this._cfg) {
-                if (this._updateData || this._updatedSplitIndex) {
-                    this._dhtmlxTableData = new _dhtmlxTableData.DhtmlxTableData(this._updatedData, this._cfg, this.localizationUtil);
+                if (this._updateData && !this._cfg.enableFooter || this._updatedData && this._cfg.enableFooter && this._updateFooterData) {
+                    if (this._updateData && loadData) {
+                        this._dhtmlxTableData = new _dhtmlxTableData.DhtmlxTableData(this._updatedData, this._cfg, this.localizationUtil);
+                    } else {
+                        this._dhtmlxTableData.resetFormatted();
+                    }
+
                     this._updateData = !this._updateData;
-                    this._updatedSplitIndex = this._updatedSplitIndex ? undefined : this._updatedSplitIndex;
+                    if (this._updateFooterData) {
+                        this._dhtmlxTableData.orderFooterData(this._updatedFooterData);
+                    }
 
                     this.destroy();
                     this._gridAdvanced = new dhtmlXGridObject(this._gridId);
@@ -4720,10 +5090,22 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                         this._updateQueryData = false;
                     }
                 }
+                this._updateStyles();
             }
             this._applyDefaultRowSelections = true;
             this._executeSelectedRowCallback = true;
             this._performanceMonitor.endTime('refresh');
+        };
+
+        TwGridAdvanced.prototype.updateEditMode = function updateEditMode(mode, reloadData) {
+            this._enableFilterEventOnConfigChange = false;
+            if (mode === false && this._dhtmlxTableData) {
+                this._dhtmlxTableData.clearEditedInfoTableRows();
+            }
+            this._cfg.cellEditingEnabled = mode;
+            this._updatedCfg = this._cfg;
+            this.refresh(reloadData);
+            this._enableFilterEventOnConfigChange = true;
         };
 
         TwGridAdvanced.prototype.destroy = function destroy() {
@@ -4744,6 +5126,10 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
             if (this._pagingToolbarElement) {
                 this._pagingToolbarElement.remove();
                 this._pagingToolbarElement = undefined;
+            }
+            if (this._editButtonsToolbarElement) {
+                this._editButtonsToolbarElement.remove();
+                this._editButtonsToolbarElement = undefined;
             }
             if (this._selectionHandler) {
                 this._selectionHandler.removeBindings();
@@ -4788,93 +5174,52 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
             this._menu = new dhtmlXMenuObject();
             this._menu.renderAsContextMenu();
             this._menu.setIconsPath(this._menuIconsPath);
-            if (this._initSplit) {
-                this._menu.loadStruct(this._structPath + '_context_unsplit.xml');
-            } else {
-                this._menu.loadStruct(this._structPath + '_context_split.xml');
-            }
         };
 
         TwGridAdvanced.prototype._enableTreeCellEdit = function _enableTreeCellEdit() {
-            var enabled = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
-            if (this._isTreeGrid) {
-                this._gridAdvanced.enableTreeCellEdit(enabled);
+            if (this._isTreeGrid && (this._cfg.cellEditingEnabled === true || this._cfg.editButtons && this._cfg.editButtons.enabled === true)) {
+                this._gridAdvanced.enableTreeCellEdit(this._dhtmlxTableData.treeColumnEditable);
             }
         };
 
         TwGridAdvanced.prototype._configureLayout = function _configureLayout() {
             this._gridAdvanced.enableRowsHover(true, 'grid_hover');
-            var entBox = (0, _jquery2.default)(this._gridAdvanced.entBox);
-            var parentContainer = entBox.closest('.widget-gridadvanced');
             if (this._responsiveLayout) {
                 this._gridAdvanced.enableAutoWidth(false);
                 this._gridAdvanced.enableAutoHeight(false);
-                this._updateGridContainer();
-                parentContainer.css('overflow', 'hidden');
+                this._gridEntBoxParentElement.css('overflow', 'hidden');
             } else {
-                var containerHeight = parentContainer.height();
-                var containerWidth = parentContainer.width();
-                entBox.css('height', containerHeight);
-                entBox.css('width', containerWidth);
-                entBox.find('.objbox').height(containerHeight);
+                var containerHeight = this._gridEntBoxParentElement.height();
+                var containerWidth = this._gridEntBoxParentElement.width();
+                this._gridEntBoxElement.css('height', containerHeight);
+                this._gridEntBoxElement.css('width', containerWidth);
+                this._gridObjBoxElement.height(containerHeight);
             }
         };
 
         TwGridAdvanced.prototype.resize = function resize() {
-            this._resetTableSizing();
-
-            if (this._splitIndex > 0) {
-                this._resizeSplitColumns();
-            } else {
-                this._updateGridContainer();
-            }
+            this._updateColumnConfigWidths();
             if (this._cfg && this._cfg.rowDefinition && this._cfg.rowDefinition.autoScroll) {
                 this._selectionHandler.autoScrollToLastSelected();
             }
+            this._updateStyles();
         };
 
-        TwGridAdvanced.prototype._updateGridContainer = function _updateGridContainer() {
-            var entBox = (0, _jquery2.default)(this._gridAdvanced.entBox);
-            var gridContainer = (0, _jquery2.default)('#' + this._gridId);
-            var containerWidth = this._getContainerWidth();
-            var containerHeight = this._getContainerHeight();
-            gridContainer.width(containerWidth);
-            gridContainer.height(containerHeight);
-            entBox.width(containerWidth);
-            entBox.height(containerHeight);
-            entBox.find('.objbox').width(containerWidth);
+        TwGridAdvanced.prototype._getGridBoxParentDimensions = function _getGridBoxParentDimensions() {
+            return {
+                height: this._gridEntBoxParentElement.height(),
+                width: this._gridEntBoxParentElement.width()
+            };
         };
 
-        TwGridAdvanced.prototype._getContainerHeight = function _getContainerHeight() {
-            return (0, _jquery2.default)(this._gridAdvanced.entBox).parent().height();
-        };
-
-        TwGridAdvanced.prototype._getContainerWidth = function _getContainerWidth() {
-            var width = 0;
-            if (this._splitIndex > 0) {
-                width = (0, _jquery2.default)(this._gridAdvanced.entBox).parent().parent().width();
-            } else {
-                width = (0, _jquery2.default)(this._gridAdvanced.entBox).parent().width();
-            }
-            return width;
-        };
-
-        TwGridAdvanced.prototype._getTableWidth = function _getTableWidth() {
-            var tableWidth = 0;
-            (0, _jquery2.default)(this._gridAdvanced.entBox).parent().find('.objbox').each(function (index, tableElem) {
-                tableWidth += (0, _jquery2.default)(tableElem).children('table').width();
-            });
-            return tableWidth;
+        TwGridAdvanced.prototype._getGridObjBoxElementHeight = function _getGridObjBoxElementHeight() {
+            return (0, _jquery2.default)(this._gridAdvanced.entBox).find('.objbox').height();
         };
 
         TwGridAdvanced.prototype._includeScrollOffset = function _includeScrollOffset() {
             var scrollBars = false;
-            var parentContainer = (0, _jquery2.default)(this._gridAdvanced.entBox);
-            var tableElement = (0, _jquery2.default)(this._gridAdvanced.objBox).children('table');
-            var headerElement = (0, _jquery2.default)(this._gridAdvanced.hdrBox).children('table');
-            if (parentContainer && tableElement && headerElement) {
-                scrollBars = tableElement.outerHeight() >= parseInt(parentContainer.height(), 10) - headerElement.height();
+            if (this._gridEntBoxElement && this._gridObjBoxElement && this._gridHdrBoxElement) {
+                scrollBars = this._gridObjBoxElement.outerHeight() >= parseInt(this._gridEntBoxElement.height, 10) - this._gridHdrBoxElement.height();
             }
             return scrollBars;
         };
@@ -4894,137 +5239,25 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
 
             (0, _jquery2.default)('#outerScrollElem').remove();
 
-            return outerDivWidth - innerDivWidth;
+            return outerDivWidth - innerDivWidth + 1;
         };
 
-        TwGridAdvanced.prototype._resizeColumns = function _resizeColumns(index, isHidden) {
+        TwGridAdvanced.prototype._resizeColumns = function _resizeColumns() {
             var _this = this;
 
             this._performanceMonitor.startTime('resizeColumns');
-            this._updateCurrentTableWidth();
-            var containerWidth = this._getContainerWidth();
-            var usedWidth = this._currentTableWidth > 0 ? this._currentTableWidth : this._getTableWidth();
-            var scrollOffset = this._includeScrollOffset();
-            var scrollWidth = this._getScrollWidth();
-            var availableWidth = containerWidth - usedWidth;
-            if (scrollOffset) {
-                availableWidth -= scrollWidth;
-            }
-            var originalAvailableWidth = availableWidth;
-            var columnId = this._gridAdvanced.getColumnId(index);
-            var totalPercentage = this._columnConfigs.reduce(function (percent, col) {
-                var colIndex = _this._gridAdvanced.getColIndexById(col.id);
-                var colWidth = _this._gridAdvanced.getColWidth(colIndex);
-                if (isNaN(colWidth)) {
-                    colWidth = (0, _jquery2.default)(_this._gridAdvanced.hdrBox).find('th').eq(colIndex).outerWidth();
-                }
-                if (colWidth > 0) {
-                    percent += col.width.indexOf('%') > -1 ? parseInt(col.width, 10) : 0;
-                }
-                return percent;
-            }, 0);
+            this._updateColumnConfigWidths();
             if (this._columnConfigs) {
-                (0, _jquery2.default)(this._gridAdvanced.objBox).css('overflow', 'hidden');
-                var adjustAutoCols = [];
-                this._columnConfigs.forEach(function (col) {
-                    if (columnId !== col.id || !isHidden) {
-                        var colIndex = _this._gridAdvanced.getColIndexById(col.id);
-                        var colWidth = _this._gridAdvanced.getColWidth(colIndex);
-                        if (isNaN(colWidth)) {
-                            colWidth = (0, _jquery2.default)(_this._gridAdvanced.hdrBox).find('th').eq(colIndex).outerWidth();
-                        }
-                        var isVisible = colWidth > 0;
-                        if (isVisible && _lodashAmd2.default.isNumber(colWidth)) {
-                            if (col.width.indexOf('%') > -1) {
-                                var adjustedWidth = 0;
-                                var percent = parseInt(col.width, 10);
-                                var widthFactor = percent / totalPercentage;
-                                adjustedWidth += originalAvailableWidth * widthFactor;
-                                var newWidth = adjustedWidth + colWidth;
-                                if (newWidth < 50) {
-                                    newWidth = 50;
-                                    adjustedWidth = newWidth - colWidth;
-                                }
-                                _this._gridAdvanced.setColWidth(colIndex, newWidth);
-                                availableWidth -= adjustedWidth;
-                            } else if (col.width === '*' && colIndex > _this._splitIndex) {
-                                adjustAutoCols.push(colIndex);
-                            }
-                        }
-                    }
-                });
-
-                this._updateAutoWidthColumns(adjustAutoCols, availableWidth);
+                this._gridObjBoxElement.css('overflow', 'hidden');
 
                 setTimeout(function (gridAdvanced) {
                     if (gridAdvanced) {
-                        (0, _jquery2.default)(gridAdvanced.objBox).css('overflow', 'auto');
+                        _this._gridObjBoxElement.css('overflow', 'auto');
                     }
                 }, 1, this._gridAdvanced);
             }
             (0, _jquery2.default)(this._gridAdvanced.entBox).children('.xhdr').css('height', 'auto');
-            this._adjustHorizontalOffset();
-            this._updateCurrentTableWidth();
-
             this._performanceMonitor.endTime('resizeColumns');
-        };
-
-        TwGridAdvanced.prototype._updateAutoWidthColumns = function _updateAutoWidthColumns(adjustCols, availableWidth) {
-            var _this2 = this;
-
-            var numCols = adjustCols.length;
-            var adjustWidth = availableWidth;
-            adjustCols.forEach(function (ind) {
-                var width = _this2._gridAdvanced.getColWidth(ind);
-                if (isNaN(width)) {
-                    width = (0, _jquery2.default)(_this2._gridAdvanced.cells2(0, ind).cell).outerWidth();
-                }
-                adjustWidth += width;
-            });
-            adjustCols.forEach(function (ind) {
-                var newColWidth = adjustWidth / numCols;
-                newColWidth = newColWidth > 50 ? newColWidth : 50;
-                _this2._gridAdvanced.setColWidth(ind, newColWidth + '');
-            });
-        };
-
-        TwGridAdvanced.prototype._updateCurrentTableWidth = function _updateCurrentTableWidth() {
-            this._currentTableWidth = 0;
-            for (var i = 0; i < this._gridAdvanced.getColumnsNum(); i++) {
-                if (!isNaN(this._gridAdvanced.getColWidth(i))) {
-                    this._currentTableWidth += this._gridAdvanced.getColWidth(i);
-                } else {
-                    this._currentTableWidth += (0, _jquery2.default)(this._gridAdvanced.hdrBox).find('th').eq(i).outerWidth();
-                }
-            }
-        };
-
-        TwGridAdvanced.prototype._updateSplitTableWidth = function _updateSplitTableWidth() {
-            if (this._splitIndex > -1) {
-                this._splitTableWidth = 0;
-                this._mainTableWidth = 0;
-                for (var i = 0; i < this._gridAdvanced.getColumnsNum(); i++) {
-                    if (i < this._splitIndex) {
-                        this._splitTableWidth += this._gridAdvanced.getColWidth(i);
-                    } else {
-                        this._mainTableWidth += this._gridAdvanced.getColWidth(i);
-                    }
-                }
-
-                var splitTables = (0, _jquery2.default)('#' + this._gridId).children('div');
-                if (splitTables.length === 2) {
-                    (0, _jquery2.default)(splitTables[0]).width(this._splitTableWidth);
-                    (0, _jquery2.default)(splitTables[0]).children('.objbox').width(this._splitTableWidth - 1);
-                    (0, _jquery2.default)(splitTables[1]).css('left', this._splitTableWidth);
-                }
-            }
-        };
-
-        TwGridAdvanced.prototype._adjustSpacing = function _adjustSpacing() {
-            if (this._splitIndex > -1) {
-                var splitTable = (0, _jquery2.default)('#' + this._gridId + ' [id^=cgrid2]');
-                splitTable.width(splitTable.width() - 1);
-            }
         };
 
         TwGridAdvanced.prototype._getColumnResizeList = function _getColumnResizeList() {
@@ -5040,46 +5273,21 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
             return columnResizeList;
         };
 
-        TwGridAdvanced.prototype._resizeSplitColumns = function _resizeSplitColumns() {
-            var containerWidth = this._getContainerWidth();
-            var containerHeight = this._getContainerHeight();
-            var splitLeftTable = (0, _jquery2.default)(this._gridAdvanced.entBox).parent().find('.objbox')[0];
-            var leftTableWidth = (0, _jquery2.default)(splitLeftTable).find('table').width();
-            var headerHeight = (0, _jquery2.default)(this._gridAdvanced.entBox).find('.xhdr').height();
-            var responsiveOffset = 0;
-            var leftTableOffset = containerWidth - leftTableWidth + responsiveOffset;
-            var headerOffset = containerHeight - headerHeight - responsiveOffset;
-            var idSelector = '#' + this._gridId;
-            var styleRules = '';
-            var heightStyle = '';
-            if (this._responsiveLayout) {
-                heightStyle = ' height: ' + headerOffset + 'px !important; ';
-            }
-            styleRules = idSelector + ' { width: ' + containerWidth + 'px !important; height}';
-            styleRules += idSelector + ' .split_left { left: 0px !important; width: ' + leftTableWidth + 'px !important; height: 100% !important; }';
-            styleRules += idSelector + ' .split_right { left: ' + (leftTableWidth + 1) + 'px !important; width: ' + leftTableOffset + 'px !important; height: 100% !important; }';
-            styleRules += idSelector + ' .split_left .objbox { width: ' + leftTableWidth + 'px !important; ' + heightStyle + '}';
-            styleRules += idSelector + ' .split_right .objbox { width: ' + leftTableOffset + 'px !important; ' + heightStyle + '}';
-
-            (0, _jquery2.default)(idSelector).children('style').remove();
-            var styleBlock = '<style>' + styleRules + '</style>';
-            (0, _jquery2.default)(idSelector).prepend(styleBlock);
-        };
-
         TwGridAdvanced.prototype._updateStyles = function _updateStyles() {
-            this._styleHandler = new _gridStyleHandler.GridStyleHandler(this._gridAdvanced, this._cfg, this._gridId);
-            this._styleHandler.updateStyles();
+            this._styleHandler = new _gridStyleHandler.GridStyleHandler(this._gridAdvanced, this._cfg, this._gridId, this._generateInitialWordWrap());
+            this._styleHandler.updateStyles(this._cellClassNames);
         };
 
         TwGridAdvanced.prototype._formatColumns = function _formatColumns(columns, gridRow) {
-            var _this3 = this;
+            var _this2 = this;
 
             if (this._cfg && this._cfg.columnDefinitions) {
                 this._cfg.columnDefinitions.forEach(function (columnDefinition, columnIndex) {
+                    var cellIndex = _this2._gridAdvanced.getColIndexById(columnDefinition.fieldName);
                     var styles = gridRow && gridRow.style ? gridRow.style : '';
-                    if (columnDefinition && columnDefinition.inLayout && columnDefinition.columnFormatter) {
+                    if (columnDefinition && columnDefinition.inLayout && columnDefinition.columnFormatter && _this2._styleHandler !== undefined) {
                         var stateDefinition = columnDefinition.columnFormatter.stateDefinition;
-                        var defaultRowStyle = gridRow.dataIndex % 2 === 0 ? _this3._styleHandler.styleMap.get('rowAlternateBackgroundStyle') : _this3._styleHandler.styleMap.get('rowBackgroundStyle');
+                        var defaultRowStyle = gridRow.dataIndex % 2 === 0 ? _this2._styleHandler.styleMap.get('rowAlternateBackgroundStyle') : _this2._styleHandler.styleMap.get('rowBackgroundStyle');
                         if (stateDefinition && stateDefinition.fieldName && stateDefinition.type !== 'fixed') {
                             var stateValueColumnIndex = _lodashAmd2.default.findIndex(columns, function (column) {
                                 return column === stateDefinition.fieldName;
@@ -5096,29 +5304,42 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                         }
                     }
                     if (columnDefinition && columnDefinition.inLayout) {
-                        styles += _this3._createCellTextWrapStyle(columnDefinition.overflow);
+                        styles += _this2._createCellTextWrapStyle(columnDefinition.overflow);
                     }
-                    if (columnDefinition.columnIndex > -1) {
-                        _this3._gridAdvanced.setCellTextStyle(gridRow.id, columnDefinition.columnIndex, styles);
+                    if (columnDefinition.columnIndex > -1 && cellIndex > -1) {
+                        var rowCell = _this2._gridAdvanced.cells(gridRow.id, cellIndex).cell;
+                        var cellCssClassName = void 0;
+                        if (_this2._cellClassNames.has(styles)) {
+                            cellCssClassName = _this2._cellClassNames.get(styles);
+                        } else if (styles) {
+                            cellCssClassName = 'cell_style' + _this2._cellClassNames.size;
+                            _this2._cellClassNames.set(styles, cellCssClassName);
+                        }
+                        if (cellCssClassName) {
+                            (0, _jquery2.default)(rowCell).addClass(cellCssClassName);
+                            if (_this2._mockMode) {
+                                _this2._cellClassMap.set(gridRow.id + ',' + cellIndex, cellCssClassName);
+                            }
+                        }
                     }
                 });
             }
         };
 
         TwGridAdvanced.prototype._createHeaderStyles = function _createHeaderStyles() {
-            var _this4 = this;
+            var _this3 = this;
 
             this._performanceMonitor.startTime('createHeaderStyles');
             var headerStyles = [];
             if (this._dhtmlxTableData.columns) {
                 this._dhtmlxTableData.columns.forEach(function (column) {
-                    if (_this4._cfg.headerDefinition) {
-                        var styles = _this4._createCellTextWrapStyle(_this4._cfg.headerDefinition.overflow);
-                        if (_this4._cfg.headerDefinition.alignHeader || _this4._cfg.columnDefinitions[0].headerTextAlignment) {
-                            var colAlign = _this4._getColumnAlignment(column);
+                    if (_this3._cfg.headerDefinition) {
+                        var styles = _this3._createCellTextWrapStyle(_this3._cfg.headerDefinition.overflow);
+                        if (_this3._cfg.headerDefinition.alignHeader || _this3._cfg.columnDefinitions[0].headerTextAlignment) {
+                            var colAlign = _this3._getColumnAlignment(column);
                             styles += 'text-align:' + (colAlign || 'left') + ';';
                         }
-                        styles += 'max-height:' + _this4._cfg.headerDefinition.maxHeight + 'px;overflow-y:auto;';
+                        styles += 'max-height:' + _this3._cfg.headerDefinition.maxHeight + 'px;overflow-y:auto;';
                         if (styles) {
                             headerStyles.push(styles);
                         }
@@ -5145,13 +5366,13 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
         };
 
         TwGridAdvanced.prototype._rowFormatterFormatRow = function _rowFormatterFormatRow(columns, gridRow) {
-            var _this5 = this;
+            var _this4 = this;
 
             if (this._cfg && this._cfg.rowFormatter) {
                 if (this._cfg.rowFormatter.stateDefinition && this._cfg.rowFormatter.stateDefinition.type !== 'fixed' && columns) {
                     columns.forEach(function (column, index) {
-                        if (column === _this5._cfg.rowFormatter.stateDefinition.fieldName) {
-                            _this5._cfg.rowFormatter.format(gridRow, gridRow.rawData[index]);
+                        if (column === _this4._cfg.rowFormatter.stateDefinition.fieldName) {
+                            _this4._cfg.rowFormatter.format(gridRow, gridRow.rawData[index]);
                             return;
                         }
                     });
@@ -5168,13 +5389,26 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                     var rowCell = this._gridAdvanced.cells(gridRow.id, 0).cell;
                     if (this._cfg.rowDefinition.minRowHeight > 0) {
                         (0, _jquery2.default)(rowCell).parent().height(this._cfg.rowDefinition.minRowHeight);
-                        if (this._splitIndex > -1) {
-                            var splitRowCell = this._gridAdvanced.cells(gridRow.id, this._splitIndex).cell;
-                            (0, _jquery2.default)(splitRowCell).parent().height(this._cfg.rowDefinition.minRowHeight);
-                        }
                     }
                 }
             }
+        };
+
+        TwGridAdvanced.prototype._generateInitialWordWrap = function _generateInitialWordWrap() {
+            var _this5 = this;
+
+            var wordWrap = this._createCellTextWrapStyle('clipped');
+            if (this._cfg && this._cfg.columnDefinitions) {
+                var wrap = void 0;
+                this._cfg.columnDefinitions.forEach(function (columnDefinition, columnIndex) {
+                    if (columnDefinition && columnDefinition.inLayout && columnDefinition.columnFormatter) {
+                        if (wrap === undefined && columnDefinition.overflow === 'wrapped') {
+                            wrap = wordWrap = _this5._createCellTextWrapStyle('wrapped');
+                        }
+                    }
+                });
+            }
+            return wordWrap;
         };
 
         TwGridAdvanced.prototype._createCellTextWrapStyle = function _createCellTextWrapStyle(overflow) {
@@ -5182,6 +5416,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
             switch (overflow) {
                 case 'fitted':
                     style += 'word-wrap:break-word;';
+                    style += 'white-space:normal;';
                     break;
                 case 'wrapped':
                     style += 'white-space:normal;';
@@ -5209,18 +5444,23 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
         TwGridAdvanced.prototype._convertRowDataValues = function _convertRowDataValues(keys, gridRow) {
             var _this6 = this;
 
-            gridRow.rawData.forEach(function (value, index) {
+            gridRow.rawData.forEach(function (rawValue, index) {
                 var columnDef = _this6._cfg.findColumnDefinition(keys[index]);
                 if (columnDef.inLayout) {
                     var columnIndex = _this6._gridAdvanced.getColIndexById(columnDef.fieldName);
                     var stateValueColumnIndex = _this6._findStateValueColumnIndex(keys, columnDef);
-                    var stateValue = stateValueColumnIndex > -1 ? gridRow.rawData[stateValueColumnIndex] : value;
-                    var renderedValue = columnDef.render(value, stateValue);
-                    if (renderedValue) {
-                        try {
-                            _this6._gridAdvanced.cells(gridRow.id, columnIndex).setValue(renderedValue);
-                        } catch(e) {
-                            _logger.Logger.warn('There was an error rendering a cell in the grid', e);
+                    var stateValue = stateValueColumnIndex > -1 ? gridRow.rawData[stateValueColumnIndex] : rawValue;
+
+                    var editMode = false;
+                    if (columnDef.isCheckboxFormatter()) {
+                        editMode = _this6._editMode && columnDef.columnFormatter.cellEditor.isEnabled;
+                    }
+                    var renderCell = columnDef.render(rawValue, stateValue, editMode);
+                    if (renderCell) {
+                        _this6._gridAdvanced.cells(gridRow.id, columnIndex).setValue(renderCell.value);
+                        if (columnDef.columnFormatter && columnDef.columnFormatter.valueConverter && columnDef.columnFormatter.valueConverter.type === 'boolean' && columnDef.columnFormatter.valueConverter.valueFormat !== 'checkbox') {
+                            var columnType = _this6._isTreeGrid && columnIndex === 0 ? 'tree' : renderCell.columnType;
+                            _this6._gridAdvanced.setCellExcellType(gridRow.id, columnIndex, columnType);
                         }
                     }
                 }
@@ -5321,9 +5561,6 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
         TwGridAdvanced.prototype._createColumnWidths = function _createColumnWidths() {
             var _this9 = this;
 
-            var widths = '';
-            var totalSetWidth = 0;
-            var availableWidth = (0, _jquery2.default)('#' + this._gridId).parent().width();
             this._columnConfigs = [];
             if (this._cfg && this._cfg.columnDefinitions) {
                 this._dhtmlxTableData.columns.forEach(function (column, index) {
@@ -5332,32 +5569,20 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                         var columnDef = _this9._cfg.findColumnDefinition(columnId);
                         if (columnDef) {
                             var width = columnDef.autoWidth ? '*' : columnDef.width;
-                            _this9._columnConfigs.push({ id: columnId, width: width });
-                            if (width.indexOf('%') > -1) {
-                                var adjustedWidth = '';
-                                var percent = parseInt(width.replace('%', ''), 10);
-                                var widthFactor = percent / 100;
-                                adjustedWidth += availableWidth * widthFactor;
-                                width = adjustedWidth;
-                            } else if (width !== '*') {
-                                width = parseInt(width.replace('px', ''), 10);
-                            }
-
-                            if (width !== '*') {
-                                width = width > 50 ? width : 50;
-                                totalSetWidth += width;
-                            }
-                            widths += widths.length === 0 ? width : ',' + width;
+                            _this9._columnConfigs.push({
+                                id: columnId,
+                                width: width,
+                                hidden: columnDef.hidden,
+                                index: index
+                            });
                         }
                     }
                 });
+                this._columnConfigs.forEach(function (columnConfig) {
+                    _logger.Logger.debug("createColumnWidths(): Initial column config: " + 'id: ' + columnConfig.id + ' index: ' + columnConfig.index + ' width: ' + columnConfig.width + ' hidden: ' + columnConfig.hidden);
+                });
             }
-
-            var unsetColumns = (widths.match(/\*/g) || []).length;
-            var adjustedAvgWidth = ((0, _jquery2.default)('#' + this._gridId).width() - totalSetWidth) / unsetColumns;
-            adjustedAvgWidth = adjustedAvgWidth > 50 ? adjustedAvgWidth : 50;
-            widths = widths.replace(/\*/g, adjustedAvgWidth);
-            return widths;
+            return this._updateColumnConfigWidths(true);
         };
 
         TwGridAdvanced.prototype._createColumnAlignments = function _createColumnAlignments() {
@@ -5392,46 +5617,32 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
             this._performanceMonitor.endTime('toggleDefaultTooltips');
         };
 
-        TwGridAdvanced.prototype._createColumnVisibility = function _createColumnVisibility() {
+        TwGridAdvanced.prototype._updateColumnVisibility = function _updateColumnVisibility() {
             var _this11 = this;
 
-            var visibility = '';
-            if (this._cfg && this._cfg.columnDefinitions) {
+            if (this._columnConfigs && this._userSettingHandler && this._userSettingHandler.hasUserSetting('gridSettings')) {
+                this._columnConfigs.forEach(function (col, index) {
+                    if (col.hidden !== undefined) {
+                        var _index = _this11._gridAdvanced.getColIndexById(col.id);
+                        _this11._gridAdvanced.setColumnHidden(_index, col.hidden);
+                    }
+                });
+            } else if (this._cfg && this._cfg.columnDefinitions) {
                 this._dhtmlxTableData.columns.forEach(function (column, index) {
                     var columnId = _this11._gridAdvanced.getColumnId(index);
                     if (columnId) {
                         var columnDef = _this11._cfg.findColumnDefinition(columnId);
                         if (columnDef) {
-                            visibility += visibility.length === 0 ? columnDef.hidden : ',' + columnDef.hidden;
+                            _this11._gridAdvanced.setColumnHidden(index, columnDef.hidden);
                         }
                     }
                 });
             }
-            return visibility;
-        };
-
-        TwGridAdvanced.prototype._getLastVisibleColumn = function _getLastVisibleColumn(columnIndex) {
-            var _this12 = this;
-
-            var visibility = '';
-            if (this._cfg && this._cfg.columnDefinitions) {
-                this._dhtmlxTableData.columns.forEach(function (column, index) {
-                    var columnId = _this12._gridAdvanced.getColumnId(index);
-                    if (columnId) {
-                        var hidden = !(columnIndex === index);
-                        visibility += visibility.length === 0 ? hidden : ',' + hidden;
-                    }
-                });
-            }
-            return visibility;
         };
 
         TwGridAdvanced.prototype._areAllColumnsHidden = function _areAllColumnsHidden() {
             var allColumnsHidden = true;
             var startIndex = 0;
-            if (this._splitIndex !== -1) {
-                startIndex = this._splitIndex;
-            }
             for (var i = startIndex; i < this._gridAdvanced.getColumnCount(); i++) {
                 if (!this._gridAdvanced.isColumnHidden(i)) {
                     allColumnsHidden = false;
@@ -5461,6 +5672,26 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
             return count;
         };
 
+        TwGridAdvanced.prototype._createFooter = function _createFooter() {
+            var _this12 = this;
+
+            if (this._cfg.enableFooter === true) {
+                this._dhtmlxTableData.footers.forEach(function (footer) {
+                    _this12._gridAdvanced.attachFooter(footer.settings, footer.alignments);
+                });
+            }
+        };
+
+        TwGridAdvanced.prototype._removeFooter = function _removeFooter() {
+            var _this13 = this;
+
+            if (this._cfg.enableFooter === true) {
+                this._dhtmlxTableData.footers.forEach(function (footer, index) {
+                    _this13._gridAdvanced.detachFooter(index);
+                });
+            }
+        };
+
         TwGridAdvanced.prototype._createSearchControls = function _createSearchControls() {
             var vertAlign = this._cfg.searchSettings.location,
                 align = this._cfg.searchSettings.alignment;
@@ -5481,29 +5712,131 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
             }
         };
 
+        TwGridAdvanced.prototype._createEditButtons = function _createEditButtons() {
+            var _this14 = this;
+
+            if (this._cfg.editButtons && this._cfg.editButtons.enabled) {
+                var _cfg$editButtons$loca = this._cfg.editButtons.location.split('-'),
+                    vertAlign = _cfg$editButtons$loca[0],
+                    align = _cfg$editButtons$loca[1];
+
+                var editButtonsToolbarId = this._gridId + '-editButtons-container';
+                if (!this._editButtonsToolbarElement) {
+                    this._editButtonsToolbarElement = (0, _jquery2.default)('<div style="display:inline-block;float:' + align + ';" id="' + editButtonsToolbarId + '"></div>');
+                    if (align === 'right') {
+                        (0, _jquery2.default)('#' + this._gridId + '-' + vertAlign + '-container').prepend(this._editButtonsToolbarElement);
+                    } else {
+                        (0, _jquery2.default)('#' + this._gridId + '-' + vertAlign + '-container').append(this._editButtonsToolbarElement);
+                    }
+                }
+
+                var toolbar = new dhtmlXToolbarObject(editButtonsToolbarId);
+                var buttonIndex = 0;
+                if (this._enableReset) {
+                    var _resetLocation$split = this._resetLocation.split('-'),
+                        rVertAlign = _resetLocation$split[0],
+                        rAlign = _resetLocation$split[1];
+
+                    if (rVertAlign === vertAlign && rAlign === align) {
+                        toolbar.addSeparator('editSeparator', buttonIndex++);
+                    }
+                }
+                if (this._cfg.searchSettings.enabled && buttonIndex === 0) {
+                    var sVertAlign = this._cfg.searchSettings.location;
+                    var sAlign = this._cfg.searchSettings.alignment;
+                    if (sVertAlign === vertAlign && sAlign === align) {
+                        toolbar.addSeparator('editSeparator', buttonIndex++);
+                    }
+                }
+                toolbar.addButton('editBtn', 1, this._l8nTokens.edit);
+                toolbar.addButton('saveBtn', 2, this._l8nTokens.save);
+                toolbar.addButton('cancelBtn', 3, this._l8nTokens.cancel);
+                toolbar.attachEvent('onClick', function (id) {
+                    if (id === 'editBtn') {
+                        _this14.updateEditMode(true, true);
+                        _this14._gridEditCallback(0);
+                        _this14._displayEditButtons(toolbar, id);
+                    } else if (id === 'saveBtn') {
+                        var rows = _this14._dhtmlxTableData.updateEditedInfoTableRows();
+                        if (rows.length > 0) {
+                            _this14._gridEditCallback(1);
+                            _this14._dhtmlxTableData.clearEditedInfoTableRows();
+                        }
+                        _this14.updateEditMode(false, false);
+                        _this14._displayEditButtons(toolbar, id);
+                    } else if (id === 'cancelBtn') {
+                        _this14.updateEditMode(false, true);
+                        _this14._dhtmlxTableData.clearEditedInfoTableRows();
+                        _this14._gridEditCallback(2);
+                        _this14._displayEditButtons(toolbar, id);
+                    }
+                });
+                this._displayEditButtons(toolbar, this._editMode === true ? 'editBtn' : 'saveBtn');
+                toolbar.setAlign(align);
+            }
+        };
+
+        TwGridAdvanced.prototype._displayEditButtons = function _displayEditButtons(toolbar, id) {
+            if (id === 'editBtn') {
+                toolbar.hideItem('editBtn');
+                toolbar.showItem('saveBtn');
+                toolbar.showItem('cancelBtn');
+            } else if (id === 'saveBtn') {
+                toolbar.showItem('editBtn');
+                toolbar.hideItem('saveBtn');
+                toolbar.hideItem('cancelBtn');
+            } else if (id === 'cancelBtn') {
+                toolbar.showItem('editBtn');
+                toolbar.hideItem('saveBtn');
+                toolbar.hideItem('cancelBtn');
+            }
+        };
+
         TwGridAdvanced.prototype._createResetButton = function _createResetButton() {
-            var _this13 = this;
+            var _this15 = this;
 
             if (this._cfg.resetButton) {
                 this._enableReset = this._cfg.resetButton.enabled;
                 this._resetLocation = this._cfg.resetButton.location;
             }
 
-            var _resetLocation$split = this._resetLocation.split('-'),
-                vertAlign = _resetLocation$split[0],
-                align = _resetLocation$split[1];
+            var _resetLocation$split2 = this._resetLocation.split('-'),
+                vertAlign = _resetLocation$split2[0],
+                align = _resetLocation$split2[1];
 
             if (this._enableReset) {
                 var resetToolbarId = this._gridId + '-reset-container';
                 if (!this._resetToolbarElement) {
                     this._resetToolbarElement = (0, _jquery2.default)('<div style="display:inline-block;float:' + align + ';" id="' + resetToolbarId + '"></div>');
-                    (0, _jquery2.default)('#' + this._gridId + '-' + vertAlign + '-container').prepend(this._resetToolbarElement);
+                    if (align === 'right') {
+                        (0, _jquery2.default)('#' + this._gridId + '-' + vertAlign + '-container').prepend(this._resetToolbarElement);
+                    } else {
+                        (0, _jquery2.default)('#' + this._gridId + '-' + vertAlign + '-container').append(this._resetToolbarElement);
+                    }
                 }
 
                 var toolbar = new dhtmlXToolbarObject(resetToolbarId);
-                toolbar.addButton('resetBtn', 0, this._l8nTokens.reset);
+                var buttonIndex = 0;
+                if (this._cfg.editButtons && this._cfg.editButtons.enabled) {
+                    var _cfg$editButtons$loca2 = this._cfg.editButtons.location.split('-'),
+                        eVertAlign = _cfg$editButtons$loca2[0],
+                        eAlign = _cfg$editButtons$loca2[1];
+
+                    if (eVertAlign === vertAlign && eAlign === align) {
+                        toolbar.addSeparator('editSeparator', buttonIndex++);
+                    }
+                }
+                if (this._cfg.searchSettings.enabled && buttonIndex === 0) {
+                    var sVertAlign = this._cfg.searchSettings.location;
+                    var sAlign = this._cfg.searchSettings.alignment;
+                    if (sVertAlign === vertAlign && sAlign === align) {
+                        toolbar.addSeparator('editSeparator', buttonIndex++);
+                    }
+                }
+
+                toolbar.addButton('resetBtn', buttonIndex, this._l8nTokens.reset);
                 toolbar.attachEvent('onClick', function (id) {
-                    _this13._resetGrid(true);
+                    _this15._resetGrid(true);
                 });
                 toolbar.setAlign(align);
             }
@@ -5512,12 +5845,9 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
         TwGridAdvanced.prototype._resetGrid = function _resetGrid(refresh) {
             if (this._userSettingHandler && this._userSettingHandler.cookiePersistenceEnabled) {
                 this._userSettingHandler.resetUserSetting('gridSettings');
-                this._userSettingHandler.resetUserSetting('splitGridColumn');
                 this._userSettingHandler.resetUserSetting('sortGridColumns');
                 this._userSettingHandler.resetUserSetting('gridOpen');
             }
-            this._splitIndex = this._cfg.splitColumnIndex;
-            this._updatedSplitIndex = true;
             this._updatedCfg = this._cfg;
             var searchElem = (0, _jquery2.default)('#' + this._gridId + '-search-container .dhxtoolbar_input');
             searchElem.val('');
@@ -5576,7 +5906,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
         };
 
         TwGridAdvanced.prototype._generatePaginationAndSearchControls = function _generatePaginationAndSearchControls() {
-            var _this14 = this;
+            var _this16 = this;
 
             this._performanceMonitor.startTime('generatePaginationControls');
             if (this._cfg.paginationSettings) {
@@ -5593,13 +5923,13 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                         pagingToolBar.attachEvent('onClick', function (id) {
                             if (id.indexOf('pageBtn') > -1) {
                                 var pageNum = id.substring(7, id.length);
-                                _this14._gridAdvanced.changePage(pageNum);
+                                _this16._gridAdvanced.changePage(pageNum);
                             } else if (id.indexOf('perpagenum') > -1) {
                                 var pageSize = id.substring(11, id.length);
-                                _this14._gridAdvanced.changePage(1);
-                                _this14._cfg.paginationSettings.pageLength = pageSize;
-                                _this14._deletePageButtons(pagingToolBar);
-                                _this14._createPageButtons(pagingToolBar, 1);
+                                _this16._gridAdvanced.changePage(1);
+                                _this16._cfg.paginationSettings.pageLength = pageSize;
+                                _this16._deletePageButtons(pagingToolBar);
+                                _this16._createPageButtons(pagingToolBar, 1);
                             }
                         });
                     }
@@ -5683,7 +6013,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
         };
 
         TwGridAdvanced.prototype._updatePaginationToolbar = function _updatePaginationToolbar(currentToolbarWidth, arrowButtonWidth, totalRowsWidth, pageTextWidth, resultsWidth, pageButtonWidth, rowsPerPageWidth) {
-            var _this15 = this;
+            var _this17 = this;
 
             var pagingSetting = this._cfg.paginationSettings.pagingType;
             var minToolbarWidth = arrowButtonWidth * 4;
@@ -5694,31 +6024,31 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
             this._gridAdvanced.aToolBar.forEachItem(function (itemId) {
                 if (currentToolbarWidth < simpleNumbersMinWidth && (pagingSetting === 'full' || pagingSetting === 'full_numbers' || pagingSetting === 'simple_numbers')) {
                     if (itemId === 'results' || itemId.indexOf('pageBtn') > -1 || itemId === 'pagesText' || itemId === 'perpagenum' || itemId === 'totalRows') {
-                        _this15._gridAdvanced.aToolBar.hideItem(itemId);
+                        _this17._gridAdvanced.aToolBar.hideItem(itemId);
                     }
                 }
                 if (currentToolbarWidth >= simpleNumbersMinWidth && currentToolbarWidth < fullNumbersMinWidth && (pagingSetting === 'full' || pagingSetting === 'full_numbers' || pagingSetting === 'simple_numbers')) {
                     if (itemId.indexOf('pageBtn') > -1 || itemId === 'perpagenum' || itemId === 'pagesText') {
-                        _this15._gridAdvanced.aToolBar.hideItem(itemId);
+                        _this17._gridAdvanced.aToolBar.hideItem(itemId);
                     } else if (itemId === 'results' || itemId === 'totalRows') {
-                        _this15._gridAdvanced.aToolBar.showItem(itemId);
+                        _this17._gridAdvanced.aToolBar.showItem(itemId);
                     }
                 }
                 if (currentToolbarWidth >= fullNumbersMinWidth && currentToolbarWidth < fullMinWidth && (pagingSetting === 'full' || pagingSetting === 'full_numbers')) {
                     if (itemId === 'perpagenum') {
-                        _this15._gridAdvanced.aToolBar.hideItem(itemId);
+                        _this17._gridAdvanced.aToolBar.hideItem(itemId);
                     } else if (itemId === 'pagesText' || itemId.indexOf('pageBtn') > -1) {
-                        _this15._gridAdvanced.aToolBar.showItem(itemId);
+                        _this17._gridAdvanced.aToolBar.showItem(itemId);
                     }
                 } else if (currentToolbarWidth >= fullMinWidth) {
                     if (pagingSetting === 'simple_numbers' && (itemId === 'results' || itemId === 'totalRows')) {
-                        _this15._gridAdvanced.aToolBar.showItem(itemId);
+                        _this17._gridAdvanced.aToolBar.showItem(itemId);
                     }
                     if ((pagingSetting === 'full_numbers' || pagingSetting === 'full') && (itemId.indexOf('pageBtn') > -1 || itemId === 'pagesText')) {
-                        _this15._gridAdvanced.aToolBar.showItem(itemId);
+                        _this17._gridAdvanced.aToolBar.showItem(itemId);
                     }
                     if (pagingSetting === 'full' && itemId === 'perpagenum') {
-                        _this15._gridAdvanced.aToolBar.showItem(itemId);
+                        _this17._gridAdvanced.aToolBar.showItem(itemId);
                     }
                 }
             });
@@ -5735,11 +6065,8 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
             var bottomRowIndex = 0;
 
             if (this._userSettingHandler) {
-                saveGridUserSettings = this._userSettingHandler.readSetting('gridSettings');
                 saveSortColumnUserSettings = this._userSettingHandler.readSetting('sortGridColumns');
             }
-
-            this._orderColumns();
 
             if (!isScrolling) {
                 this._columnSortHandler.setColumnSort(saveSortColumnUserSettings);
@@ -5751,7 +6078,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                 bottomRowIndex = topRowIndex + this._cfg.paginationSettings.pageLength;
             } else {
                 var state = this._gridAdvanced.getStateOfView();
-                var visibleHeight = (0, _jquery2.default)(this._gridAdvanced.entBox).parent().find('.objbox').height();
+                var visibleHeight = this._getGridObjBoxElementHeight();
                 var visibleRowCount = parseInt(visibleHeight / this._cfg.rowDefinition.minRowHeight, 10);
                 topRowIndex = state[0] - 100 < 0 ? 0 : state[0] - 100;
 
@@ -5760,7 +6087,6 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
             }
             this._formatRowRange(topRowIndex, bottomRowIndex);
             this._columnSortHandler.removeColumnSortStyles();
-            this._orderColumns(saveGridUserSettings);
             this._columnSortHandler.addColumnSortStyles();
             if (this._isTreeGrid) {
                 (0, _jquery2.default)('.objbox .treegrid_cell').css({ 'white-space': '', overflow: '', 'line-height': '', height: '' });
@@ -5792,28 +6118,15 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                 this._convertRowDataValues(this._dhtmlxTableData.allColumns, gridRow);
                 gridRow.isFormatted = true;
             }
-
-            if (this._splitIndex > -1 && this._splitIndex < this._dhtmlxTableData.columnIds.split(',').length) {
-                var gridCell = this._gridAdvanced.cells(gridRow.id, this._splitIndex).cell;
-                var splitCell = this._gridAdvanced.cells(gridRow.id, 0).cell;
-                var rowHeight = (0, _jquery2.default)(gridCell).parent().height();
-                var splitRowHeight = (0, _jquery2.default)(splitCell).parent().height();
-                if (rowHeight !== splitRowHeight) {
-                    rowHeight = rowHeight > splitRowHeight ? rowHeight : splitRowHeight;
-                    rowHeight = Math.round(rowHeight) + 2;
-                    (0, _jquery2.default)(splitCell).parent().height(rowHeight);
-                    (0, _jquery2.default)(gridCell).parent().height(rowHeight);
-                }
-            }
         };
 
         TwGridAdvanced.prototype._createChildGridHandler = function _createChildGridHandler() {
-            var _this16 = this;
+            var _this18 = this;
 
             return new _childGridHandler.ChildGridHandler(this._gridId, this._gridAdvanced, this._dhtmlxTableData, this._childDataServiceInvoker, this.childDataServiceParameters(), this._cfg, function () {
-                _this16._resizeColumns(-1);
-                _this16._formatRowsInView();
-                _this16._selectionHandler.refreshSelections();
+                _this18._resizeColumns();
+                _this18._formatRowsInView();
+                _this18._selectionHandler.refreshSelections();
             });
         };
 
@@ -5842,136 +6155,75 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
             this._performanceMonitor.endTime('setupRowSelectionBindings');
         };
 
-        TwGridAdvanced.prototype._splitColumns = function _splitColumns() {
-            var _this17 = this;
-
-            if (!this._splitEnabled) {
-                return;
-            }
-            this._performanceMonitor.startTime('splitColumns');
-            var initHeight = (0, _jquery2.default)(this._gridAdvanced.entBox).children('.objbox').height();
-            var splitIndexConfig = -1;
-            if (this._userSettingHandler) {
-                splitIndexConfig = this._userSettingHandler.readSetting('splitGridColumn');
-            }
-            if (!this._splitIndex) {
-                if (this._cfg && this._cfg.splitColumnIndex && this._cfg.splitColumnIndex < this._dhtmlxTableData.columns.length) {
-                    this._splitIndex = this._cfg.splitColumnIndex;
-                } else {
-                    this._splitIndex = -1;
-                }
-            }
-
-            if (splitIndexConfig > 0) {
-                this._splitIndex = splitIndexConfig;
-            }
-
-            if (this._splitIndex >= 0) {
-                this._gridAdvanced.splitAt(this._splitIndex);
-                this._hiddenColumns.forEach(function (col, index) {
-                    _this17._gridAdvanced.setColumnHidden(col, true);
-                });
-                if (this._userSettingHandler && this._userSettingHandler.readSetting('gridSettings')) {
-                    var colWidths = this._userSettingHandler.readSetting('gridSettings').columnWidths;
-                    colWidths.forEach(function (index, width) {
-                        if (isNaN(width)) {
-                            width = 0;
-                        }
-                        _this17._gridAdvanced.setColWidth(index, width);
-                    });
-                }
-                this._resizeSplitColumns();
-                this._gridAdvanced.setColWidth(0, this._gridAdvanced.getColWidth(0));
-                (0, _jquery2.default)(this._gridAdvanced.entBox).parent().find('.objbox').height(initHeight);
-                var splitContainers = (0, _jquery2.default)(this._gridAdvanced.entBox).parent().find('.objbox');
-                (0, _jquery2.default)(splitContainers[0]).parent().addClass('split_left');
-                (0, _jquery2.default)(splitContainers[1]).parent().addClass('split_right');
-            }
-            (0, _jquery2.default)(this._gridAdvanced.entBox).parent().find('.xhdr th').parent().css('cssText', 'height: 0px !important');
-            (0, _jquery2.default)(this._gridAdvanced.entBox).parent().find('.xhdr').css('cssText', 'height: auto !important');
-
-            if (this._splitIndex > -1) {
-                var idSelector = '#' + this._gridId;
-                var styleBlock = '<style>' + idSelector + ' .objbox { overflow-x: scroll !important; }</style>';
-                (0, _jquery2.default)(idSelector).parent().prepend(styleBlock);
-            }
-            this._performanceMonitor.endTime('splitColumns');
-        };
-
         TwGridAdvanced.prototype._attachEvents = function _attachEvents() {
-            var _this18 = this;
+            var _this19 = this;
 
             this._gridAdvanced.attachEvent('onDynXLS', function (rowId) {
-                _this18.expandOrCollapseRow(rowId);
+                _this19.expandOrCollapseRow(rowId);
             });
 
             this._gridAdvanced.attachEvent('onOpenEnd', function (rowId, state) {
-                var gridRow = _this18._dhtmlxTableData.getRowById(rowId);
+                var gridRow = _this19._dhtmlxTableData.getRowById(rowId);
                 if (state === 1) {
-                    var clearCache = _this18._dhtmlxTableData.hasRowExpired(rowId, _this18._gridAdvanced.getRowsNum());
+                    var clearCache = _this19._dhtmlxTableData.hasRowExpired(rowId, _this19._gridAdvanced.getRowsNum());
                     if (clearCache) {
-                        _this18._createChildGridHandler()._deleteChildItems(rowId);
-                        _this18._gridAdvanced.openItem(rowId);
+                        _this19._createChildGridHandler()._deleteChildItems(rowId);
+                        _this19._gridAdvanced.openItem(rowId);
                         return;
                     }
                     gridRow.isExpanded = true;
 
-                    _this18._formatRowsInView();
+                    _this19._formatRowsInView();
                 } else {
-                    var childGridHandler = _this18._createChildGridHandler();
-                    _this18._showClearingCacheMessage(gridRow.rows.length);
+                    var childGridHandler = _this19._createChildGridHandler();
+                    _this19._showClearingCacheMessage(gridRow.rows.length);
                     childGridHandler.collapseChildGrid(rowId);
-                    _this18._maxRowCacheExceededMsgShown = false;
+                    _this19._maxRowCacheExceededMsgShown = false;
                 }
-                _this18._resizeColumns(-1);
-                _this18._saveRowExpansionState();
+                _this19._resizeColumns();
+                _this19._saveRowExpansionState();
             });
 
             this._gridAdvanced.attachEvent('onColumnHidden', function (index, state) {
-                var allColumnsHidden = _this18._areAllColumnsHidden();
-                if (_this18._splitIndex === -1) {
-                    if (allColumnsHidden) {
-                        _this18._gridAdvanced.setColumnHidden(index, false);
-                    }
-                    _this18._resizeColumns(index, state);
-                    _this18._storeUserGridSettings();
-                    _this18._saveColumnWidthToCookie();
-                } else if (allColumnsHidden || index < _this18._splitIndex) {
-                    _this18._gridAdvanced.setColumnHidden(index, false);
-                } else {
-                    (0, _jquery2.default)('.dhtmlxMenu_material_SubLevelArea_Polygon').remove();
-                    _this18._updatedSplitIndex = true;
-                    _this18.refresh();
+                var allColumnsHidden = _this19._areAllColumnsHidden();
+                if (allColumnsHidden) {
+                    _this19._gridAdvanced.setColumnHidden(index, false);
                 }
+                var i = _this19._gridAdvanced.getColumnId(index);
+                var cIndex = _lodashAmd2.default.findIndex(_this19._columnConfigs, function (columnConfig) {
+                    return columnConfig.id === i;
+                });
+                _this19._columnConfigs[cIndex].hidden = state;
+
+                _this19._resizeColumns();
+                _this19._storeUserGridSettings();
             });
             this._gridAdvanced.attachEvent('onPageChanged', function (pageNum) {
-                _this18._updatePaginationButtons(pageNum);
-                _this18._currentPage = pageNum;
+                _this19._updatePaginationButtons(pageNum);
+                _this19._currentPage = pageNum;
                 (0, _jquery2.default)('.dhx_toolbar_btn').attr('pageinfo', '');
                 (0, _jquery2.default)('.dhx_toolbar_btn .dhxtoolbar_text').each(function (index, item) {
-                    if (parseInt((0, _jquery2.default)(item).text(), 10) === _this18._currentPage) {
+                    if (parseInt((0, _jquery2.default)(item).text(), 10) === _this19._currentPage) {
                         (0, _jquery2.default)(item).parent().attr('pageinfo', 'selected');
                     }
                 });
-                _this18._formatRowsInView();
+                _this19._formatRowsInView();
             });
 
             this._gridAdvanced.attachEvent('onResizeEnd', function () {
-                _this18._saveColumnWidthToCookie();
-                _this18._storeUserGridSettings();
+                _this19._storeUserGridSettings();
+            });
+
+            this._gridAdvanced.attachEvent('onCheck', function (rowId, cellIndex, state) {
+                _this19._handleCheckBoxChanged(rowId, cellIndex, state);
             });
 
             this._gridAdvanced.attachEvent('onBeforeSorting', function (index, type, direction) {
-                if (_this18._cfg.enableColumnSorting) {
-                    if(!_this18._cfg.clientSideSorting) {
-                        _this18._columnSortHandler.handleColumnSortEvent(index, type, direction);
-                        _this18._queryData();
-                    }
-                    _this18._applyDefaultRowSelections = false;
-                    _this18._executeSelectedRowCallback = false;
-                    if(_this18._cfg.clientSideSorting) {
-                        return true;
-                    }  
+                if (_this19._cfg.enableColumnSorting) {
+                    _this19._columnSortHandler.handleColumnSortEvent(index, type, direction);
+                    _this19._queryData();
+                    _this19._applyDefaultRowSelections = false;
+                    _this19._executeSelectedRowCallback = false;
                 }
                 return false;
             });
@@ -5981,34 +6233,34 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
             }
 
             if (this._cfg && this._cfg._headerDefinition && this._cfg._headerDefinition.overflow === 'tooltip') {
-                (0, _jquery2.default)(this._gridAdvanced.entBox).find('.xhdr td').each(function (index, element) {
-                    var id = _this18._gridAdvanced.getColumnId(index);
+                this._gridEntBoxElement.find('.xhdr td').each(function (index, element) {
+                    var id = _this19._gridAdvanced.getColumnId(index);
                     (0, _jquery2.default)(element).on('mouseenter', null, id, function (event) {
-                        var columnDef = _this18._cfg.findColumnDefinition(event.data);
-                        var objBox = (0, _jquery2.default)(_this18._gridAdvanced.entBox).find('.objbox');
+                        var columnDef = _this19._cfg.findColumnDefinition(event.data);
+                        var objBox = (0, _jquery2.default)(_this19._gridAdvanced.entBox).find('.objbox');
                         var tooltipCfg = {
                             gridBoxScrollLeft: objBox.scrollLeft(),
                             gridBoxOffset: objBox.offset().left,
                             gridBoxOffsetTop: objBox.offset().top,
                             gridBoxHeight: objBox.height(),
                             gridBoxWidth: objBox.width(),
-                            textAlignment: columnDef.headerTextAlignment,
+                            textAlignment: columnDef ? columnDef.headerTextAlignment : 'left',
                             minRowHeight: 30,
-                            scrollWidth: _this18._includeScrollOffset() ? _this18._getScrollWidth() : 0
+                            scrollWidth: _this19._includeScrollOffset() ? _this19._getScrollWidth() : 0
                         };
-                        _this18._tooltip.setTooltip(columnDef.title, (0, _jquery2.default)(event.currentTarget), _this18._gridId, tooltipCfg);
+                        _this19._tooltip.setTooltip(columnDef.title, (0, _jquery2.default)(event.currentTarget), _this19._gridId, tooltipCfg);
                     });
                 });
             }
 
             (0, _jquery2.default)('#' + this._gridId + ' .xhdr').mousedown(function (event) {
                 if (event.which === 3) {
-                    var styleBlockId = _this18._gridId + '_context_style';
+                    var styleBlockId = _this19._gridId + '_context_style';
                     (0, _jquery2.default)('.twx_grid_advanced_context_style').remove();
-                    var idSelector = '#' + _this18._gridId;
+                    var idSelector = '#' + _this19._gridId;
                     var availableHeight = (0, _jquery2.default)(window).height() - event.pageY;
                     var styleRules = '.dhtmlxMenu_material_SubLevelArea_Polygon { height: ' + availableHeight + 'px } ';
-                    _this18.contextMenuFocus = true;
+                    _this19.contextMenuFocus = true;
                     setTimeout(function () {
                         var contextMenuContainer = (0, _jquery2.default)('.dhtmlxMenu_material_SubLevelArea_Polygon:visible');
                         var contextMenuId = contextMenuContainer.attr('id');
@@ -6020,32 +6272,30 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                             (0, _jquery2.default)(idSelector).prepend(styleBlock);
                         }
                         contextMenuContainer.mouseleave(function (event) {
-                            _this18.contextMenuFocus = false;
+                            _this19.contextMenuFocus = false;
                             setTimeout(function () {
-                                if (!_this18.contextMenuFocus) {
+                                if (!_this19.contextMenuFocus) {
                                     (0, _jquery2.default)('.twx_grid_advanced_context_style').remove();
                                 }
                             }, 500);
                         });
                         contextMenuContainer.mouseover(function (event) {
-                            _this18.contextMenuFocus = true;
+                            _this19.contextMenuFocus = true;
                         });
                     }, 150);
                 }
             });
 
             this._gridAdvanced.attachEvent('onAfterCMove', function (cInd, posInd) {
-                _this18._storeUserGridSettings();
+                _this19._storeUserGridSettings();
+                _this19._updateColumnConfigWidths();
 
-                _this18._gridAdvanced.saveOrderToCookie(_this18._userSettingHandler.userCookie, 'expires=' + _this18._expirationDate.toUTCString());
-                _this18._gridAdvanced.saveHiddenColumnsToCookie(_this18._userSettingHandler.userCookie, 'expires=' + _this18._expirationDate.toUTCString());
-
-                if (_this18._cfg && _this18._cfg._headerDefinition && _this18._cfg._headerDefinition.overflow === 'tooltip') {
-                    (0, _jquery2.default)(_this18._gridAdvanced.entBox).find('.xhdr td').each(function (index, element) {
-                        var id = _this18._gridAdvanced.getColumnId(index);
+                if (_this19._cfg && _this19._cfg._headerDefinition && _this19._cfg._headerDefinition.overflow === 'tooltip') {
+                    (0, _jquery2.default)(_this19._gridAdvanced.entBox).find('.xhdr td').each(function (index, element) {
+                        var id = _this19._gridAdvanced.getColumnId(index);
                         (0, _jquery2.default)(element).on('mouseenter', null, id, function (event) {
-                            var columnDef = _this18._cfg.findColumnDefinition(event.data);
-                            var objBox = (0, _jquery2.default)(_this18._gridAdvanced.entBox).find('.objbox');
+                            var columnDef = _this19._cfg.findColumnDefinition(event.data);
+                            var objBox = _this19._gridEntBoxElement.find('.objbox');
                             var tooltipCfg = {
                                 gridBoxScrollLeft: objBox.scrollLeft(),
                                 gridBoxOffset: objBox.offset().left,
@@ -6054,37 +6304,28 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                                 gridBoxWidth: objBox.width(),
                                 textAlignment: columnDef.headerTextAlignment,
                                 minRowHeight: 30,
-                                scrollWidth: _this18._includeScrollOffset() ? _this18._getScrollWidth() : 0
+                                scrollWidth: _this19._includeScrollOffset() ? _this19._getScrollWidth() : 0
                             };
-                            _this18._tooltip.setTooltip(columnDef.title, (0, _jquery2.default)(event.currentTarget), _this18._gridId, tooltipCfg);
+                            _this19._tooltip.setTooltip(columnDef.title, (0, _jquery2.default)(event.currentTarget), _this19._gridId, tooltipCfg);
                         });
                     });
                 }
             });
 
             this._gridAdvanced.attachEvent('onResize', function (col, size) {
-                var cId = _this18._gridAdvanced.getColumnId(col);
-                _this18._columnConfigs.forEach(function (column) {
+                var cId = _this19._gridAdvanced.getColumnId(col);
+                _this19._columnConfigs.forEach(function (column) {
                     if (column.id === cId) {
+                        size = size < 20 ? 20 : size;
                         column.width = size + 'px';
                     }
                 });
-
-                if (size >= 50 && _this18._splitIndex <= col) {
-                    _this18._gridAdvanced.setColWidth(col, size);
-                } else if (size < 50) {
-                    _this18._gridAdvanced.setColWidth(col, 50);
-                }
-
-                _this18._gridAdvanced.saveHiddenColumnsToCookie(_this18._userSettingHandler.userCookie, 'expires=' + _this18._expirationDate.toUTCString());
-
-                _this18._updateCurrentTableWidth();
-                _this18._resizeColumns(-1);
+                _this19._resizeColumns();
             });
 
             this._gridAdvanced.attachEvent("onRowSelect", function (id, ind) {
                 if (_jquery2.default.browser.mozilla) {
-                    _this18._toggleFocus();
+                    _this19._toggleFocus();
                 }
             });
 
@@ -6094,10 +6335,10 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                     if (!timeout) {
                         timeout = true;
                         setTimeout(function () {
-                            var currentHover = (0, _jquery2.default)(_this18._gridAdvanced.entBox).find('.grid_hover').parent();
-                            if (_this18.rowHover !== currentHover.get(0)) {
-                                _this18.rowHover = currentHover.get(0);
-                                _this18._toggleFocus();
+                            var currentHover = (0, _jquery2.default)(_this19._gridAdvanced.entBox).find('.grid_hover').parent();
+                            if (_this19.rowHover !== currentHover.get(0)) {
+                                _this19.rowHover = currentHover.get(0);
+                                _this19._toggleFocus();
                             }
                             timeout = false;
                         }, 10);
@@ -6107,23 +6348,25 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
 
             this._gridAdvanced.attachEvent('onScroll', this._handleScrollEvent.bind(this));
             this._gridAdvanced.attachEvent('onCellChanged', this._handleCellChangeEvent.bind(this));
+            this._gridAdvanced.attachEvent('onCellMarked', this._handleCellMarkedEvent.bind(this));
+            this._gridAdvanced.attachEvent('onCellUnMarked', this._handleCellUnmarkedEvent.bind(this));
             this._gridAdvanced.attachEvent('onEditCell', this._handleEditCellEvent.bind(this));
 
             if (this._cfg.searchSettings.enabled) {
                 var searchElem = (0, _jquery2.default)('#' + this._gridId + '-search-container .dhxtoolbar_input');
                 searchElem.on('keyup', _lodashAmd2.default.debounce(function () {
-                    _this18._searchValue = searchElem.val();
-                    _this18._queryData();
-                    _this18._applyDefaultRowSelections = false;
-                    _this18._executeSelectedRowCallback = false;
+                    _this19._searchValue = searchElem.val();
+                    _this19._queryData();
+                    _this19._applyDefaultRowSelections = false;
+                    _this19._executeSelectedRowCallback = false;
                 }, 1500));
             }
 
             (0, _jquery2.default)('#' + this._gridId + ' .xhdr').mousedown(function (event) {
-                if (event.which === 3 && _this18._cfg.enableContextMenu) {
-                    var styleBlockId = _this18._gridId + '_sub_menu_style';
+                if (event.which === 3 && _this19._cfg.enableContextMenu) {
+                    var styleBlockId = _this19._gridId + '_sub_menu_style';
                     (0, _jquery2.default)('#' + styleBlockId).remove();
-                    var idSelector = '#' + _this18._gridId;
+                    var idSelector = '#' + _this19._gridId;
                     var styleRules = '.sub_item { display: none }';
                     var styleBlock = '<style id="' + styleBlockId + '">' + styleRules + '</style>';
                     (0, _jquery2.default)(idSelector).prepend(styleBlock);
@@ -6131,9 +6374,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
 
                     setTimeout(function () {
                         (0, _jquery2.default)('.dhtmlxMenu_material_SubLevelArea_Polygon:visible .sub_item').each(function (index, item) {
-                            if (index < _this18._splitIndex) {
-                                (0, _jquery2.default)(item).hide();
-                            } else if (!styleRemoved) {
+                            if (!styleRemoved) {
                                 (0, _jquery2.default)('#' + styleBlockId).remove();
                                 styleRemoved = true;
                             }
@@ -6160,30 +6401,6 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
             this._columnSortHandler.setColumnSort();
         };
 
-        TwGridAdvanced.prototype._storeUserGridSettings = function _storeUserGridSettings() {
-            if (!this._ignoreColumnMoveEvents && this._dhtmlxTableData.columns.length > 0) {
-                var gridWidths = [this._dhtmlxTableData.columns.length];
-                var columnOrder = [this._dhtmlxTableData.columns.length];
-                var columnHidden = [this._dhtmlxTableData.columns.length];
-
-                for (var i = 0; i < this._dhtmlxTableData.columns.length; i++) {
-                    var column = this._dhtmlxTableData.columns[i];
-                    var index = this._gridAdvanced.getColIndexById(column);
-                    gridWidths[index] = this._gridAdvanced.getColWidth(index);
-                    columnOrder[index] = i;
-                    columnHidden[index] = this._gridAdvanced.isColumnHidden(index);
-                }
-                var gridSetting = {
-                    columnWidths: gridWidths,
-                    columnOrder: columnOrder,
-                    columnVisibility: columnHidden
-                };
-                if (this._userSettingHandler) {
-                    this._userSettingHandler.setUserSetting('gridSettings', gridSetting);
-                }
-            }
-        };
-
         TwGridAdvanced.prototype._saveRowExpansionState = function _saveRowExpansionState() {
             if (this._isTreeGrid && this._userSettingHandler && this._cfg.preserveRowExpansion) {
                 this._gridAdvanced.saveOpenStates(this._userSettingHandler.userCookie, 'expires=' + this._expirationDate.toUTCString());
@@ -6191,43 +6408,145 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
         };
 
         TwGridAdvanced.prototype._handleScrollEvent = function _handleScrollEvent(scrollLeft, scrollTop) {
-            var _this19 = this;
+            var _this20 = this;
 
             if (this._scrollTimeout) {
                 clearTimeout(this._scrollTimeout);
             }
             var visibleHeight = -1;
             if (scrollTop > 0) {
-                visibleHeight = (0, _jquery2.default)(this._gridAdvanced.entBox).parent().find('.objbox').height();
+                visibleHeight = this._getGridObjBoxElementHeight();
             }
             this._scrollTimeout = setTimeout(function () {
                 if (scrollTop > 0 && scrollTop > visibleHeight) {
-                    _this19._formatRowsInView(true);
+                    _this20._formatRowsInView(true);
                 }
             }, 100);
         };
 
+        TwGridAdvanced.prototype._renderCell = function _renderCell(rowId, cellIndex, editMode) {
+            var columnName = this._gridAdvanced.getColumnId(cellIndex);
+            var columnDef = this._cfg.findColumnDefinition(columnName);
+            if (columnDef && columnDef.inLayout && columnDef.columnFormatter && columnDef.columnFormatter.cellEditor.isEnabled) {
+                var gridRow = this._dhtmlxTableData.getRowById(rowId);
+                var rawValue = gridRow.rawData[this._dhtmlxTableData.findColumnIndex(columnName)];
+                var stateValueColumnIndex = this._findStateValueColumnIndex(this._dhtmlxTableData.allColumns, columnDef);
+                var stateValue = stateValueColumnIndex > -1 ? gridRow.rawData[stateValueColumnIndex] : rawValue;
+                var renderCell = columnDef.render(rawValue, stateValue, editMode);
+                if (renderCell) {
+                    this._markedValue = renderCell.value;
+                    this._gridAdvanced.cells(rowId, cellIndex).setValue(renderCell.value);
+                    var columnType = this._isTreeGrid && cellIndex === 0 ? 'tree' : renderCell.columnType;
+                    this._gridAdvanced.setCellExcellType(rowId, cellIndex, columnType);
+                }
+            }
+        };
+
         TwGridAdvanced.prototype._handleCellChangeEvent = function _handleCellChangeEvent(rowId, cellIndex, newValue) {
             var columnName = this._gridAdvanced.getColumnId(cellIndex);
-            if (this._dhtmlxTableData.cacheEditedRow(rowId, columnName, newValue)) {
-                this._rowEditCallback(2, this._dhtmlxTableData.createEditedInfoTableRows());
+            var columnDef = this._cfg.findColumnDefinition(columnName);
+            if (columnDef && columnDef.columnFormatter) {
+                if (columnDef.columnFormatter.valueConverter.type === 'datetime') {
+                    if ((typeof newValue === 'undefined' ? 'undefined' : _typeof(newValue)) === 'object') {
+                        if (newValue.getTime() === new Date('December 31, 1969 19:00:00').getTime()) {
+                            return;
+                        } else if (this._dhtmlxTableData.cacheEditedRow(rowId, columnName, newValue) && this._calendarEvent !== 'started') {
+                            this._handleUpdatedRows();
+                        }
+                    }
+
+                    if (this._markedValue !== newValue) {
+                        if (this._calendarEvent === 'reformat') {
+                            this._calendarEvent = 'done';
+                            this._renderCell(rowId, cellIndex, false);
+                        } else {
+                            this._calendarEvent = 'reformat';
+                        }
+                    }
+                }
+            }
+        };
+
+        TwGridAdvanced.prototype._handleCellMarkedEvent = function _handleCellMarkedEvent(rowId, cellIndex) {
+            this._markedValue = undefined;
+            this._calendarEvent = 'started';
+            var columnName = this._gridAdvanced.getColumnId(cellIndex);
+            var columnDef = this._cfg.findColumnDefinition(columnName);
+            if (columnDef && columnDef.columnFormatter) {
+                var editMode = true;
+                if (columnDef.columnFormatter && columnDef.columnFormatter.valueConverter && columnDef.columnFormatter.valueConverter.type === 'boolean' && columnDef.columnFormatter.valueConverter.valueFormat !== 'checkbox') {
+                    editMode = false;
+                }
+                this._renderCell(rowId, cellIndex, editMode);
+                if (editMode) {
+                    this._gridAdvanced.editCell();
+                }
+            }
+        };
+
+        TwGridAdvanced.prototype._handleCellUnmarkedEvent = function _handleCellUnmarkedEvent(rowId, cellIndex) {
+            var columnName = this._gridAdvanced.getColumnId(cellIndex);
+            var columnDef = this._cfg.findColumnDefinition(columnName);
+            if (columnDef && columnDef.columnFormatter) {
+                if (columnDef.columnFormatter.valueConverter && columnDef.columnFormatter.valueConverter.type === 'datetime') {
+                    this._calendarEvent = 'done';
+                }
+                var editMode = false;
+                if (columnDef.isCheckboxFormatter()) {
+                    editMode = this._editMode && columnDef.columnFormatter.cellEditor.isEnabled;
+                }
+                this._renderCell(rowId, cellIndex, editMode);
             }
         };
 
         TwGridAdvanced.prototype._handleEditCellEvent = function _handleEditCellEvent(stage, rowId, cellIndex, newValue, oldValue) {
             var rValue = false;
             if (stage === 0 || stage === 1) {
-                this._rowEditCallback(stage);
-                return true;
+                this._cellEditCallback(0);
+                rValue = true;
+            } else if (stage === 2) {
+                var columnName = this._gridAdvanced.getColumnId(cellIndex);
+                var columnDef = this._cfg.findColumnDefinition(columnName);
+                if (columnDef && columnDef.columnFormatter) {
+                    if (newValue !== undefined && newValue !== "undefined" && this._dhtmlxTableData.cacheEditedRow(rowId, columnName, newValue)) {
+                        this._handleUpdatedRows();
+                    }
+
+                    var editMode = false;
+                    if (columnDef.isCheckboxFormatter()) {
+                        editMode = this._editMode && columnDef.columnFormatter.cellEditor.isEnabled;
+                    }
+                    this._renderCell(rowId, cellIndex, editMode);
+                }
+                rValue = true;
             }
             return rValue;
+        };
+
+        TwGridAdvanced.prototype._handleCheckBoxChanged = function _handleCheckBoxChanged(rowId, cellIndex, state) {
+            var columnName = this._gridAdvanced.getColumnId(cellIndex);
+            var columnDef = this._cfg.findColumnDefinition(columnName);
+            if (columnDef && columnDef.columnFormatter) {
+                if (columnDef.columnFormatter.valueConverter && columnDef.columnFormatter.valueConverter.type === 'boolean') {
+                    if (this._dhtmlxTableData.cacheEditedRow(rowId, columnName, state)) {
+                        this._handleUpdatedRows();
+                    }
+                }
+            }
+        };
+
+        TwGridAdvanced.prototype._handleUpdatedRows = function _handleUpdatedRows() {
+            var rows = this._dhtmlxTableData.updateEditedInfoTableRows();
+            if (rows.length > 0) {
+                this._cellEditCallback(2, rows);
+            }
         };
 
         TwGridAdvanced.prototype._adjustHorizontalOffset = function _adjustHorizontalOffset() {
             var styleBlockId = this._gridId + '_header_offset_block';
             (0, _jquery2.default)('#' + styleBlockId).remove();
             (0, _jquery2.default)('#' + this._gridId + ' .headerTail').removeClass('headerTail');
-            var horizontalScrollPresent = this._includeHorizScrollOffset();
+            var horizontalScrollPresent = this._horizontalScrollBarPresent();
             if (horizontalScrollPresent && this._verticalScrollBarPresent(horizontalScrollPresent)) {
                 var headerElements = (0, _jquery2.default)('#' + this._gridId + ' .xhdr tr th');
 
@@ -6245,7 +6564,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
             }
         };
 
-        TwGridAdvanced.prototype._includeHorizScrollOffset = function _includeHorizScrollOffset() {
+        TwGridAdvanced.prototype._horizontalScrollBarPresent = function _horizontalScrollBarPresent() {
             var scrollBars = false;
             var tableElement = (0, _jquery2.default)(this._gridAdvanced.entBox).children('.objbox').children('table');
             var parentContainer = (0, _jquery2.default)(this._gridAdvanced.entBox).closest('.widget-content .widget-gridadvanced');
@@ -6257,27 +6576,11 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
 
         TwGridAdvanced.prototype._verticalScrollBarPresent = function _verticalScrollBarPresent(horizontalScrollPresent) {
             var state = this._gridAdvanced.getStateOfView();
-            var visibleHeight = (0, _jquery2.default)(this._gridAdvanced.entBox).parent().find('.objbox').height();
+            var visibleHeight = this._getGridObjBoxElementHeight();
             visibleHeight = horizontalScrollPresent ? visibleHeight - 17 : visibleHeight;
-            var visibleRowCount = parseInt(visibleHeight / this._cfg.rowDefinition.minRowHeight, 10);
+            var minRowHeight = this._cfg && this._cfg.rowDefinition ? this._cfg.rowDefinition.minRowHeight : 28;
+            var visibleRowCount = parseInt(visibleHeight / minRowHeight, 10);
             return state[2] > visibleRowCount;
-        };
-
-        TwGridAdvanced.prototype._adjustHeaders = function _adjustHeaders() {
-            var maxHeight = 0;
-            (0, _jquery2.default)(this._gridAdvanced.entBox).parent().find('.xhdr').each(function (index, hdr) {
-                var newHeight = (0, _jquery2.default)(hdr).height();
-                if (newHeight > maxHeight) {
-                    maxHeight = newHeight;
-                }
-            });
-            if (maxHeight > 0) {
-                var styleRules = '';
-                var idSelector = '#' + this._gridId;
-                styleRules += idSelector + ' .xhdr { height: ' + maxHeight + 'px !important }';
-                var styleBlock = '<style>' + styleRules + '</style>';
-                (0, _jquery2.default)(idSelector).prepend(styleBlock);
-            }
         };
 
         TwGridAdvanced.prototype._showTooltip = function _showTooltip(id, index) {
@@ -6285,7 +6588,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
             var columnDef = this._cfg.findColumnDefinition(columnId);
             if (columnDef && columnDef.allowsTooltips) {
                 var cellObj = this._gridAdvanced.cellById(id, index);
-                var objBox = (0, _jquery2.default)(this._gridAdvanced.entBox).find('.objbox');
+                var objBox = this._gridEntBoxElement.find('.objbox');
                 var tooltipCfg = {
                     gridBoxScrollLeft: objBox.scrollLeft(),
                     gridBoxOffset: objBox.offset().left,
@@ -6317,92 +6620,151 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
             return output;
         };
 
-        TwGridAdvanced.prototype._updatePercentColumnConfigs = function _updatePercentColumnConfigs(col, totalActualWidth, totalActualPercentage) {
-            var currentSetWidth = this._gridAdvanced.getColWidth(this._gridAdvanced.getColIndexById(col.id));
-            var actualPercentage = currentSetWidth / totalActualWidth;
-            actualPercentage = Number(Math.round(actualPercentage + 'e2') + 'e-2');
-            var currentPercentage = parseInt(col.width, 10) / totalActualPercentage;
-            currentPercentage = Number(Math.round(currentPercentage + 'e2') + 'e-2');
-            if (actualPercentage !== currentPercentage) {
-                col.width = currentSetWidth + 'px';
-            }
-        };
-
-        TwGridAdvanced.prototype._updateAutoWidthColumnConfigs = function _updateAutoWidthColumnConfigs(col, totalActualWidth, autoWidthCount) {
-            var currentSetWidth = this._gridAdvanced.getColWidth(this._gridAdvanced.getColIndexById(col.id));
-            var actualPercentage = totalActualWidth / autoWidthCount / totalActualWidth;
-            actualPercentage = Number(Math.round(actualPercentage + 'e2') + 'e-2');
-            var currentPercentage = currentSetWidth / totalActualWidth;
-            currentPercentage = Number(Math.round(currentPercentage + 'e2') + 'e-2');
-            if (actualPercentage !== currentPercentage) {
-                col.width = currentSetWidth + 'px';
-            }
-        };
-
         TwGridAdvanced.prototype._updateColumnConfigWidths = function _updateColumnConfigWidths() {
-            var _this20 = this;
-
-            var _getColumnConfigTotal = this._getColumnConfigTotals('%'),
-                totalPercentageWidth = _getColumnConfigTotal.width,
-                totalActualPercentage = _getColumnConfigTotal.percentage;
-
-            var _getColumnConfigTotal2 = this._getColumnConfigTotals('*'),
-                totalAutoWidth = _getColumnConfigTotal2.width,
-                autoWidthCount = _getColumnConfigTotal2.count;
-
-            this._columnConfigs.forEach(function (col) {
-                if (col.width.indexOf('*') > -1) {
-                    _this20._updateAutoWidthColumnConfigs(col, totalAutoWidth, autoWidthCount);
-                }
-                if (col.width.indexOf('%') > -1) {
-                    _this20._updatePercentColumnConfigs(col, totalPercentageWidth, totalActualPercentage);
-                }
-            });
-        };
-
-        TwGridAdvanced.prototype._getColumnConfigTotals = function _getColumnConfigTotals(symbol) {
             var _this21 = this;
 
-            var _columnConfigs$reduce = this._columnConfigs.reduce(function (total, col) {
-                if (col.width.indexOf(symbol) > -1) {
-                    var w = _this21._gridAdvanced.getColWidth(_this21._gridAdvanced.getColIndexById(col.id));
-                    if (w > 0) {
-                        total[0] += w;
-                        total[1] += parseInt(col.width, 10);
-                        total[2] += 1;
+            var createInitWidth = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+            var totals = {
+                totalTableWidth: this._getGridBoxParentDimensions().width,
+                totalAutoWidthColumns: 0,
+                totalPercWidthColumns: 0,
+                totalPercWidth: 0,
+                totalPixWidth: 0,
+                totalColumns: 0
+            };
+
+            this._columnConfigs.forEach(function (col) {
+                if (col.hidden !== true) {
+                    totals.totalColumns += 1;
+                    if (col.width.indexOf('*') > -1) {
+                        totals.totalAutoWidthColumns += 1;
+                    } else if (col.width.indexOf('%') > -1) {
+                        totals.totalPercWidthColumns += 1;
+                        var percent = col.width.replace('%', '');
+                        percent = percent && percent.length > 0 ? parseInt(percent, 10) : 0;
+                        totals.totalPercWidth += percent;
+                    } else if (col.width.indexOf('px') > -1) {
+                        var width = col.width.replace('px', '');
+                        width = width && width.length > 0 ? parseInt(width, 10) : 0;
+                        totals.totalPixWidth += width;
                     }
                 }
-                return total;
-            }, [0, 0, 0]),
-                width = _columnConfigs$reduce[0],
-                percentage = _columnConfigs$reduce[1],
-                count = _columnConfigs$reduce[2];
+            });
 
-            return { width: width, percentage: percentage, count: count };
+
+            var containerWidth = this._getGridBoxParentDimensions().width;
+            (0, _jquery2.default)(this._gridAdvanced.entBox).css('width', containerWidth);
+
+            this._adjustHorizontalOffset();
+            var horizontalScrollBarPresent = this._horizontalScrollBarPresent();
+            var scrollBarWidth = 0;
+            if (this._verticalScrollBarPresent(horizontalScrollBarPresent)) {
+                scrollBarWidth += this._getScrollWidth();
+            }
+
+            var availablePercentColumnWidth = totals.totalTableWidth - totals.totalPixWidth;
+            var availableAutoWidth = 0;
+            var perColumnAutoWidth = 0;
+            if (totals.totalPercWidth >= 100) {
+                var minAutoWidth = 0;
+                if (totals.totalAutoWidthColumns > 0) {
+                    minAutoWidth = totals.totalAutoWidthColumns * MIN_COLUMN_AUTO_WIDTH;
+                    availablePercentColumnWidth = availablePercentColumnWidth - minAutoWidth;
+                    availableAutoWidth = minAutoWidth - scrollBarWidth;
+                } else if (totals.totalPercWidthColumns === totals.totalColumns) {
+                    availablePercentColumnWidth -= scrollBarWidth;
+                }
+            } else if (totals.totalPercWidth > 0) {
+                availableAutoWidth = availablePercentColumnWidth - scrollBarWidth - this._precisionRound(availablePercentColumnWidth * (totals.totalPercWidth / 100), 1);
+            } else {
+                availableAutoWidth = availablePercentColumnWidth - scrollBarWidth;
+            }
+            perColumnAutoWidth = this._precisionRound(availableAutoWidth / totals.totalAutoWidthColumns, 1);
+            perColumnAutoWidth = perColumnAutoWidth <= MIN_COLUMN_AUTO_WIDTH ? MIN_COLUMN_AUTO_WIDTH : perColumnAutoWidth;
+
+            _logger.Logger.debug('updateColumnConfigWidths(): Total available width=' + totals.totalTableWidth);
+            var initColumnWidth = '';
+            this._columnConfigs.forEach(function (col, index) {
+                var width = 0;
+                if (col.hidden) {
+                    width = 0;
+                } else if (col.width.indexOf('*') > -1) {
+                    width = perColumnAutoWidth;
+                    _logger.Logger.debug('updateColumnConfigWidths(): auto-width: ' + width);
+                } else if (col.width.indexOf('%') > -1) {
+                    var percent = col.width.replace('%', '');
+                    percent = percent && percent.length > 0 ? parseInt(percent, 10) : 0;
+                    width = _this21._precisionRound(availablePercentColumnWidth * percent / 100, 1);
+                    _logger.Logger.debug('updateColumnConfigWidths(): %-width: ' + width);
+                } else if (col.width.indexOf('px') > -1) {
+                    width = col.width.replace('px', '');
+                    width = width && width.length > 0 ? parseInt(width, 10) : 0;
+                    _logger.Logger.debug('updateColumnConfigWidths(): px-width: ' + width);
+                }
+                if (createInitWidth) {
+                    initColumnWidth += index < _this21._columnConfigs.length - 1 ? width + ',' : width;
+                } else if (col.hidden === false) {
+                    var _index2 = _this21._gridAdvanced.getColIndexById(col.id);
+                    _logger.Logger.debug('updateColumnConfigWidths(): set widths, id: ' + col.id + ' index: ' + _index2 + ' width: ' + width);
+                    _this21._gridAdvanced.setColWidth(_index2, width);
+                }
+            });
+            return initColumnWidth;
         };
 
-        TwGridAdvanced.prototype._saveColumnWidthToCookie = function _saveColumnWidthToCookie() {
-            if (this._userSettingHandler) {
-                this._gridAdvanced.saveSizeToCookie(this._userSettingHandler.userCookie, 'expires=' + this._expirationDate.toUTCString());
-                this._gridAdvanced.saveHiddenColumnsToCookie(this._userSettingHandler.userCookie, 'expires=' + this._expirationDate.toUTCString());
+        TwGridAdvanced.prototype._precisionRound = function _precisionRound(number, precision) {
+            var factor = Math.pow(10, precision);
+            return Math.round(number * factor) / factor;
+        };
+
+        TwGridAdvanced.prototype._storeUserGridSettings = function _storeUserGridSettings() {
+            if (!this._ignoreColumnMoveEvents && this._columnConfigs.length > 0) {
+                var gridWidths = [this._columnConfigs.length];
+                var columnOrder = [this._columnConfigs.length];
+                var columnHidden = [this._columnConfigs.length];
+
+                for (var i = 0; i < this._columnConfigs.length; i++) {
+                    var column = this._columnConfigs[i];
+                    var index = this._gridAdvanced.getColIndexById(column.id);
+                    _logger.Logger.debug('storeUserGridSettings(): set:' + 'id: ' + column.id + ' index: ' + index + ' width: ' + column.width);
+                    gridWidths[index] = column.width;
+                    columnOrder[index] = column.index;
+                    columnHidden[index] = this._gridAdvanced.isColumnHidden(index);
+                }
+                var gridSetting = {
+                    columnWidths: gridWidths,
+                    columnOrder: columnOrder,
+                    columnVisibility: columnHidden
+                };
+                if (this._userSettingHandler) {
+                    this._userSettingHandler.setUserSetting('gridSettings', gridSetting);
+                }
             }
         };
 
-        TwGridAdvanced.prototype._readColumnSettingPersistence = function _readColumnSettingPersistence() {
-            this._performanceMonitor.startTime('readColumnSettingPersistence');
+        TwGridAdvanced.prototype._readUserGridSettings = function _readUserGridSettings() {
+            var _this22 = this;
+
+            this._performanceMonitor.startTime('readUserGridSettings');
             if (this._userSettingHandler && this._userSettingHandler.cookiePersistenceEnabled && this._dhtmlxTableData && this._dhtmlxTableData._data.rows.length >= 0) {
                 if (this._userSettingHandler.hasUserSetting('gridSettings')) {
                     try {
-                        this._gridAdvanced.loadOrderFromCookie(this._userSettingHandler.userCookie);
-                        this._gridAdvanced.loadSizeFromCookie(this._userSettingHandler.userCookie);
-                        this._gridAdvanced.loadHiddenColumnsFromCookie(this._userSettingHandler.userCookie);
-                        this._updateColumnConfigWidths();
+                        var gridSetting = this._userSettingHandler.readSetting('gridSettings');
+                        this._columnConfigs = [];
+                        gridSetting.columnOrder.forEach(function (columnIndex, index) {
+                            var width = gridSetting.columnWidths[index];
+                            var hidden = gridSetting.columnVisibility[index] === '1';
+                            var id = _this22._dhtmlxTableData.columns[columnIndex];
+
+                            _this22._columnConfigs[index] = { id: id, index: columnIndex, width: width, hidden: hidden };
+                            _logger.Logger.debug('readUserGridSettings(): Read: ' + 'id: ' + _this22._columnConfigs[index].id + ' index: ' + _this22._columnConfigs[index].index + ' width: ' + _this22._columnConfigs[index].width + ' hidden: ' + _this22._columnConfigs[index].hidden);
+                        });
+                        this._orderColumns(gridSetting);
                     } catch (ex) {
-                        _logger.Logger.error('Failed loading grid configuration from cookie. Resetting user settings and loading with default configuration');
+                        _logger.Logger.error('Failed loading grid configuration from cookie. Resetting user settings and loading with default configuration: ' + ex.message);
                         this._resetGrid(false);
                     }
-                } else {
-                    this._gridAdvanced.setColumnsVisibility(this._createColumnVisibility());
                 }
 
                 if (this._isTreeGrid && this._userSettingHandler.hasUserSetting('gridOpen')) {
@@ -6413,37 +6775,21 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                         this._resetGrid(false);
                     }
                 }
-            } else {
-                this._gridAdvanced.setColumnsVisibility(this._createColumnVisibility());
             }
-            this._performanceMonitor.endTime('readColumnSettingPersistence');
+            this._updateColumnConfigWidths();
+            this._updateColumnVisibility();
+            this._performanceMonitor.endTime('readUserGridSettings');
         };
 
         TwGridAdvanced.prototype._enableColumnSettingPersistence = function _enableColumnSettingPersistence() {
             this._performanceMonitor.startTime('enableColumnSettingPersistence');
             if (this._userSettingHandler && this._userSettingHandler.cookiePersistenceEnabled) {
                 this._gridAdvanced.enableResizing(this._getColumnResizeList(), 'expires=' + this._expirationDate.toUTCString());
-                this._gridAdvanced.enableAutoSizeSaving(this._userSettingHandler.userCookie, 'expires=' + this._expirationDate.toUTCString());
-                this._gridAdvanced.enableOrderSaving(this._userSettingHandler.userCookie, 'expires=' + this._expirationDate.toUTCString());
-                this._gridAdvanced.enableAutoHiddenColumnsSaving(this._userSettingHandler.userCookie, 'expires=' + this._expirationDate.toUTCString());
             }
             if (this._cfg.enableContextMenu) {
                 this._gridAdvanced.enableHeaderMenu();
             }
             this._performanceMonitor.endTime('enableColumnSettingPersistence');
-        };
-
-        TwGridAdvanced.prototype._resetTableSizing = function _resetTableSizing() {
-            if (this._userSettingHandler && this._userSettingHandler.cookiePersistenceEnabled && this._dhtmlxTableData && this._dhtmlxTableData._data.rows.length > 0) {
-                if (this._userSettingHandler.hasUserSetting('gridSettings')) {
-                    this._gridAdvanced.loadSizeFromCookie(this._userSettingHandler.userCookie);
-                    this._adjustHorizontalOffset();
-                } else {
-                    this._resizeColumns(-1);
-                }
-            } else {
-                this._resizeColumns(-1);
-            }
         };
 
         TwGridAdvanced.prototype._enableSmartRendering = function _enableSmartRendering() {
@@ -6483,19 +6829,19 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
         };
 
         TwGridAdvanced.prototype._expandOrRetrieveRows = function _expandOrRetrieveRows(rowIds, isRowSelection) {
-            var _this22 = this;
+            var _this23 = this;
 
             if (rowIds) {
                 var childGridHandler = this._createChildGridHandler();
                 rowIds = rowIds.split(',');
                 rowIds.forEach(function (id) {
-                    if (_this22._cfg.includeRowExpansionParents) {
+                    if (_this23._cfg.includeRowExpansionParents) {
                         childGridHandler.expandPath(id, isRowSelection);
                     } else {
                         if (isRowSelection) {
-                            id = _this22._gridAdvanced.getParentId(id);
+                            id = _this23._gridAdvanced.getParentId(id);
                         }
-                        _this22._gridAdvanced.openItem(id);
+                        _this23._gridAdvanced.openItem(id);
                     }
                 });
             }
@@ -6576,9 +6922,14 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                 this._statusTextMessageCallback = statusTextMessageCallback;
             }
         }, {
-            key: 'rowEditCallback',
+            key: 'cellEditCallback',
             set: function set(callback) {
-                this._rowEditCallback = callback;
+                this._cellEditCallback = callback;
+            }
+        }, {
+            key: 'gridEditCallback',
+            set: function set(callback) {
+                this._gridEditCallback = callback;
             }
         }, {
             key: 'childDataServiceInvoker',
@@ -6615,7 +6966,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
 });
 //# sourceMappingURL=../maps/grid-advanced/tw-grid-advanced.js.map
 
-gaRequire.define('tw-grid-advanced/grid-advanced/user-setting-handler',['exports', 'lodash-amd'], function (exports, _lodashAmd) {
+gaRequire.define('tw-grid-advanced/grid-advanced/user-setting-handler',['exports', 'lodash-amd', './logger'], function (exports, _lodashAmd, _logger) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
@@ -6662,7 +7013,6 @@ gaRequire.define('tw-grid-advanced/grid-advanced/user-setting-handler',['exports
             this._cookiePersistenceEnabled = cookiePersistenceEnabled;
             this._userCookie = username + '_' + gridId + '_' + version;
             this._gridConfigCookie = 'gridSettings' + this._userCookie;
-            this._splitConfigCookie = 'splitGridColumn_' + this._userCookie;
             this._columnSortConfigCookie = 'sortGridColumns_' + this._userCookie;
             this._gridOpenConfigCookie = 'gridOpen' + this._userCookie;
             this._expirationDate = new Date();
@@ -6678,9 +7028,6 @@ gaRequire.define('tw-grid-advanced/grid-advanced/user-setting-handler',['exports
                     break;
                 case 'sortGridColumns':
                     hasUserSetting = this._cookiePersistenceEnabled ? cookies.indexOf(this._columnSortConfigCookie) > -1 : false;
-                    break;
-                case 'splitGridColumn':
-                    hasUserSetting = this._cookiePersistenceEnabled ? cookies.indexOf(this._splitConfigCookie) > -1 : false;
                     break;
                 case 'gridOpen':
                     hasUserSetting = this._cookiePersistenceEnabled ? cookies.indexOf(this._gridOpenConfigCookie) > -1 : false;
@@ -6706,6 +7053,10 @@ gaRequire.define('tw-grid-advanced/grid-advanced/user-setting-handler',['exports
         UserSettingHandler.prototype.setUserSetting = function setUserSetting(settingName, value) {
             switch (settingName) {
                 case 'gridSettings':
+                    if (this._cookiePersistenceEnabled) {
+                        this.setCookie(this._gridConfigCookie + '=' + this._createCookieValue(value));
+                        _logger.Logger.debug("UserSettingHandler.setUserSetting(): " + this._createCookieValue(value));
+                    }
                     this._gridConfigValue = value;
                     break;
                 case 'gridOpen':
@@ -6716,12 +7067,6 @@ gaRequire.define('tw-grid-advanced/grid-advanced/user-setting-handler',['exports
                         this.setCookie(this._columnSortConfigCookie + '=' + value);
                     }
                     this._columnSortConfigValue = value;
-                    break;
-                case 'splitGridColumn':
-                    if (this._cookiePersistenceEnabled) {
-                        this.setCookie(this._splitConfigCookie + '=' + value);
-                    }
-                    this._splitConfigValue = value;
                     break;
                 default:
             }
@@ -6750,13 +7095,6 @@ gaRequire.define('tw-grid-advanced/grid-advanced/user-setting-handler',['exports
                         this._columnSortConfigValue = undefined;
                     }
                     break;
-                case 'splitGridColumn':
-                    if (this._cookiePersistenceEnabled) {
-                        this.clearCookie(this._splitConfigCookie);
-                    } else {
-                        this._splitConfigValue = undefined;
-                    }
-                    break;
                 default:
             }
         };
@@ -6769,9 +7107,6 @@ gaRequire.define('tw-grid-advanced/grid-advanced/user-setting-handler',['exports
                     break;
                 case 'gridOpen':
                     setting = this._cookiePersistenceEnabled ? this._getGridOpenSettingsCookie() : this._gridOpenConfigValue;
-                    break;
-                case 'splitGridColumn':
-                    setting = this._cookiePersistenceEnabled ? this._getSplitIndexFromCookie() : this._splitConfigValue;
                     break;
                 case 'sortGridColumns':
                     setting = this._cookiePersistenceEnabled ? this._getColumnSortConfigFromCookie() : this._columnSortConfigValue;
@@ -6798,18 +7133,34 @@ gaRequire.define('tw-grid-advanced/grid-advanced/user-setting-handler',['exports
             }
             if (settings) {
                 cookieConfig = {
-                    columnWidths: settings[0] ? _lodashAmd2.default.map(settings[0].split('-'), function (v) {
-                        return parseInt(v, 10);
-                    }) : [],
-                    columnOrder: settings[3] ? _lodashAmd2.default.map(settings[3].split('-'), function (v) {
-                        return parseInt(v, 10);
-                    }) : [],
-                    columnVisibility: settings[4] ? _lodashAmd2.default.map(settings[4].split('-'), function (v) {
-                        return parseInt(v, 10);
-                    }) : []
+                    columnWidths: settings[0] ? settings[0].split('-') : [],
+                    columnOrder: settings[3] ? settings[3].split('-') : [],
+                    columnVisibility: settings[4] ? settings[4].split('-') : []
                 };
             }
             return cookieConfig;
+        };
+
+        UserSettingHandler.prototype._createCookieValue = function _createCookieValue(gridSettings) {
+            var cookie = '';
+
+            gridSettings.columnWidths.forEach(function (v, index) {
+                cookie += v;
+                cookie += index < gridSettings.columnWidths.length - 1 ? '-' : '';
+            });
+            cookie += '|||';
+
+            gridSettings.columnOrder.forEach(function (v, index) {
+                cookie += v;
+                cookie += index < gridSettings.columnOrder.length - 1 ? '-' : '';
+            });
+            cookie += '|';
+            gridSettings.columnVisibility.forEach(function (v, index) {
+                cookie += v !== undefined && v === true ? '1' : '';
+                cookie += index < gridSettings.columnVisibility.length - 1 ? '-' : '';
+            });
+            cookie += '|';
+            return cookie;
         };
 
         UserSettingHandler.prototype._getGridOpenSettingsCookie = function _getGridOpenSettingsCookie() {
@@ -6826,22 +7177,6 @@ gaRequire.define('tw-grid-advanced/grid-advanced/user-setting-handler',['exports
                 }
             }
             return settings;
-        };
-
-        UserSettingHandler.prototype._getSplitIndexFromCookie = function _getSplitIndexFromCookie() {
-            var name = this._splitConfigCookie + '=';
-            var cookies = this.getCookies().split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = cookies[i];
-                while (cookie.charAt(0) === ' ') {
-                    cookie = cookie.substring(1);
-                }
-                if (cookie.indexOf(name) === 0) {
-                    var index = cookie.substring(name.length, cookie.length);
-                    return parseInt(index, 10);
-                }
-            }
-            return -1;
         };
 
         UserSettingHandler.prototype._getColumnSortConfigFromCookie = function _getColumnSortConfigFromCookie() {
@@ -7150,6 +7485,1148 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tooltip/tooltip-factory',['expo
 });
 //# sourceMappingURL=../../maps/grid-advanced/tooltip/tooltip-factory.js.map
 
+gaRequire.define('tw-grid-advanced/grid-advanced/components/renderers/boolean-renderer',['exports', './default-renderer'], function (exports, _defaultRenderer) {
+    'use strict';
+
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
+    exports.BooleanRenderer = undefined;
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    function _possibleConstructorReturn(self, call) {
+        if (!self) {
+            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }
+
+        return call && (typeof call === "object" || typeof call === "function") ? call : self;
+    }
+
+    function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        }
+
+        subClass.prototype = Object.create(superClass && superClass.prototype, {
+            constructor: {
+                value: subClass,
+                enumerable: false,
+                writable: true,
+                configurable: true
+            }
+        });
+        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+    }
+
+    var BooleanRenderer = exports.BooleanRenderer = function (_DefaultRenderer) {
+        _inherits(BooleanRenderer, _DefaultRenderer);
+
+        function BooleanRenderer(valueFormat, params) {
+            _classCallCheck(this, BooleanRenderer);
+
+            return _possibleConstructorReturn(this, _DefaultRenderer.call(this, 'boolean', valueFormat, params));
+        }
+
+        BooleanRenderer.prototype.toView = function toView(value) {
+            var editMode = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+            var imageLink = arguments[2];
+
+            if (editMode === false) {
+                switch (this._valueFormat) {
+                    case 'text':
+                        value = imageLink ? '<img style="vertical-align:top" src="' + imageLink + '">&nbsp' + _DefaultRenderer.prototype.toView.call(this, value) : _DefaultRenderer.prototype.toView.call(this, value);
+                        break;
+                    case 'notext':
+                        value = imageLink ? '<img style="vertical-align:top" src="' + imageLink + '">' : '';
+                        break;
+                    case 'checkbox':
+                    default:
+                        value = '<input type="CHECKBOX" ' + (value === true ? 'checked' : '') + ' disabled="disabled">';
+                }
+            }
+            return value;
+        };
+
+        BooleanRenderer.prototype.parseValue = function parseValue(rawValue, newValue) {
+            if (typeof rawValue === 'boolean') {
+                if (typeof newValue === 'boolean') {
+                    return newValue;
+                } else if (typeof newValue === 'string') {
+                    return newValue === 'true';
+                }
+            } else if (typeof rawValue === 'number') {
+                if (typeof newValue === 'boolean') {
+                    return newValue === true ? 1 : 0;
+                } else if (typeof newValue === 'string') {
+                    return newValue === 'true' ? 1 : 0;
+                }
+            } else if (typeof rawValue === 'string') {
+                if (typeof newValue === 'boolean') {
+                    return newValue === true ? 'true' : 'false';
+                } else if (typeof newValue === 'string') {
+                    return newValue === 'true' ? 'true' : 'false';
+                }
+            }
+            return newValue;
+        };
+
+        return BooleanRenderer;
+    }(_defaultRenderer.DefaultRenderer);
+});
+//# sourceMappingURL=../../../maps/grid-advanced/components/renderers/boolean-renderer.js.map
+
+gaRequire.define('tw-grid-advanced/grid-advanced/components/renderers/datetime-renderer',['exports', './default-renderer', 'moment-jdateformatparser', 'lodash-amd'], function (exports, _defaultRenderer, _momentJdateformatparser, _lodashAmd) {
+    'use strict';
+
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
+    exports.DatetimeRenderer = undefined;
+
+    var _momentJdateformatparser2 = _interopRequireDefault(_momentJdateformatparser);
+
+    var _lodashAmd2 = _interopRequireDefault(_lodashAmd);
+
+    function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : {
+            default: obj
+        };
+    }
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    function _possibleConstructorReturn(self, call) {
+        if (!self) {
+            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }
+
+        return call && (typeof call === "object" || typeof call === "function") ? call : self;
+    }
+
+    function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        }
+
+        subClass.prototype = Object.create(superClass && superClass.prototype, {
+            constructor: {
+                value: subClass,
+                enumerable: false,
+                writable: true,
+                configurable: true
+            }
+        });
+        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+    }
+
+    var DatetimeRenderer = exports.DatetimeRenderer = function (_DefaultRenderer) {
+        _inherits(DatetimeRenderer, _DefaultRenderer);
+
+        function DatetimeRenderer(valueFormat, params) {
+            _classCallCheck(this, DatetimeRenderer);
+
+            return _possibleConstructorReturn(this, _DefaultRenderer.call(this, 'datetime', valueFormat, params));
+        }
+
+        DatetimeRenderer.prototype.toView = function toView(value) {
+            var editMode = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+            var imageLink = arguments[2];
+
+            if (editMode === false) {
+                if (_lodashAmd2.default.isNil(value)) {
+                    value = '---';
+                } else if (_lodashAmd2.default.isString(value)) {
+                    value = value.trim().length === 0 ? '---' : (0, _momentJdateformatparser2.default)(new Date(value)).format(this._valueFormat);
+                } else {
+                    value = this._formatDate(value, this._valueFormat);
+                }
+                if (imageLink) {
+                    value = '<img style="vertical-align:top" src="' + imageLink + '">&nbsp' + value;
+                }
+            }
+
+            return value;
+        };
+
+        DatetimeRenderer.prototype.parseValue = function parseValue(rawValue, newValue) {
+            if (newValue === undefined || newValue === '') {
+                return undefined;
+            } else {
+                return _lodashAmd2.default.isDate(newValue) ? newValue.getTime() : new Date(newValue).getTime();
+            }
+        };
+
+        DatetimeRenderer.prototype._formatDate = function _formatDate(value, format) {
+            var m = (0, _momentJdateformatparser2.default)(value);
+            var date = void 0;
+
+            if (format) {
+                if (format.substring(0, 9) === 'relative:') {
+                    m.fromNow();
+                    format = format.replace('relative:', '');
+                }
+                date = m.formatWithJDF(format);
+            } else {
+                date = _DefaultRenderer.prototype.toView.call(this, value);
+            }
+            return date;
+        };
+
+        return DatetimeRenderer;
+    }(_defaultRenderer.DefaultRenderer);
+});
+//# sourceMappingURL=../../../maps/grid-advanced/components/renderers/datetime-renderer.js.map
+
+gaRequire.define('tw-grid-advanced/grid-advanced/components/renderers/default-renderer',['exports', 'htmlencode', 'lodash-amd'], function (exports, _htmlencode, _lodashAmd) {
+    'use strict';
+
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
+    exports.DefaultRenderer = undefined;
+
+    var _htmlencode2 = _interopRequireDefault(_htmlencode);
+
+    var _lodashAmd2 = _interopRequireDefault(_lodashAmd);
+
+    function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : {
+            default: obj
+        };
+    }
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    var _createClass = function () {
+        function defineProperties(target, props) {
+            for (var i = 0; i < props.length; i++) {
+                var descriptor = props[i];
+                descriptor.enumerable = descriptor.enumerable || false;
+                descriptor.configurable = true;
+                if ("value" in descriptor) descriptor.writable = true;
+                Object.defineProperty(target, descriptor.key, descriptor);
+            }
+        }
+
+        return function (Constructor, protoProps, staticProps) {
+            if (protoProps) defineProperties(Constructor.prototype, protoProps);
+            if (staticProps) defineProperties(Constructor, staticProps);
+            return Constructor;
+        };
+    }();
+
+    var DefaultRenderer = exports.DefaultRenderer = function () {
+        function DefaultRenderer(type, valueFormat, params) {
+            var encodeValue = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+            var allowTooltip = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
+
+            _classCallCheck(this, DefaultRenderer);
+
+            this._type = type;
+            this._valueFormat = valueFormat;
+            this._params = params;
+            this._encodeValue = encodeValue;
+            this._allowTooltip = allowTooltip;
+        }
+
+        DefaultRenderer.prototype.toView = function toView(value) {
+            var newVal = value;
+
+            if (value === undefined || value === null) {
+                newVal = '';
+            } else if (typeof value.toString === 'function') {
+                newVal = value.toString();
+            } else if (_lodashAmd2.default.isObject(value)) {
+                newVal = JSON.stringify(value);
+            }
+
+            if (this._encodeValue) {
+                newVal = _htmlencode2.default.htmlEncode(newVal);
+            }
+
+            return newVal;
+        };
+
+        DefaultRenderer.prototype.parseValue = function parseValue(rawValue, newValue) {
+            if (typeof newValue === 'string') {
+                return newValue;
+            } else {
+                return newValue.toString();
+            }
+        };
+
+        _createClass(DefaultRenderer, [{
+            key: 'type',
+            get: function get() {
+                return this._type;
+            }
+        }, {
+            key: 'params',
+            get: function get() {
+                return this._params;
+            }
+        }, {
+            key: 'valueFormat',
+            get: function get() {
+                return this._valueFormat;
+            }
+        }, {
+            key: 'allowTooltip',
+            get: function get() {
+                return this._allowTooltip;
+            }
+        }]);
+
+        return DefaultRenderer;
+    }();
+});
+//# sourceMappingURL=../../../maps/grid-advanced/components/renderers/default-renderer.js.map
+
+gaRequire.define('tw-grid-advanced/grid-advanced/components/renderers/html-renderer',['exports', 'html-css-sanitizer', './default-renderer', 'htmlencode'], function (exports, _htmlCssSanitizer, _defaultRenderer, _htmlencode) {
+    'use strict';
+
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
+    exports.HtmlRenderer = undefined;
+
+    var _htmlCssSanitizer2 = _interopRequireDefault(_htmlCssSanitizer);
+
+    var _htmlencode2 = _interopRequireDefault(_htmlencode);
+
+    function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : {
+            default: obj
+        };
+    }
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    function _possibleConstructorReturn(self, call) {
+        if (!self) {
+            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }
+
+        return call && (typeof call === "object" || typeof call === "function") ? call : self;
+    }
+
+    function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        }
+
+        subClass.prototype = Object.create(superClass && superClass.prototype, {
+            constructor: {
+                value: subClass,
+                enumerable: false,
+                writable: true,
+                configurable: true
+            }
+        });
+        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+    }
+
+    var HtmlRenderer = exports.HtmlRenderer = function (_DefaultRenderer) {
+        _inherits(HtmlRenderer, _DefaultRenderer);
+
+        function HtmlRenderer(valueFormat, params) {
+            _classCallCheck(this, HtmlRenderer);
+
+            return _possibleConstructorReturn(this, _DefaultRenderer.call(this, 'html', valueFormat, params, valueFormat === 'raw'));
+        }
+
+        HtmlRenderer.prototype.toView = function toView(value) {
+            var editMode = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+            var valString = _DefaultRenderer.prototype.toView.call(this, value);
+            if (editMode === false) {
+                switch (this._valueFormat) {
+                    case 'raw':
+                        break;
+                    case 'unsanitized':
+                        break;
+                    case 'format':
+                    default:
+                        valString = HtmlRenderer.sanitize(valString);
+                }
+            } else {
+                valString = HtmlRenderer.sanitize(valString);
+            }
+            return valString;
+        };
+
+        HtmlRenderer.sanitize = function sanitize(html) {
+            return _htmlCssSanitizer2.default.sanitize(html, function (u) {
+                return u;
+            }, function (id) {
+                return id;
+            });
+        };
+
+        return HtmlRenderer;
+    }(_defaultRenderer.DefaultRenderer);
+});
+//# sourceMappingURL=../../../maps/grid-advanced/components/renderers/html-renderer.js.map
+
+gaRequire.define('tw-grid-advanced/grid-advanced/components/renderers/hyperlink-renderer',['exports', 'html-css-sanitizer', './default-renderer'], function (exports, _htmlCssSanitizer, _defaultRenderer) {
+    'use strict';
+
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
+    exports.HyperlinkRenderer = undefined;
+
+    var _htmlCssSanitizer2 = _interopRequireDefault(_htmlCssSanitizer);
+
+    function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : {
+            default: obj
+        };
+    }
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    function _possibleConstructorReturn(self, call) {
+        if (!self) {
+            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }
+
+        return call && (typeof call === "object" || typeof call === "function") ? call : self;
+    }
+
+    function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        }
+
+        subClass.prototype = Object.create(superClass && superClass.prototype, {
+            constructor: {
+                value: subClass,
+                enumerable: false,
+                writable: true,
+                configurable: true
+            }
+        });
+        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+    }
+
+    var _class, _temp;
+
+    var HyperlinkRenderer = exports.HyperlinkRenderer = (_temp = _class = function (_DefaultRenderer) {
+        _inherits(HyperlinkRenderer, _DefaultRenderer);
+
+        function HyperlinkRenderer(valueFormat, params) {
+            _classCallCheck(this, HyperlinkRenderer);
+
+            var _this = _possibleConstructorReturn(this, _DefaultRenderer.call(this, 'hyperlink', valueFormat, params));
+
+            _this._validateValueFormat();
+            _this._validateTextFormat();
+            return _this;
+        }
+
+        HyperlinkRenderer.prototype._validateTextFormat = function _validateTextFormat() {
+            if (!this._params) {
+                this._params = {
+                    textFormat: HyperlinkRenderer.DEFAULT_TEXT_FORMAT
+                };
+            }
+        };
+
+        HyperlinkRenderer.prototype._validateValueFormat = function _validateValueFormat() {
+            if (['_self', '_blank', '_parent', '_top'].indexOf(this._valueFormat) === -1) {
+                this._valueFormat = HyperlinkRenderer.DEFAULT_VALUE_FORMAT;
+            }
+        };
+
+        HyperlinkRenderer.prototype.toView = function toView(value) {
+            var editMode = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+            var view = '';
+            if (value) {
+                var encodedValue = _DefaultRenderer.prototype.toView.call(this, this._sanitize(value));
+                if (editMode === false) {
+                    view = '<a target="' + this._valueFormat + '" href="' + encodedValue + '">' + this._params.textFormat + '</a>';
+                } else {
+                    view = encodedValue;
+                }
+            }
+            return view;
+        };
+
+        HyperlinkRenderer.prototype._sanitize = function _sanitize(html) {
+            return _htmlCssSanitizer2.default.sanitize(html, function (u) {
+                return u;
+            }, function (id) {
+                return id;
+            });
+        };
+
+        return HyperlinkRenderer;
+    }(_defaultRenderer.DefaultRenderer), _class.DEFAULT_VALUE_FORMAT = '_blank', _class.DEFAULT_TEXT_FORMAT = 'View', _temp);
+});
+//# sourceMappingURL=../../../maps/grid-advanced/components/renderers/hyperlink-renderer.js.map
+
+gaRequire.define('tw-grid-advanced/grid-advanced/components/renderers/imagelink-renderer',['exports', 'html-css-sanitizer', './default-renderer'], function (exports, _htmlCssSanitizer, _defaultRenderer) {
+    'use strict';
+
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
+    exports.ImagelinkRenderer = undefined;
+
+    var _htmlCssSanitizer2 = _interopRequireDefault(_htmlCssSanitizer);
+
+    function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : {
+            default: obj
+        };
+    }
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    function _possibleConstructorReturn(self, call) {
+        if (!self) {
+            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }
+
+        return call && (typeof call === "object" || typeof call === "function") ? call : self;
+    }
+
+    function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        }
+
+        subClass.prototype = Object.create(superClass && superClass.prototype, {
+            constructor: {
+                value: subClass,
+                enumerable: false,
+                writable: true,
+                configurable: true
+            }
+        });
+        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+    }
+
+    var ImagelinkRenderer = exports.ImagelinkRenderer = function (_DefaultRenderer) {
+        _inherits(ImagelinkRenderer, _DefaultRenderer);
+
+        function ImagelinkRenderer(valueFormat, params) {
+            _classCallCheck(this, ImagelinkRenderer);
+
+            return _possibleConstructorReturn(this, _DefaultRenderer.call(this, 'imagelink', valueFormat, params, true, valueFormat === 'hyperlink'));
+        }
+
+        ImagelinkRenderer.prototype.toView = function toView(value) {
+            var editMode = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+            value = _DefaultRenderer.prototype.toView.call(this, value);
+            if (editMode === false) {
+                var safeImageLink = this._convertImageLink(value);
+                switch (this._valueFormat) {
+                    case 'hyperlink':
+                        value = this._convertToHyperlink(value);
+                        break;
+                    case 'scaledtowidth':
+                        value = '<div style="background-image:url(\'' + safeImageLink + '\');background-repeat:no-repeat;\n                        background-size:100% auto;height:100%;width:100%;background-position-y:50%;display:table;' + this._getHorizontalTextAlignment() + '" ></div>';
+                        break;
+                    case 'scaledtoheight':
+                        value = '<div style="background-image:url(\'' + safeImageLink + '\');background-repeat:no-repeat;\n                        background-size:auto 100%;height:100%;width:100%;background-position-y:50%;display:table;' + this._getHorizontalTextAlignment() + '" ></div>';
+                        break;
+                    case 'image':
+                    default:
+                        value = '<div style="background-image:url(\'' + safeImageLink + '\');background-repeat:no-repeat;\n                        background-size:auto;height:100%;width:100%;background-position-y:50%;display:table;' + this._getHorizontalTextAlignment() + '" ></div>';
+                        break;
+                }
+            }
+            return value;
+        };
+
+        ImagelinkRenderer.prototype._convertToHyperlink = function _convertToHyperlink(imageLink) {
+            var imageName = 'Click for image';
+            if (imageLink && typeof imageLink === 'string' && imageLink.indexOf('/') > -1) {
+                imageName = imageLink.substring(imageLink.lastIndexOf('/') + 1);
+            }
+            imageLink = this._convertImageLink(imageLink);
+            return '<a target="_blank" href="' + imageLink + '">' + imageName + '</a>';
+        };
+
+        ImagelinkRenderer.prototype._convertImageLink = function _convertImageLink(imageLink) {
+            var path = '';
+            if (imageLink && typeof imageLink === 'string') {
+                if (imageLink.length > 0 && imageLink.indexOf('/') === -1) {
+                    path = '/Thingworx/MediaEntities/' + encodeURIComponent(imageLink);
+                } else {
+                    if (imageLink.indexOf('http') !== 0) {
+                        imageLink = window.location.origin + imageLink;
+                    }
+                    path = this._sanitize(imageLink);
+                }
+            }
+            return path;
+        };
+
+        ImagelinkRenderer.prototype._sanitize = function _sanitize(html) {
+            return _htmlCssSanitizer2.default.sanitize(html, function (u) {
+                return u;
+            }, function (id) {
+                return id;
+            });
+        };
+
+        ImagelinkRenderer.prototype._getHorizontalTextAlignment = function _getHorizontalTextAlignment() {
+            var textAlignment = '';
+            if (this.params && this.params.textAlignment) {
+                var position = '0%;';
+                if (this.params.textAlignment === 'center') {
+                    position = '50%;';
+                } else if (this.params.textAlignment === 'right') {
+                    position = '100%;';
+                }
+                textAlignment = "background-position-x:" + position;
+            }
+            return textAlignment;
+        };
+
+        return ImagelinkRenderer;
+    }(_defaultRenderer.DefaultRenderer);
+});
+//# sourceMappingURL=../../../maps/grid-advanced/components/renderers/imagelink-renderer.js.map
+
+gaRequire.define('tw-grid-advanced/grid-advanced/components/renderers/integer-renderer',['exports', './number-renderer'], function (exports, _numberRenderer) {
+    'use strict';
+
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
+    exports.IntegerRenderer = undefined;
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    function _possibleConstructorReturn(self, call) {
+        if (!self) {
+            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }
+
+        return call && (typeof call === "object" || typeof call === "function") ? call : self;
+    }
+
+    function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        }
+
+        subClass.prototype = Object.create(superClass && superClass.prototype, {
+            constructor: {
+                value: subClass,
+                enumerable: false,
+                writable: true,
+                configurable: true
+            }
+        });
+        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+    }
+
+    var IntegerRenderer = exports.IntegerRenderer = function (_NumberRenderer) {
+        _inherits(IntegerRenderer, _NumberRenderer);
+
+        function IntegerRenderer(valueFormat, params) {
+            _classCallCheck(this, IntegerRenderer);
+
+            if (valueFormat.indexOf('.') >= 0) {
+                valueFormat = valueFormat.substring(0, valueFormat.indexOf('.'));
+            }
+            return _possibleConstructorReturn(this, _NumberRenderer.call(this, 'integer', valueFormat, params));
+        }
+
+        IntegerRenderer.prototype.toView = function toView(value) {
+            var editMode = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+            var imageLink = arguments[2];
+
+            return _NumberRenderer.prototype.toView.call(this, value, editMode, imageLink);
+        };
+
+        IntegerRenderer.prototype.parseValue = function parseValue(rawValue, newValue) {
+            var parsed = newValue;
+            if (typeof newValue === 'string' && newValue !== '') {
+                parsed = parseInt(newValue, 10);
+            } else if (typeof newValue === 'number') {
+                parsed = parseInt(newValue.toString(), 10);
+            }
+            parsed = isNaN(parsed) ? rawValue : parsed;
+            return parsed;
+        };
+
+        return IntegerRenderer;
+    }(_numberRenderer.NumberRenderer);
+});
+//# sourceMappingURL=../../../maps/grid-advanced/components/renderers/integer-renderer.js.map
+
+gaRequire.define('tw-grid-advanced/grid-advanced/components/renderers/location-renderer',['exports', './number-renderer'], function (exports, _numberRenderer) {
+    'use strict';
+
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
+    exports.LocationRenderer = undefined;
+
+    var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+        return typeof obj;
+    } : function (obj) {
+        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+    };
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    function _possibleConstructorReturn(self, call) {
+        if (!self) {
+            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }
+
+        return call && (typeof call === "object" || typeof call === "function") ? call : self;
+    }
+
+    function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        }
+
+        subClass.prototype = Object.create(superClass && superClass.prototype, {
+            constructor: {
+                value: subClass,
+                enumerable: false,
+                writable: true,
+                configurable: true
+            }
+        });
+        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+    }
+
+    var LocationRenderer = exports.LocationRenderer = function (_NumberRenderer) {
+        _inherits(LocationRenderer, _NumberRenderer);
+
+        function LocationRenderer(valueFormat, params) {
+            _classCallCheck(this, LocationRenderer);
+
+            valueFormat = valueFormat && valueFormat.length > 0 && /^[0]{1}\.[0]{0,6}$/.test(valueFormat) ? valueFormat : undefined;
+            return _possibleConstructorReturn(this, _NumberRenderer.call(this, 'location', valueFormat, params));
+        }
+
+        LocationRenderer.prototype.toView = function toView(value) {
+            var editMode = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+            var imageLink = arguments[2];
+
+            if (editMode === false) {
+                if (value) {
+                    if (this._valueFormat) {
+                        var latLng = value.latitude !== undefined ? _NumberRenderer.prototype._format.call(this, value.latitude, this._valueFormat) : 0;
+                        latLng += value.longitude !== undefined ? ' : ' + _NumberRenderer.prototype._format.call(this, value.longitude, this._valueFormat) : ' : ' + 0;
+                        latLng += value.elevation !== undefined && value.elevation !== 0 ? ' : ' + _NumberRenderer.prototype._format.call(this, value.elevation, this._valueFormat) : '';
+                        value = latLng;
+                    } else {
+                        var _latLng = value.latitude !== undefined ? value.latitude : 0;
+                        _latLng += value.longitude !== undefined ? ' : ' + value.longitude : ' : ' + 0;
+                        _latLng += value.elevation !== undefined && value.elevation !== 0 ? ' : ' + value.elevation : '';
+                        value = _latLng;
+                    }
+                }
+                if (imageLink) {
+                    value = value ? '<img style="vertical-align:top" src="' + imageLink + '">&nbsp' + value : '<img style="vertical-align:top" src="' + imageLink + '">';
+                }
+            } else {
+                var _latLng2 = value.latitude !== undefined ? value.latitude : 0;
+                _latLng2 += value.longitude !== undefined ? ' : ' + value.longitude : ' : ' + 0;
+                _latLng2 += value.elevation !== undefined && value.elevation !== 0 ? ' : ' + value.elevation : '';
+                value = _latLng2;
+            }
+            return value;
+        };
+
+        LocationRenderer.prototype.parseValue = function parseValue(rawValue, newValue) {
+            var latLng = {
+                latitude: 0,
+                longitude: 0,
+                elevation: 0
+            };
+            if ((typeof rawValue === 'undefined' ? 'undefined' : _typeof(rawValue)) === 'object' && typeof newValue === 'string') {
+                if (newValue.indexOf(':') > -1) {
+                    var v = newValue.split(':');
+                    var v0 = v.length > 0 ? parseFloat(v[0].trim()) : 0;
+                    var v1 = v.length > 1 ? parseFloat(v[1].trim()) : 0;
+                    var v2 = v.length > 2 ? parseFloat(v[2].trim()) : 0;
+
+                    if (!isNaN(v0) && !isNaN(v1)) {
+                        latLng.latitude = v0;
+                        latLng.longitude = v1;
+                        if (rawValue.elevation !== undefined && !isNaN(v2) || rawValue.elevation === undefined && !isNaN(v2)) {
+                            latLng.elevation = v2;
+                        }
+                        newValue = latLng;
+                    } else {
+                        newValue = rawValue;
+                    }
+                } else {
+                    newValue = rawValue;
+                }
+            }
+            return newValue;
+        };
+
+        return LocationRenderer;
+    }(_numberRenderer.NumberRenderer);
+});
+//# sourceMappingURL=../../../maps/grid-advanced/components/renderers/location-renderer.js.map
+
+gaRequire.define('tw-grid-advanced/grid-advanced/components/renderers/long-renderer',['exports', './number-renderer'], function (exports, _numberRenderer) {
+    'use strict';
+
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
+    exports.LongRenderer = undefined;
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    function _possibleConstructorReturn(self, call) {
+        if (!self) {
+            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }
+
+        return call && (typeof call === "object" || typeof call === "function") ? call : self;
+    }
+
+    function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        }
+
+        subClass.prototype = Object.create(superClass && superClass.prototype, {
+            constructor: {
+                value: subClass,
+                enumerable: false,
+                writable: true,
+                configurable: true
+            }
+        });
+        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+    }
+
+    var LongRenderer = exports.LongRenderer = function (_NumberRenderer) {
+        _inherits(LongRenderer, _NumberRenderer);
+
+        function LongRenderer(valueFormat, params) {
+            _classCallCheck(this, LongRenderer);
+
+            if (valueFormat.indexOf('.') >= 0) {
+                valueFormat = valueFormat.substring(0, valueFormat.indexOf('.'));
+            }
+            return _possibleConstructorReturn(this, _NumberRenderer.call(this, 'long', valueFormat, params));
+        }
+
+        LongRenderer.prototype.toView = function toView(value) {
+            var editMode = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+            var imageLink = arguments[2];
+
+            return _NumberRenderer.prototype.toView.call(this, value, editMode, imageLink);
+        };
+
+        return LongRenderer;
+    }(_numberRenderer.NumberRenderer);
+});
+//# sourceMappingURL=../../../maps/grid-advanced/components/renderers/long-renderer.js.map
+
+gaRequire.define('tw-grid-advanced/grid-advanced/components/renderers/number-renderer',['exports', './default-renderer'], function (exports, _defaultRenderer) {
+    'use strict';
+
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
+    exports.NumberRenderer = undefined;
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    function _possibleConstructorReturn(self, call) {
+        if (!self) {
+            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }
+
+        return call && (typeof call === "object" || typeof call === "function") ? call : self;
+    }
+
+    function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        }
+
+        subClass.prototype = Object.create(superClass && superClass.prototype, {
+            constructor: {
+                value: subClass,
+                enumerable: false,
+                writable: true,
+                configurable: true
+            }
+        });
+        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+    }
+
+    var NumberRenderer = exports.NumberRenderer = function (_DefaultRenderer) {
+        _inherits(NumberRenderer, _DefaultRenderer);
+
+        function NumberRenderer(type, valueFormat, params) {
+            _classCallCheck(this, NumberRenderer);
+
+            if (valueFormat !== undefined && valueFormat.length === 0) {
+                valueFormat = '0';
+            }
+            if (params === undefined) {
+                params = {};
+            }
+            if (params.roundingEnabled === undefined) {
+                params['roundingEnabled'] = true;
+            }
+            return _possibleConstructorReturn(this, _DefaultRenderer.call(this, type, valueFormat, params));
+        }
+
+        NumberRenderer.prototype.toView = function toView(value) {
+            var editMode = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+            var imageLink = arguments[2];
+
+            value = parseFloat(value);
+            if (editMode === false) {
+                value = this._format(value, this._valueFormat);
+                if (imageLink) {
+                    value = value ? '<img style="vertical-align:top" src="' + imageLink + '">&nbsp' + value : '<img style="vertical-align:top" src="' + imageLink + '">';
+                }
+            }
+            return value;
+        };
+
+        NumberRenderer.prototype.parseValue = function parseValue(rawValue, newValue) {
+            var parsed = newValue;
+            if (typeof newValue === 'string' && newValue !== '') {
+                parsed = parseFloat(newValue);
+            } else if (typeof newValue === 'number') {
+                parsed = parseFloat(newValue.toString());
+            }
+            parsed = isNaN(parsed) ? rawValue : parsed;
+            return parsed;
+        };
+
+        NumberRenderer.prototype._format = function _format(value, format) {
+            if (typeof format !== 'string' || value === undefined) {
+                return '';
+            }
+
+            var hasComma = -1 < format.indexOf(','),
+                psplit = format.replace(/[^0-9.]/g, '').split('.');
+
+            var wasNegative = false;
+            if (value < 0) {
+                wasNegative = true;
+                value = -value;
+            }
+            var index = value.toString().indexOf('.');
+
+            if (1 < psplit.length) {
+                if (this.params && this.params.roundingEnabled) {
+                    value = value.toFixed(psplit[1].length);
+                } else if (index > -1) {
+                    var decimals = value.toString().substring(index + 1, index + 1 + psplit[1].length);
+                    value = parseFloat(value.toString().substring(0, index) + '.' + decimals);
+                }
+            } else if (2 < psplit.length) {
+                throw 'NumberFormatException: invalid format, formats should have no more than 1 period: ' + format;
+            } else {
+                if (this.params && this.params.roundingEnabled) {
+                    value = value.toFixed(0);
+                } else if (index > 0) {
+                    value = parseInt(value.toString().substring(0, index), 10);
+                }
+            }
+
+            var fnum = value.toString();
+
+            if (hasComma) {
+                psplit = fnum.split('.');
+
+                var cnum = psplit[0],
+                    parr = [],
+                    j = cnum.length,
+                    m = Math.floor(j / 3),
+                    n = cnum.length % 3 || 3;
+                for (var i = 0; i < j; i += n) {
+                    if (i !== 0) {
+                        n = 3;
+                    }
+                    parr[parr.length] = cnum.substr(i, n);
+                    m -= 1;
+                }
+
+                fnum = parr.join(',');
+
+                if (psplit[1]) {
+                    fnum += '.' + psplit[1];
+                }
+            }
+
+            var returnedString = format.replace(/[\d,?\.?]+/, fnum);
+
+            if (wasNegative) {
+                returnedString = '-' + returnedString;
+            }
+            return returnedString;
+        };
+
+        return NumberRenderer;
+    }(_defaultRenderer.DefaultRenderer);
+});
+//# sourceMappingURL=../../../maps/grid-advanced/components/renderers/number-renderer.js.map
+
+gaRequire.define('tw-grid-advanced/grid-advanced/components/renderers/string-renderer',['exports', './default-renderer'], function (exports, _defaultRenderer) {
+    'use strict';
+
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
+    exports.StringRenderer = undefined;
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    function _possibleConstructorReturn(self, call) {
+        if (!self) {
+            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }
+
+        return call && (typeof call === "object" || typeof call === "function") ? call : self;
+    }
+
+    function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        }
+
+        subClass.prototype = Object.create(superClass && superClass.prototype, {
+            constructor: {
+                value: subClass,
+                enumerable: false,
+                writable: true,
+                configurable: true
+            }
+        });
+        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+    }
+
+    var _class, _temp;
+
+    var StringRenderer = exports.StringRenderer = (_temp = _class = function (_DefaultRenderer) {
+        _inherits(StringRenderer, _DefaultRenderer);
+
+        function StringRenderer(valueFormat, params) {
+            _classCallCheck(this, StringRenderer);
+
+            var _this = _possibleConstructorReturn(this, _DefaultRenderer.call(this, 'string', valueFormat, params));
+
+            _this._maxLength = _this._limitLength();
+            return _this;
+        }
+
+        StringRenderer.prototype._limitLength = function _limitLength() {
+            switch (this._valueFormat) {
+                case 'full':
+                    return undefined;
+                case 'notext':
+                    return 0;
+                case 'limit10':
+                case 'limit20':
+                case 'limit40':
+                case 'limit80':
+                case 'limit128':
+                case 'limit256':
+                    return Number(this._valueFormat.substring(5, this._valueFormat.length));
+                default:
+                    return StringRenderer.DEFAULT_MAX_STRING_LENGTH;
+            }
+        };
+
+        StringRenderer.prototype.toView = function toView(value) {
+            var editMode = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+            var imageLink = arguments[2];
+
+            value = _DefaultRenderer.prototype.toView.call(this, value);
+            if (editMode === false) {
+                var truncateLength = this._maxLength;
+                if (value && value.length > truncateLength) {
+                    value = value.substring(0, truncateLength);
+                    value += truncateLength > 0 ? '...' : '';
+                }
+                if (imageLink && typeof value === 'string') {
+                    value = value ? '<img style="vertical-align:top" src="' + imageLink + '">&nbsp' + value : '<img style="vertical-align:top" src="' + imageLink + '">';
+                }
+            }
+            return value;
+        };
+
+        StringRenderer.prototype.parseValue = function parseValue(rawValue, newValue) {
+            var parsed = void 0;
+            if (newValue === 'string') {
+                parsed = newValue;
+            } else {
+                parsed = newValue.toString();
+            }
+            return parsed;
+        };
+
+        return StringRenderer;
+    }(_defaultRenderer.DefaultRenderer), _class.DEFAULT_MAX_STRING_LENGTH = 40, _temp);
+});
+//# sourceMappingURL=../../../maps/grid-advanced/components/renderers/string-renderer.js.map
+
 gaRequire.define('tw-grid-advanced/grid-advanced/components/definitions/state-definition',['exports', 'lodash-amd'], function (exports, _lodashAmd) {
     'use strict';
 
@@ -7317,13 +8794,12 @@ gaRequire.define('tw-grid-advanced/grid-advanced/components/definitions/state-de
 });
 //# sourceMappingURL=../../../maps/grid-advanced/components/definitions/state-definition.js.map
 
-gaRequire.define('tw-grid-advanced/grid-advanced/components/definitions/style-definition',['exports', './../../logger'], function (exports, _logger) {
+gaRequire.define('tw-grid-advanced/grid-advanced/components/definitions/style-definition',['exports'], function (exports) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
         value: true
     });
-    exports.StyleDefinition = undefined;
 
     function _classCallCheck(instance, Constructor) {
         if (!(instance instanceof Constructor)) {
@@ -7473,7 +8949,9 @@ gaRequire.define('tw-grid-advanced/grid-advanced/components/definitions/style-de
             }
         };
 
-        StyleDefinition.prototype.getBackgroundStyle = function getBackgroundStyle(important) {
+        StyleDefinition.prototype.getBackgroundStyle = function getBackgroundStyle() {
+            var important = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
             var style = '';
             var importantStyle = important ? '!important' : '';
             if (this.backgroundColor.length === 0 && this.secondaryBackgroundColor.length === 0) {
@@ -7491,7 +8969,9 @@ gaRequire.define('tw-grid-advanced/grid-advanced/components/definitions/style-de
             return style;
         };
 
-        StyleDefinition.prototype.getBorderStyle = function getBorderStyle(important) {
+        StyleDefinition.prototype.getBorderStyle = function getBorderStyle() {
+            var important = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
             var style = '';
             var importantStyle = important ? '!important' : '';
             var borderWidth = this.borderWidth.length !== 0 && !isNaN(parseInt(this.borderWidth, 10)) ? parseInt(this.borderWidth, 10) : 0;
@@ -7511,7 +8991,13 @@ gaRequire.define('tw-grid-advanced/grid-advanced/components/definitions/style-de
             return style;
         };
 
-        StyleDefinition.prototype.getFontStyle = function getFontStyle(important) {
+        StyleDefinition.prototype.getBorderWidth = function getBorderWidth() {
+            return this.borderWidth.length !== 0 && !isNaN(parseInt(this.borderWidth, 10)) ? parseInt(this.borderWidth, 10) : 0;
+        };
+
+        StyleDefinition.prototype.getFontStyle = function getFontStyle() {
+            var important = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
             var style = '';
             var importantStyle = important ? '!important' : '';
             if (this.color && this.color.length > 0) {
@@ -7660,975 +9146,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/components/definitions/style-de
 });
 //# sourceMappingURL=../../../maps/grid-advanced/components/definitions/style-definition.js.map
 
-gaRequire.define('tw-grid-advanced/grid-advanced/components/renderers/boolean-renderer',['exports', './default-renderer'], function (exports, _defaultRenderer) {
-    'use strict';
 
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
-    exports.BooleanRenderer = undefined;
+gaRequire.define("tw-grid-advanced/grid-advanced/components/definitions/footer-definition", [],function(){});
 
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
-    }
-
-    function _possibleConstructorReturn(self, call) {
-        if (!self) {
-            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        }
-
-        return call && (typeof call === "object" || typeof call === "function") ? call : self;
-    }
-
-    function _inherits(subClass, superClass) {
-        if (typeof superClass !== "function" && superClass !== null) {
-            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-        }
-
-        subClass.prototype = Object.create(superClass && superClass.prototype, {
-            constructor: {
-                value: subClass,
-                enumerable: false,
-                writable: true,
-                configurable: true
-            }
-        });
-        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-    }
-
-    var BooleanRenderer = exports.BooleanRenderer = function (_DefaultRenderer) {
-        _inherits(BooleanRenderer, _DefaultRenderer);
-
-        function BooleanRenderer(valueFormat, params) {
-            _classCallCheck(this, BooleanRenderer);
-
-            return _possibleConstructorReturn(this, _DefaultRenderer.call(this, 'boolean', valueFormat, params, true, valueFormat === 'text'));
-        }
-
-        BooleanRenderer.prototype.toView = function toView(value, imageLink) {
-            switch (this._valueFormat) {
-                case 'text':
-                    value = imageLink ? '<img style="vertical-align:top" src="' + imageLink + '">&nbsp' + _DefaultRenderer.prototype.toView.call(this, value) : _DefaultRenderer.prototype.toView.call(this, value);
-                    break;
-                case 'notext':
-                    value = imageLink ? '<img style="vertical-align:top" src="' + imageLink + '">' : '';
-                    break;
-                case 'checkbox':
-                default:
-                    value = '<input type="CHECKBOX" ' + (value ? 'checked' : '') + ' disabled="disabled">';
-            }
-            return value;
-        };
-
-        return BooleanRenderer;
-    }(_defaultRenderer.DefaultRenderer);
-});
-//# sourceMappingURL=../../../maps/grid-advanced/components/renderers/boolean-renderer.js.map
-
-gaRequire.define('tw-grid-advanced/grid-advanced/components/renderers/datetime-renderer',['exports', './default-renderer', 'moment-jdateformatparser', 'lodash-amd'], function (exports, _defaultRenderer, _momentJdateformatparser, _lodashAmd) {
-    'use strict';
-
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
-    exports.DatetimeRenderer = undefined;
-
-    var _momentJdateformatparser2 = _interopRequireDefault(_momentJdateformatparser);
-
-    var _lodashAmd2 = _interopRequireDefault(_lodashAmd);
-
-    function _interopRequireDefault(obj) {
-        return obj && obj.__esModule ? obj : {
-            default: obj
-        };
-    }
-
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
-    }
-
-    function _possibleConstructorReturn(self, call) {
-        if (!self) {
-            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        }
-
-        return call && (typeof call === "object" || typeof call === "function") ? call : self;
-    }
-
-    function _inherits(subClass, superClass) {
-        if (typeof superClass !== "function" && superClass !== null) {
-            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-        }
-
-        subClass.prototype = Object.create(superClass && superClass.prototype, {
-            constructor: {
-                value: subClass,
-                enumerable: false,
-                writable: true,
-                configurable: true
-            }
-        });
-        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-    }
-
-    var DatetimeRenderer = exports.DatetimeRenderer = function (_DefaultRenderer) {
-        _inherits(DatetimeRenderer, _DefaultRenderer);
-
-        function DatetimeRenderer(valueFormat, params) {
-            _classCallCheck(this, DatetimeRenderer);
-
-            return _possibleConstructorReturn(this, _DefaultRenderer.call(this, 'datetime', valueFormat, params));
-        }
-
-        DatetimeRenderer.prototype.toView = function toView(value, imageLink) {
-            if (_lodashAmd2.default.isNil(value)) {
-                value = '---';
-            } else if (_lodashAmd2.default.isString(value)) {
-                value = value.trim().length === 0 ? '---' : (0, _momentJdateformatparser2.default)(new Date(value)).format(this._valueFormat);
-            } else {
-                value = this._formatDate(value);
-            }
-            if (imageLink) {
-                value = '<img style="vertical-align:top" src="' + imageLink + '">&nbsp' + value;
-            }
-            return value;
-        };
-
-        DatetimeRenderer.prototype._formatDate = function _formatDate(value) {
-            var m = (0, _momentJdateformatparser2.default)(value);
-            var date = void 0;
-            var format = this._valueFormat;
-
-            if (format) {
-                if (format.substring(0, 9) === 'relative:') {
-                    m.fromNow();
-                    format = format.replace('relative:', '');
-                }
-                date = m.formatWithJDF(format);
-            } else {
-                date = _DefaultRenderer.prototype.toView.call(this, value);
-            }
-            return date;
-        };
-
-        return DatetimeRenderer;
-    }(_defaultRenderer.DefaultRenderer);
-});
-//# sourceMappingURL=../../../maps/grid-advanced/components/renderers/datetime-renderer.js.map
-
-gaRequire.define('tw-grid-advanced/grid-advanced/components/renderers/default-renderer',['exports', 'htmlencode', 'lodash-amd'], function (exports, _htmlencode, _lodashAmd) {
-    'use strict';
-
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
-    exports.DefaultRenderer = undefined;
-
-    var _htmlencode2 = _interopRequireDefault(_htmlencode);
-
-    var _lodashAmd2 = _interopRequireDefault(_lodashAmd);
-
-    function _interopRequireDefault(obj) {
-        return obj && obj.__esModule ? obj : {
-            default: obj
-        };
-    }
-
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
-    }
-
-    var _createClass = function () {
-        function defineProperties(target, props) {
-            for (var i = 0; i < props.length; i++) {
-                var descriptor = props[i];
-                descriptor.enumerable = descriptor.enumerable || false;
-                descriptor.configurable = true;
-                if ("value" in descriptor) descriptor.writable = true;
-                Object.defineProperty(target, descriptor.key, descriptor);
-            }
-        }
-
-        return function (Constructor, protoProps, staticProps) {
-            if (protoProps) defineProperties(Constructor.prototype, protoProps);
-            if (staticProps) defineProperties(Constructor, staticProps);
-            return Constructor;
-        };
-    }();
-
-    var DefaultRenderer = exports.DefaultRenderer = function () {
-        function DefaultRenderer(type, valueFormat, params) {
-            var encodeValue = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
-            var allowTooltip = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
-
-            _classCallCheck(this, DefaultRenderer);
-
-            this._type = type;
-            this._valueFormat = valueFormat;
-            this._params = params;
-            this._encodeValue = encodeValue;
-            this._allowTooltip = allowTooltip;
-        }
-
-        DefaultRenderer.prototype.toView = function toView(value) {
-            var newVal = value;
-
-            if (value === undefined || value === null) {
-                newVal = '';
-            } else if (typeof value.toString === 'function') {
-                newVal = value.toString();
-            } else if (_lodashAmd2.default.isObject(value)) {
-                newVal = JSON.stringify(value);
-            }
-
-            if (this._encodeValue) {
-                newVal = _htmlencode2.default.htmlEncode(newVal);
-            }
-
-            return newVal;
-        };
-
-        _createClass(DefaultRenderer, [{
-            key: 'type',
-            get: function get() {
-                return this._type;
-            }
-        }, {
-            key: 'params',
-            get: function get() {
-                return this._params;
-            }
-        }, {
-            key: 'allowTooltip',
-            get: function get() {
-                return this._allowTooltip;
-            }
-        }]);
-
-        return DefaultRenderer;
-    }();
-});
-//# sourceMappingURL=../../../maps/grid-advanced/components/renderers/default-renderer.js.map
-
-gaRequire.define('tw-grid-advanced/grid-advanced/components/renderers/html-renderer',['exports', 'html-css-sanitizer', './default-renderer', 'htmlencode'], function (exports, _htmlCssSanitizer, _defaultRenderer, _htmlencode) {
-    'use strict';
-
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
-    exports.HtmlRenderer = undefined;
-
-    var _htmlCssSanitizer2 = _interopRequireDefault(_htmlCssSanitizer);
-
-    var _htmlencode2 = _interopRequireDefault(_htmlencode);
-
-    function _interopRequireDefault(obj) {
-        return obj && obj.__esModule ? obj : {
-            default: obj
-        };
-    }
-
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
-    }
-
-    function _possibleConstructorReturn(self, call) {
-        if (!self) {
-            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        }
-
-        return call && (typeof call === "object" || typeof call === "function") ? call : self;
-    }
-
-    function _inherits(subClass, superClass) {
-        if (typeof superClass !== "function" && superClass !== null) {
-            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-        }
-
-        subClass.prototype = Object.create(superClass && superClass.prototype, {
-            constructor: {
-                value: subClass,
-                enumerable: false,
-                writable: true,
-                configurable: true
-            }
-        });
-        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-    }
-
-    var HtmlRenderer = exports.HtmlRenderer = function (_DefaultRenderer) {
-        _inherits(HtmlRenderer, _DefaultRenderer);
-
-        function HtmlRenderer(valueFormat, params) {
-            _classCallCheck(this, HtmlRenderer);
-
-            return _possibleConstructorReturn(this, _DefaultRenderer.call(this, 'html', valueFormat, params, valueFormat === 'raw'));
-        }
-
-        HtmlRenderer.prototype.toView = function toView(value) {
-            var valString = _DefaultRenderer.prototype.toView.call(this, value);
-            switch (this._valueFormat) {
-                case 'raw':
-                    break;
-                case 'unsanitized':
-                    break;
-                case 'format':
-                default:
-                    valString = HtmlRenderer.sanitize(valString);
-            }
-            return valString;
-        };
-
-        HtmlRenderer.sanitize = function sanitize(html) {
-            return _htmlCssSanitizer2.default.sanitize(html, function (u) {
-                return u;
-            }, function (id) {
-                return id;
-            });
-        };
-
-        return HtmlRenderer;
-    }(_defaultRenderer.DefaultRenderer);
-});
-//# sourceMappingURL=../../../maps/grid-advanced/components/renderers/html-renderer.js.map
-
-gaRequire.define('tw-grid-advanced/grid-advanced/components/renderers/hyperlink-renderer',['exports', 'html-css-sanitizer', './default-renderer'], function (exports, _htmlCssSanitizer, _defaultRenderer) {
-    'use strict';
-
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
-    exports.HyperlinkRenderer = undefined;
-
-    var _htmlCssSanitizer2 = _interopRequireDefault(_htmlCssSanitizer);
-
-    function _interopRequireDefault(obj) {
-        return obj && obj.__esModule ? obj : {
-            default: obj
-        };
-    }
-
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
-    }
-
-    function _possibleConstructorReturn(self, call) {
-        if (!self) {
-            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        }
-
-        return call && (typeof call === "object" || typeof call === "function") ? call : self;
-    }
-
-    function _inherits(subClass, superClass) {
-        if (typeof superClass !== "function" && superClass !== null) {
-            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-        }
-
-        subClass.prototype = Object.create(superClass && superClass.prototype, {
-            constructor: {
-                value: subClass,
-                enumerable: false,
-                writable: true,
-                configurable: true
-            }
-        });
-        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-    }
-
-    var _class, _temp;
-
-    var HyperlinkRenderer = exports.HyperlinkRenderer = (_temp = _class = function (_DefaultRenderer) {
-        _inherits(HyperlinkRenderer, _DefaultRenderer);
-
-        function HyperlinkRenderer(valueFormat, params) {
-            _classCallCheck(this, HyperlinkRenderer);
-
-            var _this = _possibleConstructorReturn(this, _DefaultRenderer.call(this, 'hyperlink', valueFormat, params));
-
-            _this._validateValueFormat();
-            _this._validateTextFormat();
-            return _this;
-        }
-
-        HyperlinkRenderer.prototype._validateTextFormat = function _validateTextFormat() {
-            if (!this._params) {
-                this._params = {
-                    textFormat: HyperlinkRenderer.DEFAULT_TEXT_FORMAT
-                };
-            }
-        };
-
-        HyperlinkRenderer.prototype._validateValueFormat = function _validateValueFormat() {
-            if (['_self', '_blank', '_parent', '_top'].indexOf(this._valueFormat) === -1) {
-                this._valueFormat = HyperlinkRenderer.DEFAULT_VALUE_FORMAT;
-            }
-        };
-
-        HyperlinkRenderer.prototype.toView = function toView(value) {
-            var view = '';
-            if (value) {
-                var encodedValue = _DefaultRenderer.prototype.toView.call(this, this._sanitize(value));
-                view = '<a target="' + this._valueFormat + '" href="' + encodedValue + '">' + this._params.textFormat + '</a>';
-            }
-            return view;
-        };
-
-        HyperlinkRenderer.prototype._sanitize = function _sanitize(html) {
-            return _htmlCssSanitizer2.default.sanitize(html, function (u) {
-                return u;
-            }, function (id) {
-                return id;
-            });
-        };
-
-        return HyperlinkRenderer;
-    }(_defaultRenderer.DefaultRenderer), _class.DEFAULT_VALUE_FORMAT = '_blank', _class.DEFAULT_TEXT_FORMAT = 'View', _temp);
-});
-//# sourceMappingURL=../../../maps/grid-advanced/components/renderers/hyperlink-renderer.js.map
-
-gaRequire.define('tw-grid-advanced/grid-advanced/components/renderers/imagelink-renderer',['exports', 'html-css-sanitizer', './default-renderer'], function (exports, _htmlCssSanitizer, _defaultRenderer) {
-    'use strict';
-
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
-    exports.ImagelinkRenderer = undefined;
-
-    var _htmlCssSanitizer2 = _interopRequireDefault(_htmlCssSanitizer);
-
-    function _interopRequireDefault(obj) {
-        return obj && obj.__esModule ? obj : {
-            default: obj
-        };
-    }
-
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
-    }
-
-    function _possibleConstructorReturn(self, call) {
-        if (!self) {
-            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        }
-
-        return call && (typeof call === "object" || typeof call === "function") ? call : self;
-    }
-
-    function _inherits(subClass, superClass) {
-        if (typeof superClass !== "function" && superClass !== null) {
-            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-        }
-
-        subClass.prototype = Object.create(superClass && superClass.prototype, {
-            constructor: {
-                value: subClass,
-                enumerable: false,
-                writable: true,
-                configurable: true
-            }
-        });
-        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-    }
-
-    var ImagelinkRenderer = exports.ImagelinkRenderer = function (_DefaultRenderer) {
-        _inherits(ImagelinkRenderer, _DefaultRenderer);
-
-        function ImagelinkRenderer(valueFormat, params) {
-            _classCallCheck(this, ImagelinkRenderer);
-
-            return _possibleConstructorReturn(this, _DefaultRenderer.call(this, 'imagelink', valueFormat, params, true, valueFormat === 'hyperlink'));
-        }
-
-        ImagelinkRenderer.prototype.toView = function toView(value) {
-            value = _DefaultRenderer.prototype.toView.call(this, value);
-            var safeImageLink = this._convertImageLink(value);
-            switch (this._valueFormat) {
-                case 'hyperlink':
-                    return this._convertToHyperlink(value);
-                case 'scaledtowidth':
-                    return '<div style="background-image:url(\'' + safeImageLink + '\');background-repeat:no-repeat;\n                        background-size:100% auto;height:100%;width:100%;background-position-y:50%;' + this._getHorizontalTextAlignment() + '" ></div>';
-                case 'scaledtoheight':
-                    return '<div style="background-image:url(\'' + safeImageLink + '\');background-repeat:no-repeat;\n                        background-size:auto 100%;height:100%;width:100%;background-position-y:50%;' + this._getHorizontalTextAlignment() + '" ></div>';
-                case 'image':
-                default:
-                    return '<div style="background-image:url(\'' + safeImageLink + '\');background-repeat:no-repeat;\n                        background-size:auto;height:100%;width:100%;background-position-y:50%;' + this._getHorizontalTextAlignment() + '" ></div>';
-            }
-        };
-
-        ImagelinkRenderer.prototype._convertToHyperlink = function _convertToHyperlink(imageLink) {
-            var imageName = 'Click for image';
-            if (imageLink && typeof imageLink === 'string' && imageLink.indexOf('/') > -1) {
-                imageName = imageLink.substring(imageLink.lastIndexOf('/') + 1);
-            }
-            imageLink = this._convertImageLink(imageLink);
-            return '<a target="_blank" href="' + imageLink + '">' + imageName + '</a>';
-        };
-
-        ImagelinkRenderer.prototype._convertImageLink = function _convertImageLink(imageLink) {
-            var path = '';
-            if (imageLink && typeof imageLink === 'string') {
-                if (imageLink.length > 0 && imageLink.indexOf('/') === -1) {
-                    path = '/Thingworx/MediaEntities/' + encodeURIComponent(imageLink);
-                } else {
-                    if (imageLink.indexOf('http') !== 0) {
-                        imageLink = window.location.origin + imageLink;
-                    }
-                    path = this._sanitize(imageLink);
-                }
-            }
-            return path;
-        };
-
-        ImagelinkRenderer.prototype._sanitize = function _sanitize(html) {
-            return _htmlCssSanitizer2.default.sanitize(html, function (u) {
-                return u;
-            }, function (id) {
-                return id;
-            });
-        };
-
-        ImagelinkRenderer.prototype._getHorizontalTextAlignment = function _getHorizontalTextAlignment() {
-            var textAlignment = '';
-            if (this.params && this.params.textAlignment) {
-                var position = '0%;';
-                if (this.params.textAlignment === 'center') {
-                    position = '50%;';
-                } else if (this.params.textAlignment === 'right') {
-                    position = '100%;';
-                }
-                textAlignment = "background-position-x:" + position;
-            }
-            return textAlignment;
-        };
-
-        return ImagelinkRenderer;
-    }(_defaultRenderer.DefaultRenderer);
-});
-//# sourceMappingURL=../../../maps/grid-advanced/components/renderers/imagelink-renderer.js.map
-
-gaRequire.define('tw-grid-advanced/grid-advanced/components/renderers/integer-renderer',['exports', './number-renderer'], function (exports, _numberRenderer) {
-    'use strict';
-
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
-    exports.IntegerRenderer = undefined;
-
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
-    }
-
-    function _possibleConstructorReturn(self, call) {
-        if (!self) {
-            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        }
-
-        return call && (typeof call === "object" || typeof call === "function") ? call : self;
-    }
-
-    function _inherits(subClass, superClass) {
-        if (typeof superClass !== "function" && superClass !== null) {
-            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-        }
-
-        subClass.prototype = Object.create(superClass && superClass.prototype, {
-            constructor: {
-                value: subClass,
-                enumerable: false,
-                writable: true,
-                configurable: true
-            }
-        });
-        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-    }
-
-    var IntegerRenderer = exports.IntegerRenderer = function (_NumberRenderer) {
-        _inherits(IntegerRenderer, _NumberRenderer);
-
-        function IntegerRenderer(valueFormat, params) {
-            _classCallCheck(this, IntegerRenderer);
-
-            if (valueFormat.indexOf('.') >= 0) {
-                valueFormat = valueFormat.substring(0, valueFormat.indexOf('.'));
-            }
-            return _possibleConstructorReturn(this, _NumberRenderer.call(this, 'integer', valueFormat, params));
-        }
-
-        IntegerRenderer.prototype.toView = function toView(value, imageLink) {
-            return _NumberRenderer.prototype.toView.call(this, value, imageLink);
-        };
-
-        return IntegerRenderer;
-    }(_numberRenderer.NumberRenderer);
-});
-//# sourceMappingURL=../../../maps/grid-advanced/components/renderers/integer-renderer.js.map
-
-gaRequire.define('tw-grid-advanced/grid-advanced/components/renderers/location-renderer',['exports', './number-renderer'], function (exports, _numberRenderer) {
-    'use strict';
-
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
-    exports.LocationRenderer = undefined;
-
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
-    }
-
-    function _possibleConstructorReturn(self, call) {
-        if (!self) {
-            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        }
-
-        return call && (typeof call === "object" || typeof call === "function") ? call : self;
-    }
-
-    function _inherits(subClass, superClass) {
-        if (typeof superClass !== "function" && superClass !== null) {
-            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-        }
-
-        subClass.prototype = Object.create(superClass && superClass.prototype, {
-            constructor: {
-                value: subClass,
-                enumerable: false,
-                writable: true,
-                configurable: true
-            }
-        });
-        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-    }
-
-    var LocationRenderer = exports.LocationRenderer = function (_NumberRenderer) {
-        _inherits(LocationRenderer, _NumberRenderer);
-
-        function LocationRenderer(valueFormat, params) {
-            _classCallCheck(this, LocationRenderer);
-
-            valueFormat = valueFormat && valueFormat.length > 0 && /^[0]{1}\.[0]{0,6}$/.test(valueFormat) ? valueFormat : undefined;
-            return _possibleConstructorReturn(this, _NumberRenderer.call(this, 'location', valueFormat, params));
-        }
-
-        LocationRenderer.prototype.toView = function toView(value, imageLink) {
-            if (value) {
-                if (this._valueFormat) {
-                    var latLng = value.latitude ? _NumberRenderer.prototype._format.call(this, value.latitude, this._valueFormat) : 0;
-                    latLng += value.longitude ? ' : ' + _NumberRenderer.prototype._format.call(this, value.longitude, this._valueFormat) : ' : ' + 0;
-                    latLng += value.elevation && value.elevation !== 0 ? ' : ' + _NumberRenderer.prototype._format.call(this, value.elevation, this._valueFormat) : '';
-                    value = latLng;
-                } else {
-                    var _latLng = value.latitude ? value.latitude : 0;
-                    _latLng += value.longitude ? ' : ' + value.longitude : ' : ' + 0;
-                    _latLng += value.elevation && value.elevation !== 0 ? ' : ' + value.elevation : '';
-                    value = _latLng;
-                }
-            }
-            if (imageLink) {
-                value = value ? '<img style="vertical-align:top" src="' + imageLink + '">&nbsp' + value : '<img style="vertical-align:top" src="' + imageLink + '">';
-            }
-            return value;
-        };
-
-        return LocationRenderer;
-    }(_numberRenderer.NumberRenderer);
-});
-//# sourceMappingURL=../../../maps/grid-advanced/components/renderers/location-renderer.js.map
-
-gaRequire.define('tw-grid-advanced/grid-advanced/components/renderers/long-renderer',['exports', './number-renderer'], function (exports, _numberRenderer) {
-    'use strict';
-
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
-    exports.LongRenderer = undefined;
-
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
-    }
-
-    function _possibleConstructorReturn(self, call) {
-        if (!self) {
-            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        }
-
-        return call && (typeof call === "object" || typeof call === "function") ? call : self;
-    }
-
-    function _inherits(subClass, superClass) {
-        if (typeof superClass !== "function" && superClass !== null) {
-            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-        }
-
-        subClass.prototype = Object.create(superClass && superClass.prototype, {
-            constructor: {
-                value: subClass,
-                enumerable: false,
-                writable: true,
-                configurable: true
-            }
-        });
-        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-    }
-
-    var LongRenderer = exports.LongRenderer = function (_NumberRenderer) {
-        _inherits(LongRenderer, _NumberRenderer);
-
-        function LongRenderer(valueFormat, params) {
-            _classCallCheck(this, LongRenderer);
-
-            if (valueFormat.indexOf('.') >= 0) {
-                valueFormat = valueFormat.substring(0, valueFormat.indexOf('.'));
-            }
-            return _possibleConstructorReturn(this, _NumberRenderer.call(this, 'long', valueFormat, params));
-        }
-
-        LongRenderer.prototype.toView = function toView(value, imageLink) {
-            return _NumberRenderer.prototype.toView.call(this, value, imageLink);
-        };
-
-        return LongRenderer;
-    }(_numberRenderer.NumberRenderer);
-});
-//# sourceMappingURL=../../../maps/grid-advanced/components/renderers/long-renderer.js.map
-
-gaRequire.define('tw-grid-advanced/grid-advanced/components/renderers/number-renderer',['exports', './default-renderer'], function (exports, _defaultRenderer) {
-    'use strict';
-
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
-    exports.NumberRenderer = undefined;
-
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
-    }
-
-    function _possibleConstructorReturn(self, call) {
-        if (!self) {
-            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        }
-
-        return call && (typeof call === "object" || typeof call === "function") ? call : self;
-    }
-
-    function _inherits(subClass, superClass) {
-        if (typeof superClass !== "function" && superClass !== null) {
-            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-        }
-
-        subClass.prototype = Object.create(superClass && superClass.prototype, {
-            constructor: {
-                value: subClass,
-                enumerable: false,
-                writable: true,
-                configurable: true
-            }
-        });
-        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-    }
-
-    var NumberRenderer = exports.NumberRenderer = function (_DefaultRenderer) {
-        _inherits(NumberRenderer, _DefaultRenderer);
-
-        function NumberRenderer(type, valueFormat, params) {
-            _classCallCheck(this, NumberRenderer);
-
-            if (valueFormat !== undefined && valueFormat.length === 0) {
-                valueFormat = '0';
-            }
-            if (params === undefined) {
-                params = {};
-            }
-            if (params.roundingEnabled === undefined) {
-                params['roundingEnabled'] = true;
-            }
-            return _possibleConstructorReturn(this, _DefaultRenderer.call(this, type, valueFormat, params));
-        }
-
-        NumberRenderer.prototype.toView = function toView(value, imageLink) {
-            value = parseFloat(value);
-            value = this._format(value, this._valueFormat);
-            if (imageLink) {
-                value = value ? '<img style="vertical-align:top" src="' + imageLink + '">&nbsp' + value : '<img style="vertical-align:top" src="' + imageLink + '">';
-            }
-            return value;
-        };
-
-        NumberRenderer.prototype._format = function _format(value, format) {
-            if (typeof format !== 'string' || value === undefined) {
-                return '';
-            }
-
-            var hasComma = -1 < format.indexOf(','),
-                psplit = format.replace(/[^0-9.]/g, '').split('.');
-
-            var wasNegative = false;
-            if (value < 0) {
-                wasNegative = true;
-                value = -value;
-            }
-            var index = value.toString().indexOf('.');
-
-            if (1 < psplit.length) {
-                if (this.params && this.params.roundingEnabled) {
-                    value = value.toFixed(psplit[1].length);
-                } else if (index > -1) {
-                    var decimals = value.toString().substring(index + 1, index + 1 + psplit[1].length);
-                    value = parseFloat(value.toString().substring(0, index) + '.' + decimals);
-                }
-            } else if (2 < psplit.length) {
-                throw 'NumberFormatException: invalid format, formats should have no more than 1 period: ' + format;
-            } else {
-                if (this.params && this.params.roundingEnabled) {
-                    value = value.toFixed(0);
-                } else if (index > 0) {
-                    value = parseInt(value.toString().substring(0, index), 10);
-                }
-            }
-
-            var fnum = value.toString();
-
-            if (hasComma) {
-                psplit = fnum.split('.');
-
-                var cnum = psplit[0],
-                    parr = [],
-                    j = cnum.length,
-                    m = Math.floor(j / 3),
-                    n = cnum.length % 3 || 3;
-                for (var i = 0; i < j; i += n) {
-                    if (i !== 0) {
-                        n = 3;
-                    }
-                    parr[parr.length] = cnum.substr(i, n);
-                    m -= 1;
-                }
-
-                fnum = parr.join(',');
-
-                if (psplit[1]) {
-                    fnum += '.' + psplit[1];
-                }
-            }
-
-            var returnedString = format.replace(/[\d,?\.?]+/, fnum);
-
-            if (wasNegative) {
-                returnedString = '-' + returnedString;
-            }
-            return returnedString;
-        };
-
-        return NumberRenderer;
-    }(_defaultRenderer.DefaultRenderer);
-});
-//# sourceMappingURL=../../../maps/grid-advanced/components/renderers/number-renderer.js.map
-
-gaRequire.define('tw-grid-advanced/grid-advanced/components/renderers/string-renderer',['exports', './default-renderer'], function (exports, _defaultRenderer) {
-    'use strict';
-
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
-    exports.StringRenderer = undefined;
-
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
-    }
-
-    function _possibleConstructorReturn(self, call) {
-        if (!self) {
-            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        }
-
-        return call && (typeof call === "object" || typeof call === "function") ? call : self;
-    }
-
-    function _inherits(subClass, superClass) {
-        if (typeof superClass !== "function" && superClass !== null) {
-            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-        }
-
-        subClass.prototype = Object.create(superClass && superClass.prototype, {
-            constructor: {
-                value: subClass,
-                enumerable: false,
-                writable: true,
-                configurable: true
-            }
-        });
-        if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-    }
-
-    var _class, _temp;
-
-    var StringRenderer = exports.StringRenderer = (_temp = _class = function (_DefaultRenderer) {
-        _inherits(StringRenderer, _DefaultRenderer);
-
-        function StringRenderer(valueFormat, params) {
-            _classCallCheck(this, StringRenderer);
-
-            var _this = _possibleConstructorReturn(this, _DefaultRenderer.call(this, 'string', valueFormat, params));
-
-            _this._maxLength = _this._limitLength();
-            return _this;
-        }
-
-        StringRenderer.prototype._limitLength = function _limitLength() {
-            switch (this._valueFormat) {
-                case 'full':
-                    return undefined;
-                case 'notext':
-                    return 0;
-                case 'limit10':
-                case 'limit20':
-                case 'limit40':
-                case 'limit80':
-                case 'limit128':
-                case 'limit256':
-                    return Number(this._valueFormat.substring(5, this._valueFormat.length));
-                default:
-                    return StringRenderer.DEFAULT_MAX_STRING_LENGTH;
-            }
-        };
-
-        StringRenderer.prototype.toView = function toView(value, imageLink) {
-            value = _DefaultRenderer.prototype.toView.call(this, value);
-            var truncateLength = this._maxLength;
-            if (value && value.length > truncateLength) {
-                value = value.substring(0, truncateLength);
-                value += truncateLength > 0 ? '...' : '';
-            }
-            if (imageLink && typeof value === 'string') {
-                value = value ? '<img style="vertical-align:top" src="' + imageLink + '">&nbsp' + value : '<img style="vertical-align:top" src="' + imageLink + '">';
-            }
-            return value;
-        };
-
-        return StringRenderer;
-    }(_defaultRenderer.DefaultRenderer), _class.DEFAULT_MAX_STRING_LENGTH = 40, _temp);
-});
-//# sourceMappingURL=../../../maps/grid-advanced/components/renderers/string-renderer.js.map
+gaRequire.define("tw-grid-advanced/grid-advanced/components/definitions/footer-definition", [],function(){});
