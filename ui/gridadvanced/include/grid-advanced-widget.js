@@ -4844,7 +4844,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                                     var textValue;
                                     if (!value) {
                                         textValue = "";
-                                    } else if (value.match("^<.*>$")) {
+                                    } else if (value.toString().match("^<.*>$")) {
                                         textValue = $(value).text();
                                     } else {
                                         textValue = value.toString();
