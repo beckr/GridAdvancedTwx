@@ -4822,6 +4822,58 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                     this._gridAdvanced.setImagePath(this._imagePath);
                     this._gridAdvanced.setHeader(this._dhtmlxTableData.headers, null, this._createHeaderStyles());
                     this._gridAdvanced.setColumnIds(this._dhtmlxTableData.columnIds);
+                    if(this._cfg.enableTextFiltering && this._dhtmlxTableData.data.rows.length != 0) {
+
+						var globalFilterType = this._cfg.textFilteringType;
+                        var filters = this._gridAdvanced.columnIds.map((value) => {
+                            var t = this._cfg._columnDefinitions.filter((val) => {
+                                return val._fieldName == value;
+                            })[0];
+                            var result = " ";
+                            if (t.headerFilter) {
+                                if (t.headerFilter == "none") {
+                                    result = "#" + globalFilterType;
+                                } else if (t.headerFilter == "noDisplay") {
+                                    result = " ";
+                                } else {
+                                    result = "#" + t.headerFilter;
+                                }
+                            } else {
+                                result = "#" + globalFilterType;
+                            }
+                            return result;
+                        })
+
+                        this._gridAdvanced.attachHeader(filters.join(","));
+                        // var gridInstance = this._gridAdvanced;
+						// this._cfg._columnDefinitions.forEach(function(column, i) {
+                        //     if(gridInstance.getFilterElement(i) && gridInstance.getFilterElement(i).tagName == "INPUT") {
+                        //         gridInstance.getFilterElement(i)._filter = function () {
+                        //             var input = this.value; // gets the text of the filter input and we transform it into regex
+                        //             var inputEscaped = input.replace(/[\-\[\]\/\{\}\(\)\+\?\.\\\^\$\|]/g, "\\$&"); // escape the regex text in the input other that start wildcard
+                        //             var inputRegex = new RegExp("^" + this.value.replace(/\*/gi, "(.*)") + "(.*)", 'i');
+                        //             var currentRow = i;
+                        //             return function(value, id){
+                        //                 var textValue;
+                        //                 if(!value) {
+                        //                     textValue = "";
+                        //                 } else if(value.match("^<.*>$")) {
+                        //                     textValue = $(value).text();
+                        //                 } else {
+                        //                     textValue = value.toString();
+                        //                 }
+                        //                 // checks if the value of a cell has the text from the filter
+                        //                 if (textValue.match(inputRegex)){
+                        //                     return true;
+                        //                 } else {
+                        //                     return false;
+                        //                 }
+                        //             }
+	    				// 	    }
+                        //     }
+
+						// });
+                    }
                     if(this._cfg.enableBlockSelection) {
                         this._gridAdvanced.enableBlockSelection();
                         var self = this;
@@ -4875,106 +4927,6 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                     this._selectedRows = this._selectionHandler.selectedRows;
                     this._setDefaultRowSelections();
                     this._resetSearch();
-                    var self = this;
-                    if(this._cfg.showTotalRow) {
-                        var emptyFooter = this._cfg._columnDefinitions.slice(0, -2).map(function() {return "#cspan";}).join(",");                        
-                        this._gridAdvanced.attachFooter('#stat_count,Row Count,' + emptyFooter);                        
-                    }
-
-					if(this._cfg.enableTextFiltering && this._dhtmlxTableData.data.rows.length != 0) {
-
-						var globalFilterType = this._cfg.textFilteringType;
-                        var filters = this._cfg._columnDefinitions.map(function (t) {
-                            var result = " ";
-                            if (t.headerFilter) {
-                                if (t.headerFilter == "none") {
-                                    result = "#" + globalFilterType;
-                                } else if (t.headerFilter == "noDisplay") {
-                                    result = " ";
-                                } else {
-                                    result = "#" + t.headerFilter;
-                                }
-                            } else {
-                                result = "#" + globalFilterType;
-                            }
-                            return result;
-                        });
-                        var filtersOrdered = [];
-                        for(var i = 0;i<this._cfg._columnDefinitions.length;i++) {
-                            filtersOrdered[this._gridAdvanced.getColIndexById(this._cfg._columnDefinitions[i]._fieldName)] = filters[i];
-                        }
-                        this._gridAdvanced.attachHeader(filtersOrdered.join(","));
-                        /*
-                        this._gridAdvanced.filterByAll = function() {
-                            var d = [];
-                            var c = [];
-                            this._build_m_order();
-                            for (var e = 0; e < this.filters.length; e++) {
-                                var g = this.filters[e][1];
-                                if (g >= this._cCount) {
-                                    continue
-                                }
-                                c.push(g);
-                                var h = this.filters[e][0].old_value = this.filters[e][0].value;
-                                if (this.filters[e][0]._filter) {
-                                    h = this.filters[e][0]._filter()
-                                }
-                                var f;
-                                if (typeof h != "function" && (f = (this.combos[g] || ((this._col_combos && this._col_combos[g]) ? this._col_combos[g] : ((this._sub_trees && this._sub_trees[g]) ? this._sub_trees[g][1] : false))))) {
-                                    if (f.values) {
-                                        g = f.values._dhx_find(h);
-                                        h = (g == -1) ? h : f.keys[g]
-                                    } else {
-                                        if (f.getOptionByLabel) {
-                                            h = (f.getOptionByLabel(h) ? f.getOptionByLabel(h).value : h)
-                                        } else {
-                                            h = f[h]
-                                        }
-                                    }
-                                }
-                                d.push(h)
-                            }
-                            if (!this.callEvent("onFilterStart", [c, d])) {
-                                return
-                            }
-                            this.filterBy(c, d);
-                            if (this._cssEven) {
-                                this._fixAlterCss()
-                            }
-                            this.callEvent("onFilterEnd", [this.filters]);
-                            if (this._f_rowsBuffer && this.rowsBuffer.length == this._f_rowsBuffer.length) {
-                                this._f_rowsBuffer = null
-                            }
-                        }*/
-                        var gridInstance = this._gridAdvanced;
-						// this._cfg._columnDefinitions.forEach(function(column, i) {
-                        //     if(gridInstance.getFilterElement(i) && gridInstance.getFilterElement(i).tagName == "INPUT") {
-                        //         gridInstance.getFilterElement(i)._filter = function () {
-                        //             var input = this.value; // gets the text of the filter input and we transform it into regex
-                        //             var inputEscaped = input.replace(/[\-\[\]\/\{\}\(\)\+\?\.\\\^\$\|]/g, "\\$&"); // escape the regex text in the input other that start wildcard
-                        //             var inputRegex = new RegExp("^" + this.value.replace(/\*/gi, "(.*)") + "(.*)", 'i');
-                        //             var currentRow = i;
-                        //             return function(value, id){
-                        //                 var textValue;
-                        //                 if(!value) {
-                        //                     textValue = "";
-                        //                 } else if(value.match("^<.*>$")) {
-                        //                     textValue = $(value).text();
-                        //                 } else {
-                        //                     textValue = value.toString();
-                        //                 }
-                        //                 // checks if the value of a cell has the text from the filter 
-                        //                 if (textValue.match(inputRegex)){ 
-                        //                     return true;
-                        //                 } else {
-                        //                     return false; 
-                        //                 }
-                        //             }
-	    				// 	    }
-                        //     }
-
-						// });
-                    }
 
                     this._performanceMonitor.endTime('_configureTable');
                 } catch (e) {
