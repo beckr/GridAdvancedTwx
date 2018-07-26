@@ -254,11 +254,12 @@ TW.IDE.Widgets.treegridadvanced = function () {
 					'baseType': 'STRING',
 					'description': "The type of filtering to use",
 					'default_value': 'text_filter',
-					'selectOptions': [
-					{'value': 'text_filter', text: 'Text Filter'},
-					{'value': 'select_filter', text: 'Select Filter'},
-					{'value': 'combo_filter', text: 'Combo Filter'},
-					{'value': 'text_search', text: 'Text Search'}
+                    'selectOptions': [
+                        {'value': 'text_filter', text: 'Text Filter'},
+                        {'value': 'text_wildcard_filter', text: 'Text Wildcard filter'},
+                        {'value': 'select_filter', text: 'Select Filter'},
+                        {'value': 'combo_filter', text: 'Combo Filter'},
+                        {'value': 'numeric_filter', text: 'Numeric filter'}
 					]
 				},
                 'EnableFooter': {

@@ -4823,7 +4823,42 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                     this._gridAdvanced.setHeader(this._dhtmlxTableData.headers, null, this._createHeaderStyles());
                     this._gridAdvanced.setColumnIds(this._dhtmlxTableData.columnIds);
                     if(this._cfg.enableTextFiltering && this._dhtmlxTableData.data.rows.length != 0) {
+                        this._gridAdvanced._in_header_text_wildcard_filter = function (b, a) {
+                            b.innerHTML = "<input type='text'>";
+                            b.onclick = b.onmousedown = function(c) {
+                                (c || event).cancelBubble = true;
+                                return true;
+                            }
+                            ;
+                            b.onselectstart = function() {
+                                return (event.cancelBubble = true);
+                            }
+                            ;
+                            this.makeFilter(b.firstChild, a);
 
+                            b.firstChild._filter = function () {
+                                var input = this.value; // gets the text of the filter input and we transform it into regex
+                                var inputEscaped = input.replace(/[\-\[\]\/\{\}\(\)\+\?\.\\\^\$\|]/g, "\\$&"); // escape the regex text in the input other that start wildcard
+                                var inputRegex = new RegExp("^" + this.value.replace(/\*/gi, "(.*)") + "(.*)", 'i');
+                                return function (value, id) {
+                                    var textValue;
+                                    if (!value) {
+                                        textValue = "";
+                                    } else if (value.match("^<.*>$")) {
+                                        textValue = $(value).text();
+                                    } else {
+                                        textValue = value.toString();
+                                    }
+                                    // checks if the value of a cell has the text from the filter
+                                    if (textValue.match(inputRegex)) {
+                                        return true;
+                                    } else {
+                                        return false;
+                                    }
+                                }
+                            }
+
+                        }
 						var globalFilterType = this._cfg.textFilteringType;
                         var filters = this._gridAdvanced.columnIds.map((value) => {
                             var t = this._cfg._columnDefinitions.filter((val) => {
@@ -4845,34 +4880,6 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
                         })
 
                         this._gridAdvanced.attachHeader(filters.join(","));
-                        // var gridInstance = this._gridAdvanced;
-						// this._cfg._columnDefinitions.forEach(function(column, i) {
-                        //     if(gridInstance.getFilterElement(i) && gridInstance.getFilterElement(i).tagName == "INPUT") {
-                        //         gridInstance.getFilterElement(i)._filter = function () {
-                        //             var input = this.value; // gets the text of the filter input and we transform it into regex
-                        //             var inputEscaped = input.replace(/[\-\[\]\/\{\}\(\)\+\?\.\\\^\$\|]/g, "\\$&"); // escape the regex text in the input other that start wildcard
-                        //             var inputRegex = new RegExp("^" + this.value.replace(/\*/gi, "(.*)") + "(.*)", 'i');
-                        //             var currentRow = i;
-                        //             return function(value, id){
-                        //                 var textValue;
-                        //                 if(!value) {
-                        //                     textValue = "";
-                        //                 } else if(value.match("^<.*>$")) {
-                        //                     textValue = $(value).text();
-                        //                 } else {
-                        //                     textValue = value.toString();
-                        //                 }
-                        //                 // checks if the value of a cell has the text from the filter
-                        //                 if (textValue.match(inputRegex)){
-                        //                     return true;
-                        //                 } else {
-                        //                     return false;
-                        //                 }
-                        //             }
-	    				// 	    }
-                        //     }
-
-						// });
                     }
                     if(this._cfg.enableBlockSelection) {
                         this._gridAdvanced.enableBlockSelection();
