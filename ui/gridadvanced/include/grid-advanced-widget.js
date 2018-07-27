@@ -6179,10 +6179,14 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
 
             this._gridAdvanced.attachEvent('onBeforeSorting', function (index, type, direction) {
                 if (_this19._cfg.enableColumnSorting) {
-                    _this19._columnSortHandler.handleColumnSortEvent(index, type, direction);
-                    _this19._queryData();
-                    _this19._applyDefaultRowSelections = false;
-                    _this19._executeSelectedRowCallback = false;
+                    if (!_this19._cfg.clientSideSorting) {
+                        _this19._columnSortHandler.handleColumnSortEvent(index, type, direction);
+                        _this19._queryData();
+                        _this19._applyDefaultRowSelections = false;
+                        _this19._executeSelectedRowCallback = false;
+                    } else {
+                        return true;
+                    }
                 }
                 return false;
             });
