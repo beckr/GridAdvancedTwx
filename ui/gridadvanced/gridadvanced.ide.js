@@ -206,55 +206,55 @@ TW.IDE.Widgets.gridadvanced = function () {
                     'baseType':'STRING',
                     'selectOptions': locationOptions.slice()
                 },
-                // 'ClientPagination': {
-                //     'description': 'enable client pagination to speed browser performance',
-                //     'defaultValue': true,
-                //     'baseType': 'BOOLEAN'
-                // },
-                // 'RowsPerPage': {
-                //     'description': 'Max rows displayed in table at one time.',
-                //     'defaultValue': 25,
-                //     'baseType': 'NUMBER',
-                //     'selectOptions': [
-                //         { value: 5,  text: 5 },
-                //         { value: 10, text: 10 },
-                //         { value: 25, text: 25 },
-                //         { value: 50, text: 50 },
-                //         { value: 100, text: 100 }
-                //     ]
-                // },
-                // 'PaginationControls':{
-                //     'description':'User Interface Control Options',
-                //     'defaultValue': 'numbers',
-                //     'baseType':'STRING',
-                //     'selectOptions':[
-                //         {value: 'simple',text:'first, previous, next, last'},
-                //         {value: 'simple_numbers',text:'first, previous, totals, next, last'},
-                //         {value: 'full_numbers',text:'first, previous, totals, next, last, page numbers'},
-                //         {value: 'full',text:'first, previous, totals, next, last, page numbers, rows per page'}
-                //     ]
-                // },
-                // 'PaginationButtons': {
-                //     'description': 'Maximum number of page buttons to show.',
-                //     'selectOptions': [
-                //         { value: 2, text: 2 },
-                //         { value: 3, text: 3 },
-                //         { value: 4, text: 4 },
-                //         { value: 5, text: 5 },
-                //         { value: 6, text: 6 },
-                //         { value: 7, text: 7 },
-                //         { value: 8, text: 8 },
-                //         { value: 9, text: 9 },
-                //         { value: 10, text: 10 }
-                //     ],
-                //     'baseType': 'NUMBER'
-                // },
-                // 'PaginationLocation':{
-                //     'description':'User Interface Control Location Relative to Grid',
-                //     'defaultValue': 'bottom-left',
-                //     'baseType':'STRING',
-                //     'selectOptions':locationOptions.slice()
-                // },
+                'ClientPagination': {
+                    'description': 'enable client pagination to speed browser performance',
+                    'defaultValue': true,
+                    'baseType': 'BOOLEAN'
+                },
+                'RowsPerPage': {
+                    'description': 'Max rows displayed in table at one time.',
+                    'defaultValue': 25,
+                    'baseType': 'NUMBER',
+                    'selectOptions': [
+                        { value: 5,  text: 5 },
+                        { value: 10, text: 10 },
+                        { value: 25, text: 25 },
+                        { value: 50, text: 50 },
+                        { value: 100, text: 100 }
+                    ]
+                },
+                'PaginationControls':{
+                    'description':'User Interface Control Options',
+                    'defaultValue': 'numbers',
+                    'baseType':'STRING',
+                    'selectOptions':[
+                        {value: 'simple',text:'first, previous, next, last'},
+                        {value: 'simple_numbers',text:'first, previous, totals, next, last'},
+                        {value: 'full_numbers',text:'first, previous, totals, next, last, page numbers'},
+                        {value: 'full',text:'first, previous, totals, next, last, page numbers, rows per page'}
+                    ]
+                },
+                'PaginationButtons': {
+                    'description': 'Maximum number of page buttons to show.',
+                    'selectOptions': [
+                        { value: 2, text: 2 },
+                        { value: 3, text: 3 },
+                        { value: 4, text: 4 },
+                        { value: 5, text: 5 },
+                        { value: 6, text: 6 },
+                        { value: 7, text: 7 },
+                        { value: 8, text: 8 },
+                        { value: 9, text: 9 },
+                        { value: 10, text: 10 }
+                    ],
+                    'baseType': 'NUMBER'
+                },
+                'PaginationLocation':{
+                    'description':'User Interface Control Location Relative to Grid',
+                    'defaultValue': 'bottom-left',
+                    'baseType':'STRING',
+                    'selectOptions':locationOptions.slice()
+                },
                 'Width': {
                     'defaultValue': 400,
                     'description': TW.IDE.I18NController.translate('tw.label-ide.properties.width.description')
@@ -328,21 +328,21 @@ TW.IDE.Widgets.gridadvanced = function () {
                     'description': TW.IDE.I18NController.translate('tw.grid-advanced-ide.properties.table-footer-style.description', 'Footer style')
                 },
 
-                // 'PaginationButtonStyle': {
-                //     'baseType': 'STYLEDEFINITION',
-                //     'defaultValue': 'DefaultPaginationButtonStyle',
-                //     'description': TW.IDE.I18NController.translate('tw.dhxgrid-ide.properties.row-selected-style.description')
-                // },
-                // 'PaginationHoverStyle': {
-                //     'baseType': 'STYLEDEFINITION',
-                //     'defaultValue': 'DefaultPaginationHoverStyle',
-                //     'description': TW.IDE.I18NController.translate('tw.dhxgrid-ide.properties.row-hover-style.description')
-                // },
-                // 'PaginationSelectedStyle': {
-                //     'baseType': 'STYLEDEFINITION',
-                //     'defaultValue': 'DefaultPaginationSelectedStyle',
-                //     'description': TW.IDE.I18NController.translate('tw.dhxgrid-ide.properties.row-hover-style.description')
-                // },
+                'PaginationButtonStyle': {
+                    'baseType': 'STYLEDEFINITION',
+                    'defaultValue': 'DefaultPaginationButtonStyle',
+                    'description': TW.IDE.I18NController.translate('tw.dhxgrid-ide.properties.row-selected-style.description')
+                },
+                'PaginationHoverStyle': {
+                    'baseType': 'STYLEDEFINITION',
+                    'defaultValue': 'DefaultPaginationHoverStyle',
+                    'description': TW.IDE.I18NController.translate('tw.dhxgrid-ide.properties.row-hover-style.description')
+                },
+                'PaginationSelectedStyle': {
+                    'baseType': 'STYLEDEFINITION',
+                    'defaultValue': 'DefaultPaginationSelectedStyle',
+                    'description': TW.IDE.I18NController.translate('tw.dhxgrid-ide.properties.row-hover-style.description')
+                },
                 'TooltipStyle': {
                     'baseType': 'STYLEDEFINITION',
                     'defaultValue': 'DefaultTooltipStyle',

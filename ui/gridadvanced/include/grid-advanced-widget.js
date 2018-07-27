@@ -2622,6 +2622,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/grid-style-handler',['exports',
                             var resetLocation = '';
                             var searchLocation = '';
                             var editButtonsLocation = '';
+                            var paginationLocation = '';
 
                             if (_this._cfg.resetButton && _this._cfg.resetButton.enabled) {
                                 resetLocation = _this._cfg.resetButton.location;
@@ -2633,13 +2634,16 @@ gaRequire.define('tw-grid-advanced/grid-advanced/grid-style-handler',['exports',
                                 editButtonsLocation = _this._cfg.editButtons.location;
                             }
 
-                            if (resetLocation.indexOf('top') >= 0 || searchLocation.indexOf('top') >= 0 || editButtonsLocation.indexOf('top') >= 0) {
+                            if(_this._cfg.paginationSettings && _this._cfg.paginationSettings._enabled) {
+                                paginationLocation = _this._cfg.paginationSettings.pageLocation.split("-")[0];
+                            }
+                            if (paginationLocation.indexOf('top') >= 0 || resetLocation.indexOf('top') >= 0 || searchLocation.indexOf('top') >= 0 || editButtonsLocation.indexOf('top') >= 0) {
                                 styleRules += idSelector + '-top-container {' + backgroundStyle + borderStyle + fontStyle + '}';
                             } else {
                                 styleRules += idSelector + '-top-container { display: none; }';
                             }
 
-                            if (resetLocation.indexOf('bottom') >= 0 || searchLocation.indexOf('bottom') >= 0 || editButtonsLocation.indexOf('bottom') >= 0) {
+                            if (paginationLocation.indexOf('bottom') >= 0 || resetLocation.indexOf('bottom') >= 0 || searchLocation.indexOf('bottom') >= 0 || editButtonsLocation.indexOf('bottom') >= 0 ) {
                                 styleRules += idSelector + '-bottom-container {' + backgroundStyle + borderStyle + fontStyle + '}';
                             } else {
                                 styleRules += idSelector + '-bottom-container { display: none; }';
@@ -3816,7 +3820,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/pagination-settings',['exports'
       this._enabled = enabled !== undefined ? enabled : true;
       this._pageLength = pageLength !== undefined ? pageLength : 10;
       this._pagingType = pagingType !== undefined ? pagingType : 'simple_numbers';
-      this._pageLocation = pageLocation !== undefined ? pageLocation : 'below';
+      this._pageLocation = pageLocation !== undefined ? pageLocation : 'bottom-right';
       this._totalPageButtons = totalPageButtons >= 0 ? totalPageButtons : 5;
       this._totalPageButtons = this._totalPageButtons > 10 ? 10 : this._totalPageButtons;
     }
@@ -4993,7 +4997,7 @@ gaRequire.define('tw-grid-advanced/grid-advanced/tw-grid-advanced',['exports', '
             if (this._updatedCfg) {
                 this._cfg = this._updatedCfg;
 
-                this._cfg.paginationSettings.enabled = this._mockMode ? this._cfg.paginationSettings.enabled : false;
+                //this._cfg.paginationSettings.enabled = this._mockMode ? this._cfg.paginationSettings.enabled : false;
                 this._editMode = this._cfg.cellEditingEnabled;
                 this._updatedCfg = undefined;
                 this._updateData = this._updatedData !== undefined;
